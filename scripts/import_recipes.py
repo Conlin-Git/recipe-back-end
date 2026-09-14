@@ -6,6 +6,7 @@
     .venv/bin/python scripts/import_recipes.py --fresh        # 清空 Milvus 集合和 Neo4j 菜谱数据后重新导入
 
 设计：
+- 主键用 Excel 的 id 列（全表唯一），Milvus 的 id 和 Neo4j 的 Recipe.cid 都是它
 - Embedding 走硅基流动 OpenAI 兼容接口，批量 + 多线程并发，保证速度
 - Milvus 用 upsert、Neo4j 用 MERGE，重复执行不会产生脏数据
 - Neo4j 中从 yl（原料）列解析食材，建 Ingredient 节点和 HAS_INGREDIENT 关系
@@ -17,7 +18,6 @@ import re
 import sys
 import threading
 import time
-import zlib
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import pandas as pd
@@ -49,14 +49,6 @@ NEO4J_PROP_COLUMNS = ["zid", "title", "thumb", "videourl", "desc", "difficulty",
 
 TEXT_LABELS = {"title": "菜名", "desc": "简介", "difficulty": "难度", "costtime": "耗时",
                "tip": "小贴士", "yl": "原料", "fl": "辅料", "steptext": "步骤"}
-
-
-def to_cid(value) -> int:
-    """cid 转 int，转不了就用 crc32 兜底，保证主键是 int64"""
-    try:
-        return int(value)
-    except (ValueError, TypeError):
-        return zlib.crc32(str(value).encode("utf-8"))
 
 
 def clean_str(value) -> str:
@@ -230,12 +222,15 @@ def main():
     df = df[df["title"].notna() & (df["title"].astype(str).str.strip() != "")]
     if args.limit > 0:
         df = df.head(args.limit)
+    # 主键用 id 列（int64 全表唯一）。不能用 cid 列：它是分类标签文本，
+    # 大量行内容重复，曾导致 crc32 兜底主键互相覆盖丢数据
+    assert df["id"].is_unique, "recipes.xlsx 的 id 列存在重复值，不能作为主键"
     print(f"✅ 本次导入 {len(df)} 条菜谱")
 
     # ---------- 准备数据 ----------
     milvus_rows, neo4j_rows, embed_inputs = [], [], []
     for _, row in df.iterrows():
-        cid = to_cid(row["cid"])
+        cid = int(row["id"])
         embed_inputs.append({"cid": cid, "text": build_embed_text(row)})
         favnum = row["favnum"]
         milvus_rows.append({
