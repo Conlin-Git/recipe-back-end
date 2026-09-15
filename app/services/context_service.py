@@ -7,6 +7,11 @@
 - MySQL 持久层：
     messages 表全量消息、conversations.summary 摘要（Redis 丢失时可恢复）
 
+分层加载（配合编排 agent 的追问判断，控制发给 LLM 的 token）：
+- load_summary：摘要始终加载（体积小，编排分类和回答都要用）
+- load_window：完整滑窗按需加载——追问且摘要足够时不进 prompt，
+  摘要不足/全新查询时才由问答 agent 带上
+
 压缩机制：窗口外最早的一轮（一问一答）滑出时，由调用方用 LLM 把
 「旧摘要 + 滑出消息」压缩成新摘要（见 chat_service.compress_context）。
 
@@ -57,6 +62,36 @@ def shape_context(ctx: list[dict]) -> list[dict]:
     return shaped
 
 
+# append_turn 的原子实现：读窗口 → 追加一问一答 → 裁剪溢出 → 写回 + 续 TTL，
+# 整个读-改-写在 Redis 内一次执行完，同一会话并发追加不会互相覆盖丢消息。
+# ARGV: [user_msg_json, assistant_msg_json, max_msgs, ttl_seconds]
+_APPEND_TURN_LUA = """
+local raw = redis.call('GET', KEYS[1])
+local ctx = {}
+if raw then
+    ctx = cjson.decode(raw)
+end
+table.insert(ctx, cjson.decode(ARGV[1]))
+table.insert(ctx, cjson.decode(ARGV[2]))
+local max = tonumber(ARGV[3])
+local overflow = {}
+while #ctx > max do
+    table.insert(overflow, table.remove(ctx, 1))
+end
+local encoded = '[]'
+if #ctx > 0 then
+    encoded = cjson.encode(ctx)
+end
+redis.call('SET', KEYS[1], encoded, 'EX', tonumber(ARGV[4]))
+if #overflow == 0 then
+    return '[]'
+end
+return cjson.encode(overflow)
+"""
+
+_append_turn_script = redis_client.register_script(_APPEND_TURN_LUA)
+
+
 def _ctx_key(conversation_id: int) -> str:
     return f"chat:ctx:{conversation_id}"
 
@@ -65,46 +100,50 @@ def _summary_key(conversation_id: int) -> str:
     return f"chat:summary:{conversation_id}"
 
 
-async def get_context(db: AsyncSession, conv: Conversation) -> tuple[list[dict], str]:
-    """读取会话上下文，返回 (最近N轮消息, 滚动摘要)。Redis miss 时从 MySQL 恢复并回填。"""
-    ctx_raw = await redis_client.get(_ctx_key(conv.id))
-    summary = await redis_client.get(_summary_key(conv.id))
+async def load_summary(conversation_id: int, db_hint: str = "") -> str:
+    """读取滚动摘要。Redis miss 时用 MySQL 里的摘要（db_hint）恢复并回填。"""
+    summary = await redis_client.get(_summary_key(conversation_id))
+    if summary is None:
+        summary = db_hint
+        if summary:
+            await _set_summary(conversation_id, summary)
+    return summary
 
+
+async def load_window(db: AsyncSession, conversation_id: int) -> list[dict]:
+    """读取最近N轮滑窗消息（P1 整形后）。Redis miss 时从 MySQL 恢复并回填。"""
+    ctx_raw = await redis_client.get(_ctx_key(conversation_id))
     if ctx_raw is None:
-        messages = await conv_crud.list_recent_messages(db, conv.id, MAX_MSGS)
+        messages = await conv_crud.list_recent_messages(db, conversation_id, MAX_MSGS)
         # MySQL 里是原文，恢复进热上下文时同样过一遍 P0 清洗
         ctx = [{"role": m.role,
                 "content": clean_for_context(m.content) if m.role == "assistant" else m.content}
                for m in messages]
-        await _set_ctx(conv.id, ctx)
+        await _set_ctx(conversation_id, ctx)
     else:
         ctx = json.loads(ctx_raw)
-
-    if summary is None:
-        summary = conv.summary or ""
-        if summary:
-            await _set_summary(conv.id, summary)
-
-    return shape_context(ctx), summary
+    return shape_context(ctx)
 
 
 async def append_turn(
     db: AsyncSession, conv: Conversation, question: str, answer: str
 ) -> list[dict]:
-    """把新的一问一答写入上下文，返回窗口内的消息列表（供调用方判断是否需要压缩）。"""
-    ctx_raw = await redis_client.get(_ctx_key(conv.id))
-    ctx = json.loads(ctx_raw) if ctx_raw else []
-    ctx.append({"role": "user", "content": question})
+    """把新的一问一答写入上下文，返回溢出窗口的消息列表（供调用方判断是否需要压缩）。
+
+    通过 Lua 脚本原子完成（见 _APPEND_TURN_LUA），同一会话并发调用只会
+    影响追加顺序，不会丢失轮次。
+    """
+    user_msg = json.dumps({"role": "user", "content": question}, ensure_ascii=False)
     # P0：assistant 消息瘦身后再进热上下文（MySQL 已由调用方存了原文）
-    ctx.append({"role": "assistant", "content": clean_for_context(answer)})
-
-    overflow: list[dict] = []
-    if len(ctx) > MAX_MSGS:
-        overflow = ctx[: len(ctx) - MAX_MSGS]
-        ctx = ctx[len(ctx) - MAX_MSGS:]
-
-    await _set_ctx(conv.id, ctx)
-    return overflow
+    assistant_msg = json.dumps(
+        {"role": "assistant", "content": clean_for_context(answer)},
+        ensure_ascii=False,
+    )
+    overflow_raw = await _append_turn_script(
+        keys=[_ctx_key(conv.id)],
+        args=[user_msg, assistant_msg, MAX_MSGS, settings.CHAT_CONTEXT_TTL_SECONDS],
+    )
+    return json.loads(overflow_raw)
 
 
 async def save_summary(db: AsyncSession, conv: Conversation, summary: str) -> None:
@@ -115,8 +154,11 @@ async def save_summary(db: AsyncSession, conv: Conversation, summary: str) -> No
 
 
 async def clear_context(conversation_id: int) -> None:
-    """删除会话时清理缓存。"""
+    """删除会话时清理缓存（热上下文 + 摘要 + 菜谱片段缓存）。"""
+    from app.services import recipe_cache_service
+
     await redis_client.delete(_ctx_key(conversation_id), _summary_key(conversation_id))
+    await recipe_cache_service.clear_cache(conversation_id)
 
 
 async def _set_ctx(conversation_id: int, ctx: list[dict]) -> None:

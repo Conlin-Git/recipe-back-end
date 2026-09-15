@@ -8,10 +8,18 @@ class Settings(BaseSettings):
     APP_HOST: str = "0.0.0.0"
     APP_PORT: int = 8000
 
-    # JWT
+    # CORS：允许跨域调用的前端域名，逗号分隔。生产环境改成正式前端域名
+    # （allow_origins=["*"] 配 allow_credentials=True 会回显任意 Origin，等于无跨域防护）
+    CORS_ORIGINS: str = "http://localhost:5173,http://127.0.0.1:5173"
+
+    @property
+    def CORS_ORIGIN_LIST(self) -> list[str]:
+        return [o.strip() for o in self.CORS_ORIGINS.split(",") if o.strip()]
+
+    # JWT（1 天有效期 + Redis 吊销列表，登出即失效）
     JWT_SECRET_KEY: str
     JWT_ALGORITHM: str = "HS256"
-    JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 10080
+    JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
 
     # 对话大模型：火山引擎方舟（资源包 Key，BASE_URL 须带 /api/plan/v3）
     DOUBAO_API_KEY: str = ""
@@ -88,6 +96,10 @@ class Settings(BaseSettings):
     REDIS_DB: int = 0
     REDIS_PASSWORD: str = ""
 
+    # 对话防护（成本攻击）
+    CHAT_MESSAGE_MAX_LENGTH: int = 4000   # 单条消息长度上限，防超长输入刷 token 费用
+    CHAT_RATE_LIMIT_PER_MINUTE: int = 20  # 每用户每分钟对话请求上限（每次对话触发多路 LLM 调用）
+
     # 对话上下文
     CHAT_CONTEXT_ROUNDS: int = 5          # Redis 热上下文存储窗口：保留最近几轮原文
     CHAT_CONTEXT_TTL_SECONDS: int = 7 * 24 * 3600  # 热上下文缓存 7 天
@@ -100,6 +112,11 @@ class Settings(BaseSettings):
     LANGSMITH_TRACING: bool = False
     LANGSMITH_API_KEY: str = ""
     LANGSMITH_PROJECT: str = "recipe-agent"
+
+    # 多 Agent 编排
+    # 情感分析 agent：用硅基流动免费小模型，与编排分类并行跑，只调回复语气
+    SENTIMENT_LLM_MODEL: str = "Qwen/Qwen2.5-7B-Instruct"
+    RECIPE_CACHE_MAX_ITEMS: int = 3       # 单会话 Redis 菜谱缓存条数上限（追问复用，省重复检索）
 
     # RAG 检索
     RAG_TOP_K: int = 1                    # 重排后最终保留的菜谱数

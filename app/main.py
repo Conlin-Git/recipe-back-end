@@ -10,14 +10,14 @@ from app.database.mysql import engine
 
 app = FastAPI(
     title="菜谱对话机器人API",
-    description="基于LangGraph + MySQL + Milvus的菜谱智能助手",
+    description="LangGraph 多 Agent 编排（编排/情感/菜谱/开发/闲聊）+ Redis 分层上下文 + Milvus RAG 的菜谱智能助手",
     version="1.0.0",
 )
 
-# 跨域配置（开发用，生产改成前端域名）
+# 跨域配置：只允许白名单前端域名（生产在 .env 配 CORS_ORIGINS 改成正式域名）
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.CORS_ORIGIN_LIST,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -70,13 +70,14 @@ async def startup_event():
 async def health_check():
     result = {"status": "ok", "services": {}}
 
-    # MySQL状态
+    # MySQL状态（错误细节只进服务端日志，不外泄连接信息）
     try:
         async with engine.connect() as conn:
             await conn.execute(text("SELECT 1"))
         result["services"]["mysql"] = "ok"
     except Exception as e:
-        result["services"]["mysql"] = f"fail: {str(e)}"
+        print(f"❌ /health MySQL 检查失败：{e}")
+        result["services"]["mysql"] = "fail"
 
     # Milvus状态
     try:
@@ -84,7 +85,8 @@ async def health_check():
         milvus_client.list_collections()
         result["services"]["milvus"] = "ok"
     except Exception as e:
-        result["services"]["milvus"] = f"fail: {str(e)}"
+        print(f"❌ /health Milvus 检查失败：{e}")
+        result["services"]["milvus"] = "fail"
 
     # Neo4j状态
     try:
@@ -93,8 +95,9 @@ async def health_check():
             neo4j_graph.query("RETURN 1")
             result["services"]["neo4j"] = "ok"
         else:
-            result["services"]["neo4j"] = "fail: not initialized"
+            result["services"]["neo4j"] = "fail"
     except Exception as e:
-        result["services"]["neo4j"] = f"fail: {str(e)}"
+        print(f"❌ /health Neo4j 检查失败：{e}")
+        result["services"]["neo4j"] = "fail"
 
     return result

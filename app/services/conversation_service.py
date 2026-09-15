@@ -5,7 +5,7 @@ from app.core.exceptions import BusinessException
 from app.crud import conversation as conv_crud
 from app.models.conversation import Conversation
 from app.models.message import Message
-from app.services import context_service
+from app.services import context_service, stream_service
 
 
 async def create(db: AsyncSession, user_id: int, title: str = "新对话") -> Conversation:
@@ -29,5 +29,6 @@ async def delete(db: AsyncSession, user_id: int, conversation_id: int) -> None:
         raise BusinessException(404, "会话不存在")
     await db.delete(conv)
     await db.commit()
-    # 清理 Redis 热上下文
+    # 取消进行中的生成任务 + 清理流缓冲和热上下文
+    await stream_service.cancel(conversation_id)
     await context_service.clear_context(conversation_id)
