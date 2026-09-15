@@ -2,14 +2,20 @@ from fastapi import APIRouter, Depends, Header, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_user, get_db
-from app.core import security
+from app.core import passwd_crypto, security
 from app.core.exceptions import BusinessException
 from app.models.user import User
-from app.schemas.auth import LoginIn, RegisterIn, TokenOut
+from app.schemas.auth import LoginIn, PublicKeyOut, RegisterIn, TokenOut
 from app.schemas.user import UserOut
 from app.services import auth_service
 
 router = APIRouter(prefix="/auth", tags=["auth"])
+
+
+@router.get("/public-key", response_model=PublicKeyOut)
+async def public_key():
+    """下发 RSA 公钥，前端用它加密登录/注册密码（密文传输，服务端私钥解密）。"""
+    return PublicKeyOut(public_key=passwd_crypto.public_key_pem())
 
 
 @router.post("/register", response_model=UserOut, status_code=201)

@@ -21,6 +21,10 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str = "HS256"
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
 
+    # 登录/注册密码传输加密（RSA-OAEP）：PEM 私钥，换行用 \n 转义
+    # 生成：openssl genrsa 2048。留空则启动时生成临时密钥（仅开发用）
+    RSA_PRIVATE_KEY: str = ""
+
     # 对话大模型：火山引擎方舟（资源包 Key，BASE_URL 须带 /api/plan/v3）
     DOUBAO_API_KEY: str = ""
     DOUBAO_BASE_URL: str = ""
