@@ -65,8 +65,9 @@ def parse_steps(steptext: str, steppic: str) -> list[dict]:
         t = re.sub(r"^\s*\d+\s*[.、]?\s*▲?\s*", "", chunk).strip()
         if t:
             texts.append(t)
-    # 去掉 URL 里的 200_ 缩略图前缀，取原图（加载失败时前端会回退缩略图）
-    pics = [u.replace("/200_", "/")
+    # 去掉 URL 里的 200_ 缩略图前缀取原图（加载失败前端回退缩略图），
+    # 并改走后端图片代理：原始 http 外链在 https 站点会被混合内容拦截
+    pics = ["/api/v1/image-proxy/" + re.sub(r"^https?://", "", u).replace("/200_", "/")
             for u in (s.strip() for s in (steppic or "").split("#"))
             if u.startswith("http")]
     return [

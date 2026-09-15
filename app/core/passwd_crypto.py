@@ -27,7 +27,10 @@ _OAEP = padding.OAEP(
 
 def _load_private_key() -> rsa.RSAPrivateKey:
     if settings.RSA_PRIVATE_KEY:
-        pem = settings.RSA_PRIVATE_KEY.replace("\\n", "\n").encode("utf-8")
+        # 兼容 \\n 双重转义（某些部署平台的 env 注入会再转义一层）
+        pem = (
+            settings.RSA_PRIVATE_KEY.replace("\\\\n", "\n").replace("\\n", "\n").encode("utf-8")
+        )
         return serialization.load_pem_private_key(pem, password=None)  # type: ignore[return-value]
     print("⚠️ 未配置 RSA_PRIVATE_KEY，生成临时密钥（仅开发环境可用，重启后旧密文无法解密）")
     return rsa.generate_private_key(public_exponent=65537, key_size=2048)
