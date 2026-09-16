@@ -25,3 +25,7 @@ data/
 # IDE
 .vscode/
 .idea/
+
+# 头像
+uploads/avatars/*
+!uploads/avatars/.gitkeep
