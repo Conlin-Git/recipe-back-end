@@ -13,7 +13,7 @@ import asyncio
 import json
 import re
 
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langgraph.graph import END
 from langgraph.prebuilt import ToolNode
 
@@ -21,6 +21,8 @@ from app.graph.llms import FINAL_ANSWER_TAG, answer_llm, router_llm, sentiment_l
 from app.graph.prompts import (
     CHAT_RULES,
     DEFAULT_SENTIMENT,
+    DEV_CACHE_RULES,
+    DEV_NEW_QUERY_RULES,
     DEV_RULES,
     ORCHESTRATOR_PROMPT,
     PERSONA_CHAT,
@@ -33,28 +35,37 @@ from app.graph.prompts import (
     build_qa_system_prompt,
 )
 from app.graph.state import GraphState, RouteDecision
+from app.graph.tools.dev_book_search import search_dev_book_tool
 from app.graph.tools.recipe_search import search_recipe_tool
-from app.services import context_service, rag_service, recipe_cache_service
+from app.services import (
+    context_service,
+    dev_cache_service,
+    dev_rag_service,
+    rag_service,
+    recipe_cache_service,
+)
 
 
 # ---------------- 上下文加载 ----------------
 
 async def load_context(state: GraphState) -> dict:
-    """读 Redis 热数据：滚动摘要 + 最近N轮滑窗 + 菜谱缓存（一轮 gather 并发）。
+    """读 Redis 热数据：滚动摘要 + 最近N轮滑窗 + 菜谱/书摘缓存（一轮 gather 并发）。
 
     摘要是编排分类的输入，滑窗供追问兜底和全新查询的上下文连续性使用，
-    菜谱缓存供菜谱 agent 复用。Redis miss 时从 MySQL 恢复（见 context_service）。
+    菜谱缓存供菜谱 agent 复用，书摘缓存供 dev agent 复用。
+    Redis miss 时从 MySQL 恢复（见 context_service）。
     """
     from app.database.mysql import AsyncSessionLocal
 
     cid = state["conversation_id"]
     async with AsyncSessionLocal() as db:
-        summary, window, cache = await asyncio.gather(
+        summary, window, cache, dev_cache = await asyncio.gather(
             context_service.load_summary(cid, state.get("summary_hint", "")),
             context_service.load_window(db, cid),
             recipe_cache_service.get_cached_recipes(cid),
+            dev_cache_service.get_cached_chunks(cid),
         )
-    return {"summary": summary, "window": window, "recipe_cache": cache}
+    return {"summary": summary, "window": window, "recipe_cache": cache, "dev_cache": dev_cache}
 
 
 # ---------------- 情感分析 agent ----------------
@@ -202,13 +213,30 @@ async def recipe_agent(state: GraphState) -> dict:
         if state.get("recipe_cache"):
             system += ("\n\n本会话已检索过的菜谱资料（相关就直接用它回答，别重复检索）：\n"
                        + rag_service.format_recipe_context(state["recipe_cache"]))
-        messages = [
+        base = [
             SystemMessage(content=system),
             *_layered_context(state),
             HumanMessage(content=state["question"]),
         ]
-        resp = await _recipe_llm.ainvoke(messages)
-        return {"messages": [*messages, resp]}
+        if needs_rag:
+            # 全新菜谱查询：首轮检索不靠模型自觉——实测豆包小概率无视 prompt 的
+            # 「必须第一步调工具」、甚至无视 tool_choice="required"，直接凭经验答，
+            # 而 token 已带 tag 流给用户，无法回收。改为代码层直接调工具，
+            # 补上对应的 AIMessage/ToolMessage，让模型基于检索结果生成回答。
+            # 检索词直接用用户原问题（embedding + 精排吃整句没问题），省一轮
+            # 「只为决定检索词」的 LLM 调用，首轮行为 100% 确定
+            tool_call = {
+                "name": "search_recipe",
+                "args": {"query": state["question"]},
+                "id": "forced_search_1",
+                "type": "tool_call",
+            }
+            tool_msg = await search_recipe_tool.ainvoke(
+                {**tool_call, "args": {**tool_call["args"], "state": state}}
+            )
+            base += [AIMessage(content="", tool_calls=[tool_call]), tool_msg]
+        resp = await _recipe_llm.ainvoke(base)
+        return {"messages": [*base, resp]}
     resp = await _recipe_llm.ainvoke(messages)
     return {"messages": [resp]}
 
@@ -219,11 +247,61 @@ def recipe_should_continue(state: GraphState) -> str:
     return "recipe_tools" if getattr(last, "tool_calls", None) else END
 
 
-# ---------------- 开发知识问答 agent（纯 LLM） ----------------
+# ---------------- 开发知识问答 agent（ReAct + search_dev_book 工具） ----------------
+
+dev_tools_node = ToolNode([search_dev_book_tool])
+# with_config 双保险：bind_tools 后 tag 仍透出，SSE 只转发带 tag 的 token
+_dev_llm = answer_llm.bind_tools([search_dev_book_tool]).with_config(tags=[FINAL_ANSWER_TAG])
+
 
 async def dev_agent(state: GraphState) -> dict:
-    await answer_llm.ainvoke(_qa_messages(state, DEV_RULES, PERSONA_DEV))
-    return {}
+    """开发问答：缓存优先，不足时自行调 search_dev_book 检索（ReAct 循环）。
+
+    与 recipe_agent 同构：首次进入时把 system + 分层上下文 + 用户问题连同模型回复
+    一起写入 state["dev_messages"]，工具执行完回到本节点时直接基于完整消息历史续推。
+    """
+    messages = state.get("dev_messages")
+    if not messages:
+        # 检索策略按编排结果区分：全新开发查询必须第一步调工具；追问缓存优先，
+        # 不足才自行检索兜底
+        needs_rag = (state.get("route") or {}).get("needs_rag")
+        strategy = DEV_NEW_QUERY_RULES if needs_rag else DEV_CACHE_RULES
+        system = build_qa_system_prompt(
+            PERSONA_DEV, f"{DEV_RULES}\n\n{strategy}", state.get("sentiment")
+        )
+        if state.get("dev_cache"):
+            system += ("\n\n本会话已检索过的书籍资料（相关就直接用它回答，别重复检索）：\n"
+                       + dev_rag_service.format_book_context(state["dev_cache"]))
+        base = [
+            SystemMessage(content=system),
+            *_layered_context(state),
+            HumanMessage(content=state["question"]),
+        ]
+        if needs_rag:
+            # 全新开发查询：首轮检索不靠模型自觉（同菜谱 agent——实测豆包小概率
+            # 无视 prompt 和 tool_choice="required"，直接凭经验答，而 token 已带
+            # tag 流给用户无法回收）。代码层直接调工具，补上对应的
+            # AIMessage/ToolMessage，让模型基于书摘生成回答，首轮行为 100% 确定
+            tool_call = {
+                "name": "search_dev_book",
+                "args": {"query": state["question"]},
+                "id": "forced_search_1",
+                "type": "tool_call",
+            }
+            tool_msg = await search_dev_book_tool.ainvoke(
+                {**tool_call, "args": {**tool_call["args"], "state": state}}
+            )
+            base += [AIMessage(content="", tool_calls=[tool_call]), tool_msg]
+        resp = await _dev_llm.ainvoke(base)
+        return {"dev_messages": [*base, resp]}
+    resp = await _dev_llm.ainvoke(messages)
+    return {"dev_messages": [resp]}
+
+
+def dev_should_continue(state: GraphState) -> str:
+    """模型请求调工具 → dev_tools；给出最终回答 → END。"""
+    last = state["dev_messages"][-1]
+    return "dev_tools" if getattr(last, "tool_calls", None) else END
 
 
 # ---------------- 闲聊/通用 agent ----------------

@@ -5,7 +5,7 @@
                           └→ orchestrator ────┴→ join（汇聚，等两分支都完成）
                                                     │ 条件路由 pick_agent
                               ┌── recipe_agent ⇄ recipe_tools（ReAct 循环）
-                              ├── dev_agent
+                              ├── dev_agent ⇄ dev_tools（ReAct 循环）
                               └── chat_agent
                                                     ↓
                                                    END
@@ -26,6 +26,7 @@ def build_graph():
     graph.add_node("recipe_agent", nodes.recipe_agent)
     graph.add_node("recipe_tools", nodes.recipe_tools_node)
     graph.add_node("dev_agent", nodes.dev_agent)
+    graph.add_node("dev_tools", nodes.dev_tools_node)
     graph.add_node("chat_agent", nodes.chat_agent)
 
     graph.add_edge(START, "load_context")
@@ -38,7 +39,8 @@ def build_graph():
     graph.add_conditional_edges("join", nodes.pick_agent)
     graph.add_conditional_edges("recipe_agent", nodes.recipe_should_continue)
     graph.add_edge("recipe_tools", "recipe_agent")
-    graph.add_edge("dev_agent", END)
+    graph.add_conditional_edges("dev_agent", nodes.dev_should_continue)
+    graph.add_edge("dev_tools", "dev_agent")
     graph.add_edge("chat_agent", END)
 
     return graph.compile()

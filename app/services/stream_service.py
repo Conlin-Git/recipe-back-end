@@ -142,8 +142,8 @@ async def run_generation(conversation_id: int, user_id: int, message: str) -> No
                         rag_hit = bool(route.get("needs_rag"))
                         await emit_meta(rag_hit)
                         meta_sent = True
-                    if "recipe_tools" in payload and not rag_hit:
-                        # 追问时菜谱 agent 自行兜底检索：修正 rag 标志
+                    if ("recipe_tools" in payload or "dev_tools" in payload) and not rag_hit:
+                        # 追问时 agent 自行兜底检索（菜谱/书籍）：修正 rag 标志
                         rag_hit = True
                         if meta_sent:
                             await emit_meta(True)

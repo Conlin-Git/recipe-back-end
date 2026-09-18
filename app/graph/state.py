@@ -30,6 +30,8 @@ class GraphState(TypedDict, total=False):
     summary: str                   # 滚动摘要（load_context 加载）
     window: list[dict]             # 最近N轮滑窗消息 [{"role","content"}]（load_context 加载）
     recipe_cache: list[dict]       # 本会话 Redis 缓存的菜谱片段
+    dev_cache: list[dict]          # 本会话 Redis 缓存的书摘块
     sentiment: SentimentResult
     route: RouteDecision
-    messages: Annotated[list, add_messages]  # 菜谱 agent 的 ReAct 循环消息
+    messages: Annotated[list, add_messages]      # 菜谱 agent 的 ReAct 循环消息
+    dev_messages: Annotated[list, add_messages]  # dev agent 的 ReAct 循环消息

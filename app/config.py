@@ -122,6 +122,11 @@ class Settings(BaseSettings):
     SENTIMENT_LLM_MODEL: str = "Qwen/Qwen2.5-7B-Instruct"
     RECIPE_CACHE_MAX_ITEMS: int = 3       # 单会话 Redis 菜谱缓存条数上限（追问复用，省重复检索）
 
+    # 开发书籍 RAG（dev agent 的 ReAct 检索）
+    DEV_BOOK_COLLECTION: str = "dev_book_chunks"  # Milvus 书摘块集合（import_pdf.py 导入）
+    DEV_RAG_TOP_K: int = 3                        # 重排后最终保留的书摘块数
+    DEV_CACHE_MAX_ITEMS: int = 5                  # 单会话 Redis 书摘缓存条数上限（追问复用）
+
     # RAG 检索
     RAG_TOP_K: int = 1                    # 重排后最终保留的菜谱数
     RAG_SCORE_THRESHOLD: float = 0.55     # COSINE 相似度阈值，低于则不走 RAG
