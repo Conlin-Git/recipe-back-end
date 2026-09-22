@@ -22,6 +22,18 @@ async def main():
             print("✅ conversations 表新增 summary 列")
         except Exception:
             pass  # 列已存在
+        try:
+            await conn.exec_driver_sql(
+                "ALTER TABLE conversations ADD COLUMN last_read_at DATETIME NULL"
+            )
+            # 历史会话回填为已读（updated_at），避免迁移后全部冒未读红点
+            await conn.exec_driver_sql(
+                "UPDATE conversations SET last_read_at = updated_at "
+                "WHERE last_read_at IS NULL"
+            )
+            print("✅ conversations 表新增 last_read_at 列（历史数据已回填）")
+        except Exception:
+            pass  # 列已存在
     print("✅ 数据表创建完成：", ", ".join(Base.metadata.tables.keys()))
 
 

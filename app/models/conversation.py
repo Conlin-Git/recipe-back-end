@@ -14,6 +14,8 @@ class Conversation(Base):
     title: Mapped[str] = mapped_column(String(100), default="新对话")
     # 滚动摘要：超出最近N轮的早期对话压缩结果（上下文压缩机制）
     summary: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # 用户最近查看该会话的时间：晚于此时间的消息即未读（消息未读机制）
+    last_read_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.now, onupdate=datetime.now

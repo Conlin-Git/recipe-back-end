@@ -5,6 +5,7 @@ from sqlalchemy import text
 
 from app.config import settings
 from app.core.exceptions import register_exception_handlers
+from app.core.responses import register_envelope_middleware
 from app.database.milvus import init_milvus_collection
 from app.database.mysql import engine
 
@@ -23,8 +24,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 统一业务异常处理
+# 统一业务异常处理（错误响应套 {code, data, msg}）
 register_exception_handlers(app)
+
+# 成功响应统一封装（2xx JSON 套 {code: 0, data, msg: ""}，SSE/二进制/204 放行）
+register_envelope_middleware(app)
 
 # 注册路由（接口版本化，新增接口在 app/api/v1/__init__.py 聚合）
 from app.api.v1 import api_v1_router

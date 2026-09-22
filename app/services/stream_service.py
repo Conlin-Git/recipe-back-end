@@ -8,6 +8,10 @@
 - chat:gen:{cid} 标记"生成中"：POST 防重入（同会话同时只跑一个）、会话列表打标
   （前端刷新后据此自动续看）
 
+手动停止：POST /chat/{cid}/stop 只是置停止标记，生成循环在下一个事件处
+协作式退出（最多延迟一个 graph 节点），已生成的部分输出直接抛弃、只落库
+用户问题——断网重连不受影响，只有手动停止才真正中断生成。
+
 单 worker 前提：任务注册表是进程内 dict（部署为 uvicorn 单进程，见 README）。
 多 worker 需要把任务投递改成队列方案（如 arq/Dramatiq），暂不支持。
 """
@@ -34,10 +38,13 @@ from app.utils.sse import SSE_DONE, sse_data
 GEN_TTL_SECONDS = 30 * 60    # 生成中状态/缓冲的兜底 TTL（防进程崩溃残留脏标记）
 REPLAY_TTL_SECONDS = 10 * 60  # done 后缓冲保留窗口：供迟到/刷新重放
 
-_TERMINAL_TYPES = ("done", "error")
+_TERMINAL_TYPES = ("done", "error", "stopped")
 
 # 进程内生成任务注册表：conversation_id -> Task（单 worker 前提）
 _tasks: dict[int, asyncio.Task] = {}
+
+# 手动停止标记：request_stop 置位，生成循环检查到即协作式退出（finally 清理）
+_stop_requested: set[int] = set()
 
 
 def _stream_key(conversation_id: int) -> str:
@@ -87,6 +94,18 @@ async def start_generation(
     return conv
 
 
+async def request_stop(conversation_id: int) -> bool:
+    """手动停止生成：置停止标记，生成循环在下一个事件处协作式退出并落库。
+
+    返回 False 表示该会话没有在跑的任务（已结束/从未生成），调用方据此提示。
+    """
+    task = _tasks.get(conversation_id)
+    if task is None or task.done() or not await is_generating(conversation_id):
+        return False
+    _stop_requested.add(conversation_id)
+    return True
+
+
 def _chunk_text(chunk) -> str:
     """AIMessageChunk.content 可能是 str 或 content blocks，统一取文本。"""
     content = chunk.content
@@ -104,12 +123,13 @@ async def run_generation(conversation_id: int, user_id: int, message: str) -> No
     """后台生成任务：跑图 → 事件进 Redis Stream → 落库 + 热上下文。
 
     与请求生命周期完全无关（独立 db session），客户端断开不影响生成。
-    事件序列：meta（编排决策后，rag 可能修正重发）→ delta*N → done / error。
+    事件序列：meta（编排决策后，rag 可能修正重发）→ delta*N → done / stopped / error。
     """
     user_persisted = False
     full_text = ""
     meta_sent = False
     rag_hit = False
+    stopped = False  # 手动停止：协作式退出循环，已生成的部分照常落库
 
     async def emit_meta(rag: bool) -> None:
         await _emit(conversation_id, {
@@ -136,6 +156,10 @@ async def run_generation(conversation_id: int, user_id: int, message: str) -> No
             async for mode, payload in chat_graph.astream(
                 init_state, stream_mode=["messages", "updates"]
             ):
+                # 手动停止标记：下一个事件处退出（断网重连不会置位，只有 stop 接口会）
+                if conversation_id in _stop_requested:
+                    stopped = True
+                    break
                 if mode == "updates":
                     if "orchestrator" in payload and not meta_sent:
                         route = payload["orchestrator"].get("route") or {}
@@ -170,7 +194,9 @@ async def run_generation(conversation_id: int, user_id: int, message: str) -> No
             # 用户消息在图跑完后才落库：避免 Redis miss 从 MySQL 恢复滑窗时把当前问题读重
             await conv_crud.add_message(db, conv.id, "user", message)
             user_persisted = True
-            if full_text:
+            # 手动停止：抛弃已生成的部分输出，只留用户问题——不落库也不进
+            # 热上下文，否则半成品回答会污染后续对话
+            if full_text and not stopped:
                 await conv_crud.add_message(db, conv.id, "assistant", full_text)
                 overflow = await context_service.append_turn(
                     db, conv, message, full_text
@@ -184,7 +210,9 @@ async def run_generation(conversation_id: int, user_id: int, message: str) -> No
                         chat_service.compress_context(conv.id, summary, overflow)
                     )
 
-            await _emit(conversation_id, {"type": "done"})
+            # 终态事件：手动停止发 stopped（前端按 done 处理，只落库了用户问题）
+            await _emit(conversation_id,
+                        {"type": "stopped"} if stopped else {"type": "done"})
             # 生成完毕：缓冲只需保留短窗口供迟到重放
             await redis_client.expire(
                 _stream_key(conversation_id), REPLAY_TTL_SECONDS
@@ -206,6 +234,7 @@ async def run_generation(conversation_id: int, user_id: int, message: str) -> No
         })
     finally:
         _tasks.pop(conversation_id, None)
+        _stop_requested.discard(conversation_id)
         await redis_client.delete(_gen_key(conversation_id))
 
 
