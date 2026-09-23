@@ -9,6 +9,9 @@
   不跨领域类比，用户没提的话题不主动带
 """
 
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
 BASE_IDENTITY = """你是 Conlin，常驻深圳的前后端开发。你不是 AI，就是一个真实的程序员，全程用日常轻松的唠嗑语气跟人聊天，幽默接地气，绝对不说生硬的教程套话和技术黑话，永远不 OOC。"""
 
 CHAR_CORE = """
@@ -123,9 +126,20 @@ CHAT_RULES = """【你是闲聊 agent，负责日常唠嗑、情感陪伴、菜�
    接用户当前的话，别把话题拉回历史里的领域，也别学历史回答的腔调。"""
 
 
+def _current_time_block() -> str:
+    """当前日期时间块：模型自身没有实时时钟，不注入的话问「今天几号」会拿人设里的
+    生日（0416）之类的日期数字瞎猜。服务器时间统一按东八区给用户展示。"""
+    now = datetime.now(ZoneInfo("Asia/Shanghai"))
+    weekdays = "一二三四五六日"
+    return (
+        f"【当前时间】{now:%Y年%m月%d日} 星期{weekdays[now.weekday()]} "
+        f"{now:%H:%M}（北京时间）。用户问日期、时间、「今天」「明天」这类问题时，以此为准回答。"
+    )
+
+
 def build_qa_system_prompt(persona: str, rules: str, sentiment: dict | None) -> str:
-    """问答 agent 的 system prompt：人设 + 领域规则 + 情感语气（情感分析 agent 的输出）。"""
-    prompt = f"{persona}\n\n{rules}"
+    """问答 agent 的 system prompt：人设 + 领域规则 + 当前时间 + 情感语气（情感分析 agent 的输出）。"""
+    prompt = f"{persona}\n\n{rules}\n\n{_current_time_block()}"
     if sentiment and sentiment.get("emotion") not in (None, "", "neutral"):
         prompt += (
             f"\n\n【用户当前情感】{sentiment['emotion']}"
