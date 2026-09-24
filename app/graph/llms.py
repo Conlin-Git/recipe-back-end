@@ -1,6 +1,6 @@
 """图内各 agent 的 LLM 客户端（langchain-openai ChatOpenAI）。
 
-- answer_llm：主模型（豆包），流式。打 "final_answer" tag——chat_service 只把
+- answer_llm：主模型（智谱 GLM），流式。打 "final_answer" tag——chat_service 只把
   带这个 tag 的 token 透出到 SSE，编排/情感分析等中间调用不会漏给用户。
 - router_llm：编排 agent 用的主模型，非流式，TAG_NOSTREAM 双保险。
 - sentiment_llm：硅基流动免费小模型，非流式，fail-open。
@@ -16,7 +16,7 @@ from app.config import settings
 FINAL_ANSWER_TAG = "final_answer"
 
 # 关闭隐藏推理（reasoning 曾占输出 token 61%），生成时间直接砍半以上
-_extra_body = {"thinking": {"type": settings.DOUBAO_THINKING}} if settings.DOUBAO_THINKING else {}
+_extra_body = {"thinking": {"type": settings.LLM_THINKING}} if settings.LLM_THINKING else {}
 
 answer_llm = ChatOpenAI(
     model=settings.LLM_MODEL,

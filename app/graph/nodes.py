@@ -219,7 +219,7 @@ async def recipe_agent(state: GraphState) -> dict:
             HumanMessage(content=state["question"]),
         ]
         if needs_rag:
-            # 全新菜谱查询：首轮检索不靠模型自觉——实测豆包小概率无视 prompt 的
+            # 全新菜谱查询：首轮检索不靠模型自觉——实测小概率无视 prompt 的
             # 「必须第一步调工具」、甚至无视 tool_choice="required"，直接凭经验答，
             # 而 token 已带 tag 流给用户，无法回收。改为代码层直接调工具，
             # 补上对应的 AIMessage/ToolMessage，让模型基于检索结果生成回答。
@@ -278,7 +278,7 @@ async def dev_agent(state: GraphState) -> dict:
             HumanMessage(content=state["question"]),
         ]
         if needs_rag:
-            # 全新开发查询：首轮检索不靠模型自觉（同菜谱 agent——实测豆包小概率
+            # 全新开发查询：首轮检索不靠模型自觉（同菜谱 agent——实测小概率
             # 无视 prompt 和 tool_choice="required"，直接凭经验答，而 token 已带
             # tag 流给用户无法回收）。代码层直接调工具，补上对应的
             # AIMessage/ToolMessage，让模型基于书摘生成回答，首轮行为 100% 确定

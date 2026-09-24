@@ -65,7 +65,7 @@
                                                       └───────────┘
 
    外部模型服务（OpenAI 兼容接口）：
-   - 对话生成 / 编排分类：火山引擎方舟（豆包），可开关 thinking 模式
+   - 对话生成 / 编排分类：智谱 BigModel（GLM），可开关 thinking 模式
    - Embedding / Rerank / 常识校验 / 摘要压缩 / 情感分析：硅基流动（bge-m3 / bge-reranker-v2-m3 / Qwen2.5-7B）
 ```
 
@@ -144,12 +144,12 @@ docker compose up -d
 # JWT
 JWT_SECRET_KEY=<随机长字符串>
 
-# 对话模型（火山引擎方舟，OpenAI 兼容）
-# 注意：资源包类型的 Key，BASE_URL 必须带 /api/plan/v3 路径，标准 /api/v3 会 401
-DOUBAO_API_KEY=<your-key>
-DOUBAO_BASE_URL=https://ark.cn-beijing.volces.com/api/plan/v3
-DOUBAO_LLM_MODEL=<模型名或接入点>
-DOUBAO_THINKING=disabled        # 关闭隐藏推理可显著降低生成耗时
+# 对话模型（智谱 BigModel，OpenAI 兼容）
+# 注意：BASE_URL 必须带 /api/paas/v4 路径
+ZHIPU_API_KEY=<your-key>
+ZHIPU_BASE_URL=https://open.bigmodel.cn/api/paas/v4
+ZHIPU_LLM_MODEL=<模型名，如 glm-4.5-flash>
+LLM_THINKING=disabled        # 关闭隐藏推理可显著降低生成耗时
 
 # 硅基流动（embedding / rerank / 校验 / 摘要 / 情感分析）
 SILICONFLOW_API_KEY=<your-key>

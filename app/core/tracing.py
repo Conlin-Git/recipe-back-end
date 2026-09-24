@@ -8,7 +8,7 @@
 
 启用后可在 LangSmith 控制台看到每次对话的完整调用树：
 stream_chat → retrieve_verified_recipes → search_ranked → embed / milvus
-  → rerank → check_recipe_context（候选池逐条过检）→ 豆包流式生成
+  → rerank → check_recipe_context（候选池逐条过检）→ 主模型流式生成
 每个节点的输入、输出、耗时一目了然。
 """
 import os

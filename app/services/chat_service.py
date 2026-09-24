@@ -56,7 +56,7 @@ async def compress_context(conversation_id: int, old_summary: str, overflow: lis
             for m in overflow
         )
         existing = f"已有摘要：{old_summary}\n\n" if old_summary else ""
-        # P0：摘要是简单压缩任务，用硅基流动免费 7B，不动付费的豆包
+        # P0：摘要是简单压缩任务，用硅基流动免费 7B，不动付费的主模型
         # 后台任务不阻塞用户，单独放宽超时（client 默认 8s 是给关键路径的校验用的）
         resp = await verify_service.verify_client.chat.completions.create(
             model=settings.SILICONFLOW_LLM_MODEL,

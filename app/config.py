@@ -25,25 +25,26 @@ class Settings(BaseSettings):
     # 生成：openssl genrsa 2048。留空则启动时生成临时密钥（仅开发用）
     RSA_PRIVATE_KEY: str = ""
 
-    # 对话大模型：火山引擎方舟（资源包 Key，BASE_URL 须带 /api/plan/v3）
-    DOUBAO_API_KEY: str = ""
-    DOUBAO_BASE_URL: str = ""
-    DOUBAO_LLM_MODEL: str = ""
+    # 对话大模型：智谱 BigModel（OpenAI 兼容接口，BASE_URL 须带 /api/paas/v4）
+    ZHIPU_API_KEY: str = ""
+    ZHIPU_BASE_URL: str = ""
+    ZHIPU_LLM_MODEL: str = ""
     # 思考模式：disabled 关闭隐藏推理（实测可省 ~60% 生成时间，菜谱问答不需要深推理）；
-    # 需要更强推理质量时改 enabled / auto，置空字符串则不传该参数
-    DOUBAO_THINKING: str = "disabled"
+    # GLM-4.5 系列与方舟同样支持 thinking.type 参数，需要更强推理质量时改 enabled，
+    # 置空字符串则不传该参数
+    LLM_THINKING: str = "disabled"
 
     @property
     def LLM_API_KEY(self) -> str:
-        return self.DOUBAO_API_KEY
+        return self.ZHIPU_API_KEY
 
     @property
     def LLM_BASE_URL(self) -> str:
-        return self.DOUBAO_BASE_URL
+        return self.ZHIPU_BASE_URL
 
     @property
     def LLM_MODEL(self) -> str:
-        return self.DOUBAO_LLM_MODEL
+        return self.ZHIPU_LLM_MODEL
 
     # Embedding（可以是和对话不同的服务商）
     EMBEDDING_PROVIDER: str = "siliconflow"
@@ -61,15 +62,15 @@ class Settings(BaseSettings):
 
     @property
     def EMBEDDING_API_KEY(self) -> str:
-        return {"qwen": self.QWEN_API_KEY, "doubao": self.DOUBAO_API_KEY, "siliconflow": self.SILICONFLOW_API_KEY}[self.EMBEDDING_PROVIDER]
+        return {"qwen": self.QWEN_API_KEY, "zhipu": self.ZHIPU_API_KEY, "siliconflow": self.SILICONFLOW_API_KEY}[self.EMBEDDING_PROVIDER]
 
     @property
     def EMBEDDING_BASE_URL(self) -> str:
-        return {"qwen": self.QWEN_BASE_URL, "doubao": self.DOUBAO_BASE_URL, "siliconflow": self.SILICONFLOW_BASE_URL}[self.EMBEDDING_PROVIDER]
+        return {"qwen": self.QWEN_BASE_URL, "zhipu": self.ZHIPU_BASE_URL, "siliconflow": self.SILICONFLOW_BASE_URL}[self.EMBEDDING_PROVIDER]
 
     @property
     def EMBEDDING_MODEL(self) -> str:
-        return {"qwen": self.QWEN_EMBEDDING_MODEL, "doubao": "", "siliconflow": self.SILICONFLOW_EMBEDDING_MODEL}[self.EMBEDDING_PROVIDER]
+        return {"qwen": self.QWEN_EMBEDDING_MODEL, "zhipu": "embedding-3", "siliconflow": self.SILICONFLOW_EMBEDDING_MODEL}[self.EMBEDDING_PROVIDER]
 
     # MySQL
     MYSQL_HOST: str
