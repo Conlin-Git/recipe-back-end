@@ -1,11 +1,13 @@
 """安全相关：密码哈希、JWT 编解码、token 吊销（Redis 黑名单）。"""
 import hashlib
+import uuid
 from datetime import datetime, timedelta, timezone
 
 import bcrypt
 import jwt
 
 from app.config import settings
+from app.core.filing_review import FILING_REVIEW_DAYS, FILING_REVIEW_SCOPE
 from app.database.redis import redis_client
 
 # token 黑名单前缀：存 token 的 sha256 而非原文，即使 Redis 数据泄漏也无法还原出可用 token
@@ -28,15 +30,39 @@ def create_access_token(user_id: int) -> str:
     return jwt.encode(payload, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
 
 
-def decode_access_token(token: str) -> int | None:
-    """解码 JWT，返回 user_id；无效或过期返回 None。"""
+def create_filing_review_token(user_id: int) -> str:
+    """专用公开审核 token：固定 30 天，无刷新续期，普通登录有效期保持不变。"""
+    now = datetime.now(timezone.utc)
+    return jwt.encode(
+        {
+            "sub": str(user_id),
+            "iat": now,
+            "exp": now + timedelta(days=FILING_REVIEW_DAYS),
+            "scope": FILING_REVIEW_SCOPE,
+            "jti": uuid.uuid4().hex,
+        },
+        settings.JWT_SECRET_KEY,
+        algorithm=settings.JWT_ALGORITHM,
+    )
+
+
+def decode_access_token_payload(token: str) -> dict | None:
+    """验证签名和有效期后返回 claims；无效或过期返回 None。"""
     try:
         payload = jwt.decode(
-            token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
+            token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM],
+            options={"require": ["sub", "exp"]},
         )
-        return int(payload["sub"])
-    except (jwt.PyJWTError, KeyError, ValueError):
+        int(payload["sub"])
+        return payload
+    except (jwt.PyJWTError, KeyError, TypeError, ValueError):
         return None
+
+
+def decode_access_token(token: str) -> int | None:
+    """解码 JWT，返回 user_id；无效或过期返回 None。"""
+    payload = decode_access_token_payload(token)
+    return int(payload["sub"]) if payload else None
 
 
 def _token_remaining_seconds(token: str) -> int:

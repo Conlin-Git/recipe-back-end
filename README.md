@@ -228,6 +228,26 @@ uv sync                                        # 安装依赖（Python ≥ 3.11�
 - 启动日志会逐项打印各组件连接结果
 - 单 worker 部署：生成任务注册表是进程内 dict；多 worker 需把任务投递改为队列方案（arq/Dramatiq 等）
 
+## 公安备案审核登录态
+
+在运行服务的相同环境与 `.env` 下执行（前端目录按实际路径调整）：
+
+```bash
+.venv/bin/python -m scripts.create_filing_review_session --frontend-env ../recipe-front-end/.env.production.local
+```
+
+脚本每次新建一个独立、随机密码的审核账号，将带 `filing-review` scope 的 JWT 写入指定 `.local` 环境文件，并显示账号名和 UTC 到期时间，终端不会输出密码或 token。登录态从签发起固定 **30 天**有效，不提供续期；普通账号的 24 小时有效期保持不变。无需修改表结构。
+
+前端重新构建并部署后，无个人登录态的访客会自动进入审核账号。该账号的内容和对话历史为所有访客共享，只应用于公开展示。后端在鉴权依赖中仅放行用户信息读取、会话读取/已读与问答接口，拒绝修改资料、上传头像、删除会话、登出吊销及其他接口；现有用户归属校验和对话限流继续生效。
+
+应先部署后端权限限制，再部署带审核凭证的前端。审核结束后移除前端环境变量并重新构建；如需在到期前让已发布凭证立即失效，可在服务环境调用 `app.core.security.revoke_token(token)`，不要通过公开的登出接口操作共享审核态。
+
+鉴权及环境文件写入回归测试（不连接数据库和 Redis）：
+
+```bash
+.venv/bin/python -m unittest tests.api.test_filing_review -v
+```
+
 ## API 概览
 
 统一前缀 `/api/v1`，除认证与图片代理外均需 `Authorization: Bearer <token>`。JSON 响应统一封装：成功 `{"code": 0, "data": ..., "msg": ""}`，失败 `{"code": 非0, "data": null, "msg": "可读信息"}`（HTTP 状态码保留语义；SSE 流、图片二进制、204 不封装）。
