@@ -25,8 +25,7 @@ async def get_current_user(
     if payload is None or await is_token_revoked(token):
         raise BusinessException(401, "未登录或登录已过期")
     if payload.get("scope") == FILING_REVIEW_SCOPE:
-        route = request.scope.get("route")
-        if not filing_review_allows(request.method, getattr(route, "path", "")):
+        if not filing_review_allows(request.method, request.scope["path"]):
             raise BusinessException(403, "审核账号仅支持内容查看和问答")
     user_id = int(payload["sub"])
     user = await user_crud.get_by_id(db, user_id)

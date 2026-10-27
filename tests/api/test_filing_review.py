@@ -7,7 +7,7 @@ from datetime import datetime, timedelta, timezone
 from unittest.mock import AsyncMock, patch
 
 import jwt
-from fastapi import Depends, FastAPI
+from fastapi import APIRouter, Depends, FastAPI
 from fastapi.testclient import TestClient
 
 # 使用独立测试配置，不读取或输出实际部署密钥。
@@ -55,8 +55,15 @@ class FilingReviewTests(unittest.TestCase):
             ("POST", "/api/v1/chat/{conversation_id}/stop"),
             ("POST", "/api/v1/other"),
         ]
+        api = APIRouter(prefix="/api/v1")
         for method, path in routes:
-            self.app.add_api_route(path, endpoint, methods=[method])
+            # 与应用一致：模块路由 → v1 聚合路由 → app，多层 prefix。
+            suffix = path.removeprefix("/api/v1")
+            group, _, leaf = suffix.lstrip("/").partition("/")
+            router = APIRouter(prefix=f"/{group}")
+            router.add_api_route(f"/{leaf}" if leaf else "", endpoint, methods=[method])
+            api.include_router(router)
+        self.app.include_router(api)
         self.client = TestClient(self.app)
         self.revoked = patch("app.api.deps.is_token_revoked", AsyncMock(return_value=False))
         self.user = patch("app.api.deps.user_crud.get_by_id", AsyncMock(return_value=User(id=42, username="review")))
