@@ -17,6 +17,7 @@ dependencies = [
     "langgraph>=1.2.11",
     "langgraph-cli[inmem]>=0.4.31",
     "langsmith>=0.12.4",
+    "lunar-python==1.4.8",
     "markdown>=3.10.3",
     "neo4j>=6.3.0",
     "nh3>=0.3.7",
