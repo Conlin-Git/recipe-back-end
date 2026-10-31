@@ -130,6 +130,11 @@ class Settings(BaseSettings):
     DEV_RAG_TOP_K: int = 3                        # 重排后最终保留的书摘块数
     DEV_CACHE_MAX_ITEMS: int = 5                  # 单会话 Redis 书摘缓存条数上限（追问复用）
 
+    # 命理古籍 RAG：只提供带出处的解释证据，不参与四柱和分数计算
+    NAMING_KNOWLEDGE_COLLECTION: str = "naming_knowledge"
+    NAMING_RAG_TOP_K: int = 4
+    NAMING_RAG_MIN_SCORE: float = 0.45
+
     # RAG 检索
     RAG_TOP_K: int = 3                    # 重排后最终保留的菜谱候选数
     RAG_SCORE_THRESHOLD: float = 0.55     # COSINE 相似度阈值，低于则不走 RAG

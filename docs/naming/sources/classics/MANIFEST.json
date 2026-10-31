@@ -1,0 +1,85 @@
+{
+  "knowledge_version": "naming-classics-bootstrap-v1",
+  "collection": "naming_knowledge",
+  "documents": [
+    {
+      "source_id": "sanming-tonghui",
+      "title": "三命通会",
+      "edition": "公开古籍全文录文；四库全书本系统",
+      "local_file": "text/sanming-tonghui.json",
+      "source_url": "https://qiankunyoushu.com/library/sanming-tonghui.json",
+      "sha256": "9ed5e660c23707046739cc2def22affc865074b397edc1c0ef7c261a3f5a463b",
+      "line_count": 6645,
+      "license_status": "网站标注公版录入；生产再分发前需复核"
+    },
+    {
+      "source_id": "yuanhai-ziping",
+      "title": "渊海子平",
+      "edition": "公开古籍全文录文",
+      "local_file": "text/yuanhai-ziping.json",
+      "source_url": "https://qiankunyoushu.com/library/yuanhai-ziping.json",
+      "sha256": "8a8a812ab8530a7bcca03582bd5bbac1eea9d3ddcef3299a7cc8efa27d04b1a3",
+      "line_count": 2550,
+      "license_status": "网站标注公版录入；生产再分发前需复核"
+    },
+    {
+      "source_id": "ziping-zhenquan",
+      "title": "子平真诠评注",
+      "edition": "公开古籍全文录文；原著与后人评注需分层",
+      "local_file": "text/ziping-zhenquan.json",
+      "source_url": "https://qiankunyoushu.com/library/ziping-zhenquan.json",
+      "sha256": "5b7b2718945e66dc0aa46610e3b5580b5c2f286a5070ed35cb32ddc60a39b0aa",
+      "line_count": 697,
+      "license_status": "网站标注公版录入；评注层许可和版本需复核"
+    },
+    {
+      "source_id": "ditiansui-chanwei",
+      "title": "滴天髓阐微",
+      "edition": "公开古籍全文录文；任铁樵注本系统",
+      "local_file": "text/ditiansui-chanwei.json",
+      "source_url": "https://qiankunyoushu.com/library/ditiansui-chanwei.json",
+      "sha256": "3ed07dec848d570592a57c6ddfb17148b5c2fdcaf336e6530f7ce447c38334c9",
+      "line_count": 7607,
+      "license_status": "网站标注公版录入；生产再分发前需复核"
+    },
+    {
+      "source_id": "qiongtong-baojian",
+      "title": "穷通宝鉴",
+      "edition": "公开古籍全文录文",
+      "local_file": "text/qiongtong-baojian.json",
+      "source_url": "https://qiankunyoushu.com/library/qiongtong-baojian.json",
+      "sha256": "3c51eded649c8e13fdc3e6ea4e894295db1292c802a6702ba0e1031b6dd9c750",
+      "line_count": 1369,
+      "license_status": "网站标注公版录入；生产再分发前需复核"
+    },
+    {
+      "source_id": "sanming-tonghui-mirror",
+      "title": "三命通会",
+      "author": "明·万民英",
+      "edition": "中国古典精华文库镜像节选，10页",
+      "local_file": "sanming-tonghui-mirror.pdf",
+      "source_url": "https://d.zixueguoxue.com/2020/06/202006230335095.pdf",
+      "sha256": "5d81807340eee694d20eaaf5d4c7daa43067fe6d495c7c33a33733912673b465",
+      "license_status": "免费可访问镜像；站点再分发许可未核实；仅供内部知识库验证，正式上线需完成授权核验",
+      "content_scope": ["五行生成", "五行生克", "支干源流", "纳音取象"]
+    },
+    {
+      "source_id": "commons-ziping-zhenquan",
+      "title": "子平真诠",
+      "author": "沈孝瞻编",
+      "edition": "Wikimedia Commons / 中国国家图书馆扫描条目",
+      "source_url": "https://commons.wikimedia.org/wiki/File:NLC416-11jh010455-35296_%E5%AD%90%E5%B9%B3%E7%9C%9F%E8%A9%AE.pdf",
+      "license_status": "Commons 页面标注来源与馆藏信息；下载与再分发前仍需按页面许可复核",
+      "content_scope": ["用神", "格局", "十干十二支", "行运"]
+    },
+    {
+      "source_id": "commons-ditiansui-jiy",
+      "title": "滴天髓辑要",
+      "author": "清·陈素庵辑订",
+      "edition": "Wikimedia Commons / 中国国家图书馆扫描条目，民国25年（1936）",
+      "source_url": "https://commons.wikimedia.org/wiki/File:NLC416-01jh000040-9444_%E6%BB%B4%E5%A4%A9%E9%AB%93%E8%BC%AF%E8%A6%81.pdf",
+      "license_status": "Commons 页面标注 PD 相关分类；部署前保留页面快照并复核司法辖区",
+      "content_scope": ["调候", "旺衰", "月令", "体用"]
+    }
+  ]
+}

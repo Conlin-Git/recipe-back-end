@@ -44,6 +44,14 @@ cache_key = user_id + input_fingerprint + ruleset_version + knowledge_snapshot_i
 - 本地 JSON：bootstrap 字符数据和参考文献清单；
 - Milvus：后续存放古籍原文、规则解释和检索片段；不用于替代四柱和分数计算。
 
+## 古籍 RAG 落地
+
+命理 Agent 的检索集合为 `naming_knowledge`，字段至少包含 `source_id`、书名、版本、流派、章节、页码、原文、来源 URL、许可状态和 `knowledge_version`。导入脚本是 `scripts/import_naming_classics.py`，使用和菜谱/开发知识库相同的 embedding 与 Milvus 基础设施，但集合完全隔离。
+
+请求链路为：用户问题 → 命理意图路由 → 古籍向量粗排 → rerank → 带证据 ID 的片段 → 命理 Agent 解释。古籍只负责“依据检索”，不直接修改 `NamingEngine` 的四柱、候选和评分结果；报告要同时标注“规则计算证据”和“古籍检索证据”。
+
+当前已下载并导入五部相关古籍的全文录文：`三命通会`、`渊海子平`、`子平真诠评注`、`滴天髓阐微`、`穷通宝鉴`，共 1,260 个向量块。原 PDF 节选只保留在来源验证目录，不再作为生产 RAG 数据。对录文、扫描件、OCR 错字和不同底本，必须保留原行号/页码，并在关键断语处做双版本校对。
+
 ## API
 
 ```text

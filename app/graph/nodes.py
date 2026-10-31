@@ -39,12 +39,18 @@ from app.graph.prompts import (
 from app.graph.state import GraphState, RouteDecision, TopicState
 from app.graph.tools.dev_book_search import search_dev_book_tool
 from app.graph.tools.recipe_search import search_recipe_tool
+from app.naming.chat_facts import extract_explicit_facts
 from app.services import (
     context_service,
     dev_cache_service,
     dev_rag_service,
     rag_service,
     recipe_cache_service,
+)
+from app.services.naming_rag_service import (
+    format_naming_citations,
+    format_naming_context,
+    search_naming_knowledge,
 )
 
 
@@ -170,7 +176,7 @@ def _heuristic_route(state: GraphState) -> RouteDecision:
                 references[pronoun] = topic_id
         if references:
             query = f"{topic.get('goal', '')}；追问：{question}".strip("；")
-    needs_rag = domain in {"recipe", "dev"} and (not followup or bool(_DEV_TERMS.search(question) or _RECIPE_TERMS.search(question)))
+    needs_rag = domain in {"recipe", "dev", "naming"} and (not followup or bool(_DEV_TERMS.search(question) or _RECIPE_TERMS.search(question) or _NAMING_TERMS.search(question)))
     return {
         "intent_type": "followup" if followup else "new",
         "domain": domain,
@@ -279,7 +285,7 @@ async def orchestrator_node(state: GraphState) -> dict:
         print(f"⚠️ 编排分类异常，使用规则路由：{e}")
         route = heuristic
 
-    if route["intent_type"] == "new" and route["domain"] in {"recipe", "dev"}:
+    if route["intent_type"] == "new" and route["domain"] in {"recipe", "dev", "naming"}:
         route["needs_rag"] = True
     topic = state.get("topic_state") or {}
     continuing = route.get("topic_action") == "continue" and topic.get("domain") == route["domain"]
@@ -479,5 +485,22 @@ async def chat_agent(state: GraphState) -> dict:
 
 async def naming_agent(state: GraphState) -> dict:
     """命理命名对话入口：结构化计算走 naming API，聊天负责参数补全和解释边界。"""
-    resp = await answer_llm.ainvoke(_qa_messages(state, NAMING_RULES, PERSONA_NAMING))
+    # 命理古籍只做证据检索，不能让 LLM 直接替代四柱计算和评分引擎。
+    chunks = await search_naming_knowledge(state["question"])
+    evidence = format_naming_context(chunks) if chunks else "未检索到命理古籍证据。不要编造书名、页码或原文。"
+    facts = extract_explicit_facts(state["question"])
+    fact_block = "；".join(f"{key}={value}" for key, value in facts.items()) or "无"
+    system = build_qa_system_prompt(PERSONA_NAMING, NAMING_RULES, state.get("sentiment"))
+    system += (
+        "\n\n【命理古籍检索结果】\n" + str(evidence)
+        + f"\n\n【当前消息已明确字段（不可重复追问）】\n{fact_block}"
+        + "\n\n引用规则：只引用检索结果中明确存在的书名、版本、页码和证据 ID；"
+          "没有命中时直说没有古籍证据。没有确定性计算结果时，不得凭模型记忆生成四柱、五行统计或笔画数字。古籍观点是传统文化材料，不得当作科学预测。"
+    )
+    messages = [SystemMessage(content=system), *_layered_context(state), HumanMessage(content=state["question"])]
+    resp = await answer_llm.ainvoke(messages)
+    # 出处不能依赖模型自觉：统一在最终消息尾部追加可审计引用。
+    citation_block = format_naming_citations(chunks) if chunks else "- 本轮未命中命理古籍知识库，以上内容不含古籍出处。"
+    content = resp.content if isinstance(resp.content, str) else str(resp.content)
+    resp = AIMessage(content=f"{content.rstrip()}\n\n### 参考出处\n{citation_block}")
     return {"messages": [resp]}
