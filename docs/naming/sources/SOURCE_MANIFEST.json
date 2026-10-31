@@ -7,9 +7,9 @@
       "version": "GF 3002-1999",
       "original_url": "https://www.moe.gov.cn/jyb_sjzl/ziliao/A19/201001/W020150902457900316281.pdf",
       "mirror_url": "https://github.com/zispace/hanzi-docs/blob/main/中国大陆/2-GF-语言文字规范/19991001-GF%203002-1999《GB13000.1字符集汉字笔顺规范》.pdf",
-      "local_file": "GF3002-1999-GB13000.1-stroke-order.pdf",
-      "sha256": "a3bfe6d5f969b1de5640e1f86a15afde196569d94a38faadfd8dbea1721e635a",
-      "usage": "候选字笔画和笔顺参考；不能替代康熙笔画表"
+      "local_file": "GF3002-1999-stroke-order-source-record.pdf",
+      "sha256": "9aad7132a4c2987c8a2786f78f2cdf969ee72217b1bfa69818f6ae4031d5dd10",
+      "usage": "版本和来源记录；当前不是标准全文，不能替代康熙笔画表"
     },
     {
       "id": "unicode-unihan",

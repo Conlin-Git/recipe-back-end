@@ -2,7 +2,7 @@
 
 ## 已纳入仓库的规范资料
 
-- `sources/GF3002-1999-GB13000.1-stroke-order.pdf`：教育部公开的 GB13000.1 汉字笔顺资料。
+- `sources/GF3002-1999-stroke-order-source-record.pdf`：教育部 GF 3002-1999 的来源、版本和下载记录；当前环境无法稳定取得旧站点附件全文，因此明确标记为 source record，不冒充标准全文。
 - `sources/GF3001-1997-components.md`：部件规范入口和下载地址记录。
 - `sources/SOURCE_MANIFEST.json`：来源 URL、版本、下载时间、SHA-256 和使用说明。
 
