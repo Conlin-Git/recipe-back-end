@@ -6,7 +6,8 @@
                                                     │ 条件路由 pick_agent
                               ┌── recipe_agent ⇄ recipe_tools（ReAct 循环）
                               ├── dev_agent ⇄ dev_tools（ReAct 循环）
-                              └── chat_agent
+                              ├── chat_agent
+                              └── naming_agent
                                                     ↓
                                                    END
 """
@@ -28,6 +29,7 @@ def build_graph():
     graph.add_node("dev_agent", nodes.dev_agent)
     graph.add_node("dev_tools", nodes.dev_tools_node)
     graph.add_node("chat_agent", nodes.chat_agent)
+    graph.add_node("naming_agent", nodes.naming_agent)
 
     graph.add_edge(START, "load_context")
     # 情感分析与编排分类并行：互不依赖，各写各的 state key

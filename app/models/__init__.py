@@ -3,5 +3,6 @@ from app.models.user import User
 from app.models.conversation import Conversation
 from app.models.message import Message
 from app.models.conversation_state import ConversationState
+from app.models.naming_run import NamingRun
 
-__all__ = ["User", "Conversation", "Message", "ConversationState"]
+__all__ = ["User", "Conversation", "Message", "ConversationState", "NamingRun"]

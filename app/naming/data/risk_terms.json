@@ -1,0 +1,17 @@
+{
+  "terms": [
+    {"term":"病","risk":"negative_word","severity":"high","note":"常见负面语义"},
+    {"term":"灾","risk":"negative_word","severity":"high","note":"常见负面语义"},
+    {"term":"凶","risk":"negative_word","severity":"high","note":"常见负面语义"},
+    {"term":"死","risk":"negative_word","severity":"high","note":"常见负面语义"},
+    {"term":"毒","risk":"negative_word","severity":"high","note":"常见负面语义"},
+    {"term":"傻","risk":"negative_word","severity":"high","note":"贬义词"},
+    {"term":"骗","risk":"negative_word","severity":"high","note":"负面行为语义"},
+    {"term":"屎","risk":"vulgar","severity":"high","note":"粗俗语义"},
+    {"term":"废","risk":"negative_word","severity":"high","note":"贬义词"},
+    {"term":"孤","risk":"cultural_risk","severity":"medium","note":"部分语境有孤独联想"},
+    {"term":"愁","risk":"cultural_risk","severity":"medium","note":"部分语境有忧愁联想"}
+  ],
+  "version": "risk-bootstrap-v1",
+  "source": "人工审核种子库；需按地区、网络语料和用途持续扩充"
+}

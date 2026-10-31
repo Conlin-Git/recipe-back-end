@@ -1,0 +1,56 @@
+{
+  "snapshot_version": "naming-sources-2026-10-31",
+  "sources": [
+    {
+      "id": "gf3002-1999",
+      "title": "GB13000.1字符集汉字笔顺规范",
+      "version": "GF 3002-1999",
+      "original_url": "https://www.moe.gov.cn/jyb_sjzl/ziliao/A19/201001/W020150902457900316281.pdf",
+      "mirror_url": "https://github.com/zispace/hanzi-docs/blob/main/中国大陆/2-GF-语言文字规范/19991001-GF%203002-1999《GB13000.1字符集汉字笔顺规范》.pdf",
+      "local_file": "GF3002-1999-GB13000.1-stroke-order.pdf",
+      "sha256": "a3bfe6d5f969b1de5640e1f86a15afde196569d94a38faadfd8dbea1721e635a",
+      "usage": "候选字笔画和笔顺参考；不能替代康熙笔画表"
+    },
+    {
+      "id": "unicode-unihan",
+      "title": "Unicode Han Database",
+      "version": "Unicode 18.0 / UAX #38",
+      "url": "https://www.unicode.org/reports/tr38/",
+      "usage": "读音、定义、异体字和字符属性参考；部署时按 Unicode 版本下载"
+    },
+    {
+      "id": "pmo-calendar",
+      "title": "中国科学院紫金山天文台历书资料",
+      "url": "https://www.pmo.cas.cn/xwdt2019/kpdt2019/202203/t20220309_6386774.html",
+      "usage": "历法、节气和干支计算校验；运行时记录历法版本"
+    },
+    {
+      "id": "kangxi-bootstrap-v1",
+      "title": "康熙笔画种子表（项目内结构化字段）",
+      "version": "kangxi-bootstrap-v1",
+      "local_file": "../../app/naming/data/kangxi_strokes.json",
+      "usage": "仅用于当前演示数据；正式环境必须替换为已授权、可审计的康熙笔画数据"
+    },
+    {
+      "id": "characters-bootstrap-v1",
+      "title": "汉字五行映射种子表",
+      "version": "characters-bootstrap-v1",
+      "local_file": "../../app/naming/data/characters.json",
+      "usage": "每字标注来源；不代表统一事实，正式上线需由命理顾问按流派审核"
+    },
+    {
+      "id": "risk-bootstrap-v1",
+      "title": "姓名负面风险人工审核种子表",
+      "version": "risk-bootstrap-v1",
+      "local_file": "../../app/naming/data/risk_terms.json",
+      "usage": "负面词、粗俗语义、文化联想和重复字；需结合授权现代语料扩充"
+    },
+    {
+      "id": "naming-rules-bootstrap-v1",
+      "title": "命理命名规则执行层",
+      "version": "bazi-bootstrap-v2",
+      "local_file": "../../app/naming/engine.py",
+      "usage": "四柱、五行平衡启发式和候选排序；不是科学预测模型"
+    }
+  ]
+}

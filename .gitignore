@@ -15,6 +15,9 @@ venv/
 
 # Docker 数据卷（MySQL / Milvus / Neo4j 本地数据）
 data/
+# 命理命名规则是可部署的源码数据，不随 Docker 运行时数据忽略
+!app/naming/data/
+!app/naming/data/*.json
 
 # 日志
 *.log

@@ -24,9 +24,11 @@ from app.graph.prompts import (
     DEV_CACHE_RULES,
     DEV_NEW_QUERY_RULES,
     DEV_RULES,
+    NAMING_RULES,
     ORCHESTRATOR_PROMPT,
     PERSONA_CHAT,
     PERSONA_DEV,
+    PERSONA_NAMING,
     PERSONA_RECIPE,
     RECIPE_CACHE_RULES,
     RECIPE_NEW_QUERY_RULES,
@@ -122,16 +124,19 @@ _FOLLOWUP_MARKERS = re.compile(
 _SWITCH_MARKERS = re.compile(r"(换个话题|换一个问题|另外问|顺便问|不聊这个|新问题)")
 _RECIPE_TERMS = re.compile(r"(菜谱|食谱|做法|食材|配料|火候|下锅|炒|煮|炖|烤|蒸|牛肉|鸡|鱼|汤|面|饭)")
 _DEV_TERMS = re.compile(r"(代码|编程|前端|后端|接口|API|Docker|Milvus|MySQL|Redis|数据库|依赖|配置|部署|报错|Python|JavaScript|TypeScript|Vue|React|SQL)", re.I)
+_NAMING_TERMS = re.compile(r"(八字|生辰|取名|起名|姓名评分|名字评分|网名|笔名|人名|命理|五行|喜用神|康熙笔画)")
 
 
 def _last_domain(state: GraphState) -> str:
     topic = state.get("topic_state") or {}
-    if topic.get("domain") in {"recipe", "dev", "chat"}:
+    if topic.get("domain") in {"recipe", "dev", "chat", "naming"}:
         return topic["domain"]
     for message in reversed(state.get("window") or []):
         content = str(message.get("content", ""))
         if _DEV_TERMS.search(content):
             return "dev"
+        if _NAMING_TERMS.search(content):
+            return "naming"
         if _RECIPE_TERMS.search(content):
             return "recipe"
     return "chat"
@@ -142,7 +147,9 @@ def _heuristic_route(state: GraphState) -> RouteDecision:
     previous_domain = _last_domain(state)
     explicit_switch = bool(_SWITCH_MARKERS.search(question))
     followup = bool(_FOLLOWUP_MARKERS.search(question)) and not explicit_switch
-    if _DEV_TERMS.search(question):
+    if _NAMING_TERMS.search(question):
+        domain = "naming"
+    elif _DEV_TERMS.search(question):
         domain = "dev"
     elif _RECIPE_TERMS.search(question):
         domain = "recipe"
@@ -150,7 +157,7 @@ def _heuristic_route(state: GraphState) -> RouteDecision:
         domain = previous_domain
     else:
         domain = "chat"
-    if followup and not (_DEV_TERMS.search(question) or _RECIPE_TERMS.search(question)):
+    if followup and not (_DEV_TERMS.search(question) or _RECIPE_TERMS.search(question) or _NAMING_TERMS.search(question)):
         domain = previous_domain
     topic_action = "continue" if followup else ("switch" if explicit_switch else "new")
     query = question
@@ -241,7 +248,7 @@ async def orchestrator_node(state: GraphState) -> dict:
         if not raw:
             raise ValueError("router returned no valid JSON")
         raw_domain = raw.get("domain")
-        domain = raw_domain if raw_domain in ("recipe", "dev", "chat") else heuristic["domain"]
+        domain = raw_domain if raw_domain in ("recipe", "dev", "chat", "naming") else heuristic["domain"]
         intent = raw.get("intent_type") if raw.get("intent_type") in ("followup", "new") else heuristic["intent_type"]
         confidence = raw.get("confidence", 0.7)
         try:
@@ -252,7 +259,7 @@ async def orchestrator_node(state: GraphState) -> dict:
         # 重新判成闲聊或菜谱。
         if heuristic["intent_type"] == "followup" and not raw.get("topic_action"):
             intent = "followup"
-        if heuristic["domain"] in {"recipe", "dev"} and _FOLLOWUP_MARKERS.search(state["question"]):
+        if heuristic["domain"] in {"recipe", "dev", "naming"} and _FOLLOWUP_MARKERS.search(state["question"]):
             domain = heuristic["domain"]
         route: RouteDecision = {
             "intent_type": intent,
@@ -296,7 +303,7 @@ def join_node(state: GraphState) -> dict:
 
 
 def pick_agent(state: GraphState) -> str:
-    return {"recipe": "recipe_agent", "dev": "dev_agent", "chat": "chat_agent"}.get(
+    return {"recipe": "recipe_agent", "dev": "dev_agent", "chat": "chat_agent", "naming": "naming_agent"}.get(
         (state.get("route") or {}).get("domain", "chat"), "chat_agent"
     )
 
@@ -467,4 +474,10 @@ def dev_should_continue(state: GraphState) -> str:
 
 async def chat_agent(state: GraphState) -> dict:
     resp = await answer_llm.ainvoke(_qa_messages(state, CHAT_RULES, PERSONA_CHAT))
+    return {"messages": [resp]}
+
+
+async def naming_agent(state: GraphState) -> dict:
+    """命理命名对话入口：结构化计算走 naming API，聊天负责参数补全和解释边界。"""
+    resp = await answer_llm.ainvoke(_qa_messages(state, NAMING_RULES, PERSONA_NAMING))
     return {"messages": [resp]}
