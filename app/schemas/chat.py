@@ -10,11 +10,14 @@ class ChatRequest(BaseModel):
     # 长度上限防成本攻击：超长输入直接 422，不进 LLM 链路
     message: str = Field(min_length=1, max_length=settings.CHAT_MESSAGE_MAX_LENGTH)
     conversation_id: Optional[int] = None  # 为空则创建新会话
+    # 前端重试点火请求时用于幂等，避免重复创建后台生成任务
+    client_turn_id: Optional[str] = Field(default=None, max_length=80)
 
 
 class ChatStartOut(BaseModel):
     """POST /chat 点火响应：生成在后台进行，前端凭此 ID 订阅 /chat/{id}/stream。"""
     conversation_id: int
+    turn_id: str
 
 
 class MessageOut(BaseModel):

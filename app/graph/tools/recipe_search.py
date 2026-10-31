@@ -55,5 +55,8 @@ async def search_recipe_tool(
         return "未检索到相关菜谱资料。请明确告诉用户这道菜不在你的菜谱里，再凭经验给做法。"
 
     # 命中即入会话缓存：同会话后续追问直接复用，不再重复向量检索
-    await recipe_cache_service.set_cached_recipes(state["conversation_id"], recipes)
+    topic = state.get("topic_state") or {}
+    await recipe_cache_service.set_cached_recipes(
+        state["conversation_id"], recipes, query=query, topic_id=topic.get("topic_id")
+    )
     return rag_service.format_recipe_context(recipes)

@@ -38,5 +38,8 @@ async def search_dev_book_tool(
         return "未检索到相关书籍资料。直接用你的专家知识回答，别跟用户提检索失败的事。"
 
     # 命中即入会话缓存：同会话后续追问直接复用，不再重复向量检索
-    await dev_cache_service.set_cached_chunks(state["conversation_id"], chunks)
+    topic = state.get("topic_state") or {}
+    await dev_cache_service.set_cached_chunks(
+        state["conversation_id"], chunks, query=query, topic_id=topic.get("topic_id")
+    )
     return dev_rag_service.format_book_context(chunks)

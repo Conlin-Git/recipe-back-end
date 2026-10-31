@@ -29,6 +29,8 @@ class Settings(BaseSettings):
     ZHIPU_API_KEY: str = ""
     ZHIPU_BASE_URL: str = ""
     ZHIPU_LLM_MODEL: str = ""
+    # 主对话模型服务商。生产默认保留智谱，本地可切到已验证可用的 SiliconFlow。
+    LLM_PROVIDER: str = "zhipu"
     # 思考模式：disabled 关闭隐藏推理（实测可省 ~60% 生成时间，菜谱问答不需要深推理）；
     # GLM-4.5 系列与方舟同样支持 thinking.type 参数，需要更强推理质量时改 enabled，
     # 置空字符串则不传该参数
@@ -36,15 +38,15 @@ class Settings(BaseSettings):
 
     @property
     def LLM_API_KEY(self) -> str:
-        return self.ZHIPU_API_KEY
+        return self.SILICONFLOW_API_KEY if self.LLM_PROVIDER == "siliconflow" else self.ZHIPU_API_KEY
 
     @property
     def LLM_BASE_URL(self) -> str:
-        return self.ZHIPU_BASE_URL
+        return self.SILICONFLOW_BASE_URL if self.LLM_PROVIDER == "siliconflow" else self.ZHIPU_BASE_URL
 
     @property
     def LLM_MODEL(self) -> str:
-        return self.ZHIPU_LLM_MODEL
+        return self.SILICONFLOW_LLM_MODEL if self.LLM_PROVIDER == "siliconflow" else self.ZHIPU_LLM_MODEL
 
     # Embedding（可以是和对话不同的服务商）
     EMBEDDING_PROVIDER: str = "siliconflow"
@@ -106,12 +108,12 @@ class Settings(BaseSettings):
     CHAT_RATE_LIMIT_PER_MINUTE: int = 20  # 每用户每分钟对话请求上限（每次对话触发多路 LLM 调用）
 
     # 对话上下文
-    CHAT_CONTEXT_ROUNDS: int = 5          # Redis 热上下文存储窗口：保留最近几轮原文
+    CHAT_CONTEXT_ROUNDS: int = 8          # Redis 热上下文存储窗口：保留最近几轮原文
     CHAT_CONTEXT_TTL_SECONDS: int = 7 * 24 * 3600  # 热上下文缓存 7 天
     # 上下文压缩（发给 LLM 前的整形）
-    CHAT_CONTEXT_FULL_ROUNDS: int = 2     # 最近几轮保留全文，更早的截断
-    CHAT_CONTEXT_TRUNCATE_CHARS: int = 200   # 较早消息截断长度
-    CHAT_CONTEXT_TOKEN_BUDGET: int = 2000    # 热上下文总字符预算（中文≈1字符1token），超出从最旧整轮丢弃
+    CHAT_CONTEXT_FULL_ROUNDS: int = 3     # 最近几轮保留全文，更早的截断
+    CHAT_CONTEXT_TRUNCATE_CHARS: int = 400   # 较早消息截断长度
+    CHAT_CONTEXT_TOKEN_BUDGET: int = 5000    # 热上下文 token 估算预算，超出从最旧整轮丢弃
     SUMMARY_SOURCE_MAX_CHARS: int = 500      # 喂给摘要器的每条消息截断长度（提取要点不需要原文，省输入 token）
     # LangSmith 可视化调试（smith.langchain.com，配了 API_KEY 才启用）
     LANGSMITH_TRACING: bool = False
@@ -129,7 +131,7 @@ class Settings(BaseSettings):
     DEV_CACHE_MAX_ITEMS: int = 5                  # 单会话 Redis 书摘缓存条数上限（追问复用）
 
     # RAG 检索
-    RAG_TOP_K: int = 1                    # 重排后最终保留的菜谱数
+    RAG_TOP_K: int = 3                    # 重排后最终保留的菜谱候选数
     RAG_SCORE_THRESHOLD: float = 0.55     # COSINE 相似度阈值，低于则不走 RAG
     RAG_RERANK_CANDIDATES: int = 20       # 重排前 over-fetch 的候选数（向量检索粗排 → rerank 精排）
     RAG_RERANK_SCORE_THRESHOLD: float = 0.3  # rerank 相关性阈值，低于则丢弃；全低于则退化为纯 LLM

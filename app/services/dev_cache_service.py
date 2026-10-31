@@ -9,6 +9,7 @@ search_dev_book 工具检索并刷新缓存。
 上限 DEV_CACHE_MAX_ITEMS 条，TTL 与热上下文一致（7 天）。
 """
 import json
+from datetime import datetime, timezone
 
 from app.config import settings
 from app.database.redis import redis_client
@@ -24,13 +25,26 @@ async def get_cached_chunks(conversation_id: int) -> list[dict]:
     return json.loads(raw) if raw else []
 
 
-async def set_cached_chunks(conversation_id: int, chunks: list[dict]) -> None:
+async def set_cached_chunks(
+    conversation_id: int, chunks: list[dict], query: str | None = None,
+    topic_id: str | None = None,
+) -> None:
     """新检索到的书摘块并入缓存：按 id 去重，新命中的排前面，超出上限截断。"""
     if not chunks:
         return
     existing = await get_cached_chunks(conversation_id)
-    new_ids = {c["id"] for c in chunks}
-    merged = list(chunks) + [c for c in existing if c.get("id") not in new_ids]
+    enriched = [
+        {
+            **c,
+            "retrieved_query": query or c.get("retrieved_query", ""),
+            "topic_id": topic_id or c.get("topic_id", ""),
+            "evidence_id": c.get("evidence_id") or f"dev:{c.get('id', '')}",
+            "retrieved_at": c.get("retrieved_at") or datetime.now(timezone.utc).isoformat(),
+        }
+        for c in chunks
+    ]
+    new_ids = {c["id"] for c in enriched}
+    merged = enriched + [c for c in existing if c.get("id") not in new_ids]
     merged = merged[: settings.DEV_CACHE_MAX_ITEMS]
     await redis_client.set(
         _cache_key(conversation_id), json.dumps(merged, ensure_ascii=False),

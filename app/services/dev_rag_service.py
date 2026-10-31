@@ -113,7 +113,8 @@ def format_book_context(chunks: list[dict]) -> str:
     """把检索到的书摘块组装成 prompt 资料（书名 + 章节 + 页码 + 正文）。"""
     blocks = []
     for i, c in enumerate(chunks, 1):
-        parts = [f"【书籍资料{i}】《{c.get('title', '')}》"]
+        evidence_id = c.get("evidence_id") or f"dev:{c.get('id', i)}"
+        parts = [f"【书籍资料{i}｜证据ID：{evidence_id}】《{c.get('title', '')}》"]
         if c.get("heading"):
             parts.append(f"章节：{c['heading']}")
         if c.get("page_start"):

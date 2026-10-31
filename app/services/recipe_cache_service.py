@@ -9,6 +9,7 @@
 上限 RECIPE_CACHE_MAX_ITEMS 条，TTL 与热上下文一致（7 天）。
 """
 import json
+from datetime import datetime, timezone
 
 from app.config import settings
 from app.database.redis import redis_client
@@ -24,13 +25,26 @@ async def get_cached_recipes(conversation_id: int) -> list[dict]:
     return json.loads(raw) if raw else []
 
 
-async def set_cached_recipes(conversation_id: int, recipes: list[dict]) -> None:
+async def set_cached_recipes(
+    conversation_id: int, recipes: list[dict], query: str | None = None,
+    topic_id: str | None = None,
+) -> None:
     """新检索到的菜谱并入缓存：按 id 去重，新命中的排前面，超出上限截断。"""
     if not recipes:
         return
     existing = await get_cached_recipes(conversation_id)
-    new_ids = {r["id"] for r in recipes}
-    merged = list(recipes) + [r for r in existing if r.get("id") not in new_ids]
+    enriched = [
+        {
+            **r,
+            "retrieved_query": query or r.get("retrieved_query", ""),
+            "topic_id": topic_id or r.get("topic_id", ""),
+            "evidence_id": r.get("evidence_id") or f"recipe:{r.get('id', '')}",
+            "retrieved_at": r.get("retrieved_at") or datetime.now(timezone.utc).isoformat(),
+        }
+        for r in recipes
+    ]
+    new_ids = {r["id"] for r in enriched}
+    merged = enriched + [r for r in existing if r.get("id") not in new_ids]
     merged = merged[: settings.RECIPE_CACHE_MAX_ITEMS]
     await redis_client.set(
         _cache_key(conversation_id), json.dumps(merged, ensure_ascii=False),

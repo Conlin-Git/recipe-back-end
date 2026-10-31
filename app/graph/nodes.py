@@ -34,7 +34,7 @@ from app.graph.prompts import (
     SENTIMENT_PROMPT,
     build_qa_system_prompt,
 )
-from app.graph.state import GraphState, RouteDecision
+from app.graph.state import GraphState, RouteDecision, TopicState
 from app.graph.tools.dev_book_search import search_dev_book_tool
 from app.graph.tools.recipe_search import search_recipe_tool
 from app.services import (
@@ -65,18 +65,130 @@ async def load_context(state: GraphState) -> dict:
             recipe_cache_service.get_cached_recipes(cid),
             dev_cache_service.get_cached_chunks(cid),
         )
-    return {"summary": summary, "window": window, "recipe_cache": cache, "dev_cache": dev_cache}
+        topic_state = await context_service.load_topic_state(db, cid)
+    # 点火阶段已先把本轮用户消息写入 MySQL；Redis miss 从 MySQL 恢复时将它移除，
+    # 避免随后作为 HumanMessage 再注入一次。
+    if window and window[-1].get("role") == "user" and window[-1].get("content") == state["question"]:
+        window = window[:-1]
+    return {
+        "summary": summary,
+        "window": window,
+        "recipe_cache": cache,
+        "dev_cache": dev_cache,
+        "topic_state": topic_state,
+    }
 
 
 # ---------------- 情感分析 agent ----------------
 
 def _parse_json(text: str) -> dict:
-    m = re.search(r"\{.*\}", text or "", re.S)
-    return json.loads(m.group(0)) if m else {}
+    """解析模型 JSON，避免贪婪正则吞掉多个对象或 Markdown 尾注。"""
+    text = (text or "").strip()
+    if not text:
+        return {}
+    candidates = [text]
+    fenced = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", text, re.S | re.I)
+    if fenced:
+        candidates.insert(0, fenced.group(1))
+    decoder = json.JSONDecoder()
+    for candidate in candidates:
+        for index, char in enumerate(candidate):
+            if char != "{":
+                continue
+            try:
+                value, _ = decoder.raw_decode(candidate[index:])
+                if isinstance(value, dict):
+                    return value
+            except json.JSONDecodeError:
+                continue
+    return {}
+
+
+def _as_bool(value, default: bool = False) -> bool:
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        normalized = value.strip().lower()
+        if normalized in {"true", "1", "yes", "是"}:
+            return True
+        if normalized in {"false", "0", "no", "否"}:
+            return False
+    return default
+
+
+_FOLLOWUP_MARKERS = re.compile(
+    r"(刚才|上一条|上面|前面|继续|然后|那|它|这个|那个|这道|这本|怎么|为什么|还有|再说|依赖|配置|改成|补充)"
+)
+_SWITCH_MARKERS = re.compile(r"(换个话题|换一个问题|另外问|顺便问|不聊这个|新问题)")
+_RECIPE_TERMS = re.compile(r"(菜谱|食谱|做法|食材|配料|火候|下锅|炒|煮|炖|烤|蒸|牛肉|鸡|鱼|汤|面|饭)")
+_DEV_TERMS = re.compile(r"(代码|编程|前端|后端|接口|API|Docker|Milvus|MySQL|Redis|数据库|依赖|配置|部署|报错|Python|JavaScript|TypeScript|Vue|React|SQL)", re.I)
+
+
+def _last_domain(state: GraphState) -> str:
+    topic = state.get("topic_state") or {}
+    if topic.get("domain") in {"recipe", "dev", "chat"}:
+        return topic["domain"]
+    for message in reversed(state.get("window") or []):
+        content = str(message.get("content", ""))
+        if _DEV_TERMS.search(content):
+            return "dev"
+        if _RECIPE_TERMS.search(content):
+            return "recipe"
+    return "chat"
+
+
+def _heuristic_route(state: GraphState) -> RouteDecision:
+    question = str(state.get("question", "")).strip()
+    previous_domain = _last_domain(state)
+    explicit_switch = bool(_SWITCH_MARKERS.search(question))
+    followup = bool(_FOLLOWUP_MARKERS.search(question)) and not explicit_switch
+    if _DEV_TERMS.search(question):
+        domain = "dev"
+    elif _RECIPE_TERMS.search(question):
+        domain = "recipe"
+    elif followup:
+        domain = previous_domain
+    else:
+        domain = "chat"
+    if followup and not (_DEV_TERMS.search(question) or _RECIPE_TERMS.search(question)):
+        domain = previous_domain
+    topic_action = "continue" if followup else ("switch" if explicit_switch else "new")
+    query = question
+    references = {}
+    topic = state.get("topic_state") or {}
+    topic_id = str(topic.get("topic_id") or "")
+    if followup and topic_id:
+        for pronoun in ("它", "这个", "那个", "这道", "这本"):
+            if pronoun in question:
+                references[pronoun] = topic_id
+        if references:
+            query = f"{topic.get('goal', '')}；追问：{question}".strip("；")
+    needs_rag = domain in {"recipe", "dev"} and (not followup or bool(_DEV_TERMS.search(question) or _RECIPE_TERMS.search(question)))
+    return {
+        "intent_type": "followup" if followup else "new",
+        "domain": domain,
+        "summary_sufficient": False,
+        "needs_rag": needs_rag,
+        "reason": "规则路由兜底，避免模型分类失败时误进入菜谱域",
+        "confidence": 0.82 if domain in {"recipe", "dev"} else 0.6,
+        "topic_action": topic_action,
+        "context_scope": ["active_topic", "recent_turns"] if followup else ["active_topic"],
+        "retrieval_query": query,
+        "resolved_references": references,
+        "needs_clarification": False,
+        "missing_information": [],
+    }
 
 
 async def sentiment_node(state: GraphState) -> dict:
     """分析用户情感（免费小模型），输出语气建议给问答 agent。异常 fail-open 为中性。"""
+    # 知识问答不需要额外的情感模型调用；只在明显情绪或闲聊场景启用，
+    # 减少每轮并行调用对延迟和事实提示的干扰。
+    question = str(state.get("question", ""))
+    if (_DEV_TERMS.search(question) or _RECIPE_TERMS.search(question)) and not re.search(
+        r"(生气|焦虑|崩溃|烦|气死|难过|开心|谢谢|救命|急)", question
+    ):
+        return {"sentiment": DEFAULT_SENTIMENT}
     try:
         resp = await sentiment_llm.ainvoke(
             [{"role": "user", "content": SENTIMENT_PROMPT.format(question=state["question"])}]
@@ -99,14 +211,6 @@ async def sentiment_node(state: GraphState) -> dict:
 
 # ---------------- 管理编排 agent ----------------
 
-# 编排解析失败时的兜底：复刻重构前「每条消息都尝试菜谱检索」的行为
-_FALLBACK_ROUTE: RouteDecision = {
-    "intent_type": "new", "domain": "recipe",
-    "summary_sufficient": False, "needs_rag": True,
-    "reason": "编排分类失败，按菜谱域检索兜底",
-}
-
-
 def _recent_brief(window: list[dict]) -> str:
     """给编排看的最近一轮对话（截断，意图分类不需要全文）。"""
     tail = (window or [])[-2:]
@@ -117,33 +221,73 @@ def _recent_brief(window: list[dict]) -> str:
 
 async def orchestrator_node(state: GraphState) -> dict:
     """意图分类 + 路由决策（主模型，JSON 结构化输出）。"""
+    heuristic = _heuristic_route(state)
     cached_titles = "、".join(
         r.get("title", "") for r in state.get("recipe_cache") or []
+    ) or "无"
+    cached_dev_titles = "、".join(
+        r.get("title", r.get("chapter", "")) for r in state.get("dev_cache") or []
     ) or "无"
     try:
         resp = await router_llm.ainvoke([{"role": "user", "content": ORCHESTRATOR_PROMPT.format(
             summary=state.get("summary") or "无",
             recent=_recent_brief(state.get("window")),
             cached_recipes=cached_titles,
+            cached_dev=cached_dev_titles,
+            topic_state=json.dumps(state.get("topic_state") or {}, ensure_ascii=False),
             question=state["question"],
         )}])
         raw = _parse_json(resp.content)
-        route: RouteDecision = {
-            "intent_type": raw.get("intent_type") if raw.get("intent_type") in ("followup", "new") else "new",
-            "domain": raw.get("domain") if raw.get("domain") in ("recipe", "dev", "chat") else "chat",
-            "summary_sufficient": bool(raw.get("summary_sufficient")),
-            "needs_rag": bool(raw.get("needs_rag")),
-            "reason": str(raw.get("reason", "")),
-        }
         if not raw:
-            route = _FALLBACK_ROUTE
+            raise ValueError("router returned no valid JSON")
+        raw_domain = raw.get("domain")
+        domain = raw_domain if raw_domain in ("recipe", "dev", "chat") else heuristic["domain"]
+        intent = raw.get("intent_type") if raw.get("intent_type") in ("followup", "new") else heuristic["intent_type"]
+        confidence = raw.get("confidence", 0.7)
+        try:
+            confidence = max(0.0, min(1.0, float(confidence)))
+        except (TypeError, ValueError):
+            confidence = 0.7
+        # 短追问、代词和明确领域词优先接受规则判断，避免模型把「那依赖怎么配」
+        # 重新判成闲聊或菜谱。
+        if heuristic["intent_type"] == "followup" and not raw.get("topic_action"):
+            intent = "followup"
+        if heuristic["domain"] in {"recipe", "dev"} and _FOLLOWUP_MARKERS.search(state["question"]):
+            domain = heuristic["domain"]
+        route: RouteDecision = {
+            "intent_type": intent,
+            "domain": domain,
+            "summary_sufficient": _as_bool(raw.get("summary_sufficient"), False),
+            "needs_rag": _as_bool(raw.get("needs_rag"), heuristic["needs_rag"]),
+            "reason": str(raw.get("reason") or heuristic["reason"]),
+            "confidence": confidence,
+            "topic_action": str(raw.get("topic_action") or heuristic["topic_action"]),
+            "context_scope": raw.get("context_scope") if isinstance(raw.get("context_scope"), list) else heuristic["context_scope"],
+            "retrieval_query": str(raw.get("retrieval_query") or heuristic["retrieval_query"]),
+            "resolved_references": raw.get("resolved_references") if isinstance(raw.get("resolved_references"), dict) else heuristic["resolved_references"],
+            "needs_clarification": _as_bool(raw.get("needs_clarification"), False),
+            "missing_information": raw.get("missing_information") if isinstance(raw.get("missing_information"), list) else [],
+        }
     except Exception as e:
-        print(f"⚠️ 编排分类异常：{e}")
-        route = _FALLBACK_ROUTE
+        print(f"⚠️ 编排分类异常，使用规则路由：{e}")
+        route = heuristic
+
+    if route["intent_type"] == "new" and route["domain"] in {"recipe", "dev"}:
+        route["needs_rag"] = True
+    topic = state.get("topic_state") or {}
+    continuing = route.get("topic_action") == "continue" and topic.get("domain") == route["domain"]
+    topic_state: TopicState = {
+        "domain": route["domain"],
+        "topic_id": str(topic.get("topic_id") if continuing else f"{route['domain']}:{state['question'][:60]}"),
+        "goal": str(topic.get("goal") if continuing else state["question"]),
+        "entities": list(topic.get("entities") or []) if continuing else [],
+        "constraints": list(topic.get("constraints") or []) if continuing else [],
+        "open_loops": list(topic.get("open_loops") or []) if continuing else [],
+    }
 
     print(f"🧭 编排决策：{route['intent_type']}/{route['domain']} "
-          f"needs_rag={route['needs_rag']} 摘要够答={route['summary_sufficient']}（{route['reason']}）")
-    return {"route": route}
+          f"needs_rag={route['needs_rag']} confidence={route['confidence']:.2f}（{route['reason']}）")
+    return {"route": route, "topic_state": topic_state}
 
 
 def join_node(state: GraphState) -> dict:
@@ -160,20 +304,19 @@ def pick_agent(state: GraphState) -> str:
 # ---------------- 问答 agent 公共 ----------------
 
 def _layered_context(state: GraphState) -> list[dict]:
-    """按编排结果分层取上下文，同时做跨域防污染：
-    - 追问且摘要够答 → 只带摘要
-    - 追问但摘要不足 → 摘要 + 完整滑窗
-    - 全新话题 → 只带摘要，不带滑窗：滑窗里是上一个话题的对话原文，
-      跨域切换时（做菜 → 编程）带进来会污染回答，dev agent 会学历史
-      的口气拿做菜类比技术。摘要只留长期偏好和结论，污染面小。
-    """
+    """按主题状态和最近消息组装上下文，路由不再拥有丢弃精确事实的权限。"""
     route = state.get("route") or {}
-    include_window = (
-        route.get("intent_type") == "followup" and not route.get("summary_sufficient")
-    )
     messages = []
+    if state.get("topic_state"):
+        messages.append({
+            "role": "system",
+            "content": "当前主题状态（仅用于消解指代，事实以当前问题和证据为准）："
+            + json.dumps(state["topic_state"], ensure_ascii=False),
+        })
     if state.get("summary"):
         messages.append({"role": "system", "content": f"前情摘要：{state['summary']}"})
+    # 追问始终携带最近两轮；跨域新话题只带结构化主题状态，避免旧领域污染。
+    include_window = route.get("intent_type") == "followup" or route.get("topic_action") == "continue"
     if include_window:
         messages.extend(state.get("window") or [])
     return messages
@@ -227,7 +370,7 @@ async def recipe_agent(state: GraphState) -> dict:
             # 「只为决定检索词」的 LLM 调用，首轮行为 100% 确定
             tool_call = {
                 "name": "search_recipe",
-                "args": {"query": state["question"]},
+                "args": {"query": (state.get("route") or {}).get("retrieval_query") or state["question"]},
                 "id": "forced_search_1",
                 "type": "tool_call",
             }
@@ -237,14 +380,23 @@ async def recipe_agent(state: GraphState) -> dict:
             base += [AIMessage(content="", tool_calls=[tool_call]), tool_msg]
         resp = await _recipe_llm.ainvoke(base)
         return {"messages": [*base, resp]}
-    resp = await _recipe_llm.ainvoke(messages)
+    tool_count = sum(getattr(m, "type", "") == "tool" for m in messages)
+    # 达到工具上限后禁用工具生成最终答复，避免以空内容结束一轮对话。
+    resp = await (answer_llm if tool_count >= 3 else _recipe_llm).ainvoke(messages)
     return {"messages": [resp]}
 
 
 def recipe_should_continue(state: GraphState) -> str:
     """模型请求调工具 → recipe_tools；给出最终回答 → END。"""
     last = state["messages"][-1]
-    return "recipe_tools" if getattr(last, "tool_calls", None) else END
+    tool_calls = getattr(last, "tool_calls", None) or []
+    if not tool_calls:
+        return END
+    # 工具循环有硬上限，防止模型重复检索或在异常结果上自旋。
+    tool_messages = [m for m in state["messages"] if getattr(m, "type", "") == "tool"]
+    if len(tool_messages) >= 3:
+        return END
+    return "recipe_tools"
 
 
 # ---------------- 开发知识问答 agent（ReAct + search_dev_book 工具） ----------------
@@ -284,7 +436,7 @@ async def dev_agent(state: GraphState) -> dict:
             # AIMessage/ToolMessage，让模型基于书摘生成回答，首轮行为 100% 确定
             tool_call = {
                 "name": "search_dev_book",
-                "args": {"query": state["question"]},
+                "args": {"query": (state.get("route") or {}).get("retrieval_query") or state["question"]},
                 "id": "forced_search_1",
                 "type": "tool_call",
             }
@@ -294,18 +446,25 @@ async def dev_agent(state: GraphState) -> dict:
             base += [AIMessage(content="", tool_calls=[tool_call]), tool_msg]
         resp = await _dev_llm.ainvoke(base)
         return {"dev_messages": [*base, resp]}
-    resp = await _dev_llm.ainvoke(messages)
+    tool_count = sum(getattr(m, "type", "") == "tool" for m in messages)
+    resp = await (answer_llm if tool_count >= 3 else _dev_llm).ainvoke(messages)
     return {"dev_messages": [resp]}
 
 
 def dev_should_continue(state: GraphState) -> str:
     """模型请求调工具 → dev_tools；给出最终回答 → END。"""
     last = state["dev_messages"][-1]
-    return "dev_tools" if getattr(last, "tool_calls", None) else END
+    tool_calls = getattr(last, "tool_calls", None) or []
+    if not tool_calls:
+        return END
+    tool_messages = [m for m in state["dev_messages"] if getattr(m, "type", "") == "tool"]
+    if len(tool_messages) >= 3:
+        return END
+    return "dev_tools"
 
 
 # ---------------- 闲聊/通用 agent ----------------
 
 async def chat_agent(state: GraphState) -> dict:
-    await answer_llm.ainvoke(_qa_messages(state, CHAT_RULES, PERSONA_CHAT))
-    return {}
+    resp = await answer_llm.ainvoke(_qa_messages(state, CHAT_RULES, PERSONA_CHAT))
+    return {"messages": [resp]}

@@ -2,5 +2,6 @@
 from app.models.user import User
 from app.models.conversation import Conversation
 from app.models.message import Message
+from app.models.conversation_state import ConversationState
 
-__all__ = ["User", "Conversation", "Message"]
+__all__ = ["User", "Conversation", "Message", "ConversationState"]

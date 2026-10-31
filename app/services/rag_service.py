@@ -173,7 +173,8 @@ def format_recipe_context(recipes: list[dict]) -> str:
     """把检索到的菜谱组装成 prompt 资料（含步骤和每步配图链接）。"""
     blocks = []
     for i, r in enumerate(recipes, 1):
-        parts = [f"【菜谱{i}】{r.get('title', '')}"]
+        evidence_id = r.get("evidence_id") or f"recipe:{r.get('id', i)}"
+        parts = [f"【菜谱{i}｜证据ID：{evidence_id}】{r.get('title', '')}"]
         if r.get("desc"):
             parts.append(f"简介：{r['desc']}")
         if r.get("difficulty"):

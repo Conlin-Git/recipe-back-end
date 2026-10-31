@@ -29,3 +29,6 @@ data/
 # 头像
 uploads/avatars/*
 !uploads/avatars/.gitkeep
+# local restore backups
+data-local-backup-*/
+data/mysql-failed-*/

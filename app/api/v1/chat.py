@@ -39,8 +39,8 @@ async def chat(
 ):
     # 限流必须在点火之前：每次生成会触发编排/情感/（可能）校验多路 LLM 调用
     await rate_limit.check_chat_rate(current_user.id, settings.CHAT_RATE_LIMIT_PER_MINUTE)
-    conv = await stream_service.start_generation(db, current_user, req)
-    return ChatStartOut(conversation_id=conv.id)
+    conv, turn_id = await stream_service.start_generation(db, current_user, req)
+    return ChatStartOut(conversation_id=conv.id, turn_id=turn_id)
 
 
 @router.post("/{conversation_id}/stop", status_code=204)

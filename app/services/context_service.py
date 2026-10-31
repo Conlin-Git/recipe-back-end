@@ -24,15 +24,19 @@
 """
 import json
 import re
+from datetime import datetime
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.crud import conversation as conv_crud
 from app.database.redis import redis_client
 from app.models.conversation import Conversation
+from app.models.conversation_state import ConversationState
 
 MAX_MSGS = settings.CHAT_CONTEXT_ROUNDS * 2  # 一轮 = 一问一答
+_TOPIC_STATE_PREFIX = "chat:topic:"
 
 _IMG_PATTERN = re.compile(r"!\[[^\]]*\]\([^)]*\)")
 
@@ -48,6 +52,19 @@ def _truncate(text: str) -> str:
     return text if len(text) <= limit else text[:limit] + "…"
 
 
+def _estimate_tokens(text: str) -> int:
+    """轻量 token 估算，避免把字符数直接当 token 数。
+
+    中文和代码中的非 ASCII 字符通常接近一个 token；连续 ASCII 文本按四字符
+    估算。它不是模型 tokenizer，但比统一按字符截断稳定，也不增加运行时依赖。
+    """
+    if not text:
+        return 0
+    ascii_count = sum(ord(ch) < 128 for ch in text)
+    other_count = len(text) - ascii_count
+    return other_count + max(1, (ascii_count + 3) // 4)
+
+
 def shape_context(ctx: list[dict]) -> list[dict]:
     """P1 读时整形：分级截断 + token 预算，控制发给 LLM 的历史体积。"""
     full_msgs = settings.CHAT_CONTEXT_FULL_ROUNDS * 2
@@ -57,7 +74,7 @@ def shape_context(ctx: list[dict]) -> list[dict]:
     shaped += ctx[-full_msgs:]
     # 预算仍超 → 从最旧开始整轮丢弃（一轮 = 一问一答两条，成对删）
     budget = settings.CHAT_CONTEXT_TOKEN_BUDGET
-    while len(shaped) > full_msgs and sum(len(m["content"]) for m in shaped) > budget:
+    while len(shaped) > full_msgs and sum(_estimate_tokens(m["content"]) for m in shaped) > budget:
         del shaped[:2]
     return shaped
 
@@ -154,11 +171,83 @@ async def save_summary(db: AsyncSession, conv: Conversation, summary: str) -> No
 
 
 async def clear_context(conversation_id: int) -> None:
-    """删除会话时清理缓存（热上下文 + 摘要 + 菜谱片段缓存）。"""
-    from app.services import recipe_cache_service
+    """删除会话时清理所有上下文缓存。"""
+    from app.services import dev_cache_service, recipe_cache_service
 
-    await redis_client.delete(_ctx_key(conversation_id), _summary_key(conversation_id))
+    await redis_client.delete(
+        _ctx_key(conversation_id),
+        _summary_key(conversation_id),
+        f"{_TOPIC_STATE_PREFIX}{conversation_id}",
+    )
     await recipe_cache_service.clear_cache(conversation_id)
+    await dev_cache_service.clear_cache(conversation_id)
+
+
+async def load_topic_state(db: AsyncSession, conversation_id: int) -> dict:
+    """读取当前主题状态，Redis miss 时从 MySQL 恢复。"""
+    raw = await redis_client.get(f"{_TOPIC_STATE_PREFIX}{conversation_id}")
+    if raw:
+        try:
+            value = json.loads(raw)
+            if isinstance(value, dict):
+                return value
+        except (TypeError, json.JSONDecodeError):
+            pass
+    try:
+        result = await db.execute(
+            select(ConversationState).where(
+                ConversationState.conversation_id == conversation_id
+            )
+        )
+        row = result.scalar_one_or_none()
+        if row and row.state_json:
+            value = json.loads(row.state_json)
+            if isinstance(value, dict):
+                await redis_client.set(
+                    f"{_TOPIC_STATE_PREFIX}{conversation_id}",
+                    json.dumps(value, ensure_ascii=False),
+                    ex=settings.CHAT_CONTEXT_TTL_SECONDS,
+                )
+                return value
+    except Exception as exc:
+        # 兼容尚未执行 init_db 的旧环境，Redis 状态仍可工作。
+        await db.rollback()
+        print(f"⚠️ 读取会话主题状态失败：{exc}")
+    return {}
+
+
+async def save_topic_state(
+    db: AsyncSession, conversation_id: int, state: dict, commit: bool = True
+) -> None:
+    """双写当前主题状态；MySQL 作为持久层，Redis 负责热读取。"""
+    await redis_client.set(
+        f"{_TOPIC_STATE_PREFIX}{conversation_id}",
+        json.dumps(state, ensure_ascii=False),
+        ex=settings.CHAT_CONTEXT_TTL_SECONDS,
+    )
+    try:
+        result = await db.execute(
+            select(ConversationState).where(
+                ConversationState.conversation_id == conversation_id
+            )
+        )
+        row = result.scalar_one_or_none()
+        if row is None:
+            row = ConversationState(
+                conversation_id=conversation_id,
+                state_json=json.dumps(state, ensure_ascii=False),
+                revision=1,
+            )
+            db.add(row)
+        else:
+            row.state_json = json.dumps(state, ensure_ascii=False)
+            row.revision += 1
+            row.updated_at = datetime.now()
+        if commit:
+            await db.commit()
+    except Exception as exc:
+        await db.rollback()
+        print(f"⚠️ 持久化会话主题状态失败：{exc}")
 
 
 async def _set_ctx(conversation_id: int, ctx: list[dict]) -> None:

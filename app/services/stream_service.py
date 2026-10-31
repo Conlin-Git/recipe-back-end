@@ -17,6 +17,7 @@
 """
 import asyncio
 import json
+from uuid import uuid4
 from typing import AsyncGenerator
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -55,6 +56,14 @@ def _gen_key(conversation_id: int) -> str:
     return f"chat:gen:{conversation_id}"
 
 
+def _turn_key(conversation_id: int, client_turn_id: str) -> str:
+    return f"chat:turn:{conversation_id}:{client_turn_id}"
+
+
+def _client_turn_key(user_id: int, client_turn_id: str) -> str:
+    return f"chat:client-turn:{user_id}:{client_turn_id}"
+
+
 async def _emit(conversation_id: int, event: dict) -> None:
     """事件写入流缓冲（单字段 data 存 JSON），并续 TTL（长生成防缓冲先过期）。"""
     await redis_client.xadd(
@@ -80,18 +89,50 @@ async def generating_flags(conversation_ids: list[int]) -> list[bool]:
 
 async def start_generation(
     db: AsyncSession, user: User, req: ChatRequest
-) -> Conversation:
+) -> tuple[Conversation, str]:
     """点火：防重入 → 建/取会话 → 起后台生成任务 → 立即返回（不等生成）。"""
+    if req.client_turn_id:
+        existing = await redis_client.get(_client_turn_key(user.id, req.client_turn_id))
+        if existing:
+            try:
+                existing_conversation_id, existing_turn_id = str(existing).split(":", 1)
+                existing_conv = await conv_crud.get_conversation(
+                    db, int(existing_conversation_id), user.id
+                )
+                if existing_conv:
+                    return existing_conv, existing_turn_id
+            except (ValueError, TypeError):
+                pass
     conv = await chat_service.get_or_create_conversation(db, user, req)
-    if await is_generating(conv.id):
+    turn_id = req.client_turn_id or uuid4().hex
+    if req.client_turn_id:
+        existing_turn = await redis_client.get(_turn_key(conv.id, req.client_turn_id))
+        if existing_turn:
+            return conv, str(existing_turn)
+    acquired = await redis_client.set(_gen_key(conv.id), "1", ex=GEN_TTL_SECONDS, nx=True)
+    if not acquired:
         raise BusinessException(409, "上一条还在生成中，等它说完吧")
-    await redis_client.set(_gen_key(conv.id), "1", ex=GEN_TTL_SECONDS)
+    # 点火时立即持久化用户问题，生成失败或 Redis 丢失时仍能恢复这一轮。
+    try:
+        await conv_crud.add_message(db, conv.id, "user", req.message)
+    except Exception:
+        await redis_client.delete(_gen_key(conv.id))
+        raise
+    if req.client_turn_id:
+        await redis_client.set(
+            _turn_key(conv.id, req.client_turn_id), turn_id, ex=GEN_TTL_SECONDS
+        )
+        await redis_client.set(
+            _client_turn_key(user.id, req.client_turn_id),
+            f"{conv.id}:{turn_id}",
+            ex=GEN_TTL_SECONDS,
+        )
     # 清掉上一轮的缓冲，保证订阅方从 '0' 重放时拿到的都是本轮事件
     await redis_client.delete(_stream_key(conv.id))
     _tasks[conv.id] = asyncio.create_task(
-        run_generation(conv.id, user.id, req.message)
+        run_generation(conv.id, user.id, req.message, turn_id)
     )
-    return conv
+    return conv, turn_id
 
 
 async def request_stop(conversation_id: int) -> bool:
@@ -119,24 +160,32 @@ def _chunk_text(chunk) -> str:
 
 @traceable(run_type="chain", name="run_generation",
            reduce_fn=lambda result: {"finished": result is None})
-async def run_generation(conversation_id: int, user_id: int, message: str) -> None:
+async def run_generation(
+    conversation_id: int, user_id: int, message: str, turn_id: str
+) -> None:
     """后台生成任务：跑图 → 事件进 Redis Stream → 落库 + 热上下文。
 
     与请求生命周期完全无关（独立 db session），客户端断开不影响生成。
     事件序列：meta（编排决策后，rag 可能修正重发）→ delta*N → done / stopped / error。
     """
-    user_persisted = False
+    # 用户问题在 start_generation 中已持久化。
+    user_persisted = True
     full_text = ""
     meta_sent = False
     rag_hit = False
+    route_state: dict = {}
+    route_decision: dict = {}
     stopped = False  # 手动停止：协作式退出循环，已生成的部分照常落库
 
     async def emit_meta(rag: bool) -> None:
         await _emit(conversation_id, {
             "type": "meta",
             "conversation_id": conversation_id,
+            "turn_id": turn_id,
             "rag": rag,
-            # question 给刷新恢复用：此时用户消息尚未落库，前端靠它重建用户气泡
+            "domain": route_decision.get("domain", "chat"),
+            "confidence": route_decision.get("confidence", 0.0),
+            # question 给刷新恢复用：前端可用它补齐本地尚未加载的用户气泡
             "question": message,
         })
 
@@ -149,6 +198,7 @@ async def run_generation(conversation_id: int, user_id: int, message: str) -> No
             init_state = {
                 "question": message,
                 "conversation_id": conv.id,
+                "turn_id": turn_id,
                 "summary_hint": conv.summary or "",
                 "messages": [],
             }
@@ -163,6 +213,8 @@ async def run_generation(conversation_id: int, user_id: int, message: str) -> No
                 if mode == "updates":
                     if "orchestrator" in payload and not meta_sent:
                         route = payload["orchestrator"].get("route") or {}
+                        route_decision = route
+                        route_state = payload["orchestrator"].get("topic_state") or {}
                         rag_hit = bool(route.get("needs_rag"))
                         await emit_meta(rag_hit)
                         meta_sent = True
@@ -182,6 +234,8 @@ async def run_generation(conversation_id: int, user_id: int, message: str) -> No
                 full_text += delta
                 await _emit(conversation_id, {
                     "type": "delta",
+                    "conversation_id": conversation_id,
+                    "turn_id": turn_id,
                     "delta": delta,
                     "html": render_markdown(full_text),
                 })
@@ -190,9 +244,7 @@ async def run_generation(conversation_id: int, user_id: int, message: str) -> No
             if not meta_sent:
                 await emit_meta(rag_hit)
 
-            # 消息落库 + 更新热上下文（先用户后助手，顺序即时间序）
-            # 用户消息在图跑完后才落库：避免 Redis miss 从 MySQL 恢复滑窗时把当前问题读重
-            await conv_crud.add_message(db, conv.id, "user", message)
+            # 用户消息已在 start_generation 点火时落库，这里只追加助手答案。
             user_persisted = True
             # 手动停止：抛弃已生成的部分输出，只留用户问题——不落库也不进
             # 热上下文，否则半成品回答会污染后续对话
@@ -209,10 +261,21 @@ async def run_generation(conversation_id: int, user_id: int, message: str) -> No
                     asyncio.create_task(
                         chat_service.compress_context(conv.id, summary, overflow)
                     )
+            if route_state:
+                route_state["last_turn_id"] = turn_id
+                await context_service.save_topic_state(db, conv.id, route_state)
+            print(
+                f"📌 对话完成 turn={turn_id} conv={conversation_id} "
+                f"domain={route_decision.get('domain', 'chat')} "
+                f"rag={rag_hit} answer_chars={len(full_text)} stopped={stopped}"
+            )
 
             # 终态事件：手动停止发 stopped（前端按 done 处理，只落库了用户问题）
-            await _emit(conversation_id,
-                        {"type": "stopped"} if stopped else {"type": "done"})
+            await _emit(conversation_id, {
+                "type": "stopped" if stopped else "done",
+                "conversation_id": conversation_id,
+                "turn_id": turn_id,
+            })
             # 生成完毕：缓冲只需保留短窗口供迟到重放
             await redis_client.expire(
                 _stream_key(conversation_id), REPLAY_TTL_SECONDS
@@ -230,7 +293,8 @@ async def run_generation(conversation_id: int, user_id: int, message: str) -> No
         except Exception:
             pass
         await _emit(conversation_id, {
-            "type": "error", "message": "服务出了点问题，请稍后重试",
+            "type": "error", "conversation_id": conversation_id,
+            "turn_id": turn_id, "message": "服务出了点问题，请稍后重试",
         })
     finally:
         _tasks.pop(conversation_id, None)
