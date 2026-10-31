@@ -56,7 +56,7 @@
 - 浏览器验收：新问题可显示完整回答；生成中显示“停止生成”，点击后输入恢复并显示“继续生成”；刷新后历史回答正常；截图检查头部无闲聊/菜谱上下文标签。
 - 已落地命理命名 Agent：新增人名/笔名/网名生成与姓名评分 API、MySQL `naming_runs` 快照、同用户幂等指纹和不同用户稳定盐值排序。
 - 已落地四类可版本化数据：`bazi_rules.json`（月令/生克/日主强弱启发式）、`characters.json`（字义和五行来源）、`kangxi_strokes.json`（康熙笔画独立表）、`risk_terms.json`（负面词和结构风险）。每条结果携带规则、知识、字符、笔画和风险版本。
-- 已落地论文式 Markdown 报告：四柱、输入、方法边界、逐项 rule_id、评分分项、参考文献和免责声明均可归档；GF 3002 PDF 及来源清单已下载至后端仓库 `docs/naming/sources/`。
+- 已落地论文式 Markdown 报告：四柱、输入、方法边界、逐项 rule_id、评分分项、参考文献和免责声明均可归档；GF 3002 来源版本记录、来源清单和可审计 source record PDF 已放入后端仓库 `docs/naming/sources/`，待部署环境具备稳定下载条件后再补齐授权全文。
 - 已接入 LangGraph `naming_agent`，与 recipe/dev/chat 并列；前端会话抽屉新增命理入口，支持表单生成候选、姓名评分和报告查看。
 - 命名验证：后端全量 pytest 12 passed；命名引擎 3 passed；真实本地 JWT 调用 analyze 成功且重复请求返回同一 run；前端 Node 22 构建通过。
 
