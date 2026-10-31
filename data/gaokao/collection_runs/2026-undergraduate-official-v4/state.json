@@ -1,0 +1,68 @@
+{
+  "state_version": "gaokao-collection-state-v1",
+  "manifest_sha256": "dc460d3218504ddcb2234353ca22172e2d63051e94fb66e2b2ccb1b1ae1a5212",
+  "created_at": "2026-10-31T15:42:53.662569+00:00",
+  "updated_at": "2026-10-31T15:43:26.405956+00:00",
+  "sources": {
+    "sichuan-2026-scoreband-physical": {
+      "status": "downloaded",
+      "attempts": 0,
+      "updated_at": "2026-10-31T15:43:26.046928+00:00",
+      "error": null,
+      "artifact": "raw/sichuan-2026-scoreband-physical/payload.zip",
+      "sha256": "797f5f2b79b7ae2f6d07faa94dda6415a4af965a9aa7594f4f9bd659c0573a31",
+      "bytes": 4883016,
+      "http_status": null,
+      "content_type": null,
+      "manually_attached": true
+    },
+    "sichuan-2026-scoreband-history": {
+      "status": "downloaded",
+      "attempts": 0,
+      "updated_at": "2026-10-31T15:43:26.139029+00:00",
+      "error": null,
+      "artifact": "raw/sichuan-2026-scoreband-history/payload.zip",
+      "sha256": "a63cf6a6ae44e1dd884f42ce9a9461d9d7abef32ae4fabf3c4f24dfff9f04217",
+      "bytes": 4420258,
+      "http_status": null,
+      "content_type": null,
+      "manually_attached": true
+    },
+    "gd-2026-undergraduate-regular-history": {
+      "status": "downloaded",
+      "attempts": 0,
+      "updated_at": "2026-10-31T15:43:26.228820+00:00",
+      "error": null,
+      "artifact": "raw/gd-2026-undergraduate-regular-history/payload.pdf",
+      "sha256": "fa53a0e4bdc68004b7c04862e06bc21d12201ae255438cc928b7982b14805d36",
+      "bytes": 469518,
+      "http_status": null,
+      "content_type": null,
+      "manually_attached": true
+    },
+    "gd-2026-undergraduate-regular-physical": {
+      "status": "downloaded",
+      "attempts": 0,
+      "updated_at": "2026-10-31T15:43:26.316590+00:00",
+      "error": null,
+      "artifact": "raw/gd-2026-undergraduate-regular-physical/payload.pdf",
+      "sha256": "1ff4ddc46100706cc584f843b003d3c5b5298fcd619c0f124bc570365747020a",
+      "bytes": 919150,
+      "http_status": null,
+      "content_type": null,
+      "manually_attached": true
+    },
+    "shanghai-2026-undergraduate-regular-general": {
+      "status": "downloaded",
+      "attempts": 0,
+      "updated_at": "2026-10-31T15:43:26.405805+00:00",
+      "error": null,
+      "artifact": "raw/shanghai-2026-undergraduate-regular-general/payload.pdf",
+      "sha256": "d26dcf12bc92d3270aa0e4e2801b31182f3fbd98604599dddafc664eb9db66df",
+      "bytes": 688974,
+      "http_status": null,
+      "content_type": null,
+      "manually_attached": true
+    }
+  }
+}

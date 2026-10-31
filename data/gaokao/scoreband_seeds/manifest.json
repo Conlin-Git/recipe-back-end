@@ -1,0 +1,28 @@
+[
+  {
+    "source_id": "sichuan-2026-scoreband-physical",
+    "path": "scoreband_seeds/sichuan-2026-scoreband-physical.jsonl",
+    "publisher": "四川省教育考试院",
+    "province": "四川",
+    "year": 2026,
+    "track": "物理类",
+    "source_url": "https://www.sceea.cn/Html/202606/Newsdetail_4857.html",
+    "sha256": "797f5f2b79b7ae2f6d07faa94dda6415a4af965a9aa7594f4f9bd659c0573a31",
+    "rows": 534,
+    "validation_status": "verified",
+    "notes": "官方文章内20张成绩分段图片；150分以下按原文略去；zip为下载图片的可审计归档。"
+  },
+  {
+    "source_id": "sichuan-2026-scoreband-history",
+    "path": "scoreband_seeds/sichuan-2026-scoreband-history.jsonl",
+    "publisher": "四川省教育考试院",
+    "province": "四川",
+    "year": 2026,
+    "track": "历史类",
+    "source_url": "https://www.sceea.cn/Html/202606/Newsdetail_4858.html",
+    "sha256": "a63cf6a6ae44e1dd884f42ce9a9461d9d7abef32ae4fabf3c4f24dfff9f04217",
+    "rows": 513,
+    "validation_status": "verified",
+    "notes": "官方文章内20张成绩分段图片；150分以下按原文略去；zip为下载图片的可审计归档。"
+  }
+]

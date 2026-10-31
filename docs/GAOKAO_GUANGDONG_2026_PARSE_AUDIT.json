@@ -1,0 +1,29 @@
+{
+  "audit_version": "gd-admission-2026-v1",
+  "sources": [
+    {
+      "source_id": "gd-2026-undergraduate-regular-history",
+      "publisher": "广东省教育考试院",
+      "url": "https://eea.gd.gov.cn/attachment/0/620/620024/4926622.pdf",
+      "sha256": "fa53a0e4bdc68004b7c04862e06bc21d12201ae255438cc928b7982b14805d36",
+      "raw_rows": 1797,
+      "staged_rows": 1797,
+      "rejected_rows": 0,
+      "min_rank_rows": 1795,
+      "not_reported_rows": 2,
+      "not_reported_note": "中南大学（高校专项计划）专业组201、张家界学院专业组202原表未公布投档结果。"
+    },
+    {
+      "source_id": "gd-2026-undergraduate-regular-physical",
+      "publisher": "广东省教育考试院",
+      "url": "https://eea.gd.gov.cn/attachment/0/620/620025/4926622.pdf",
+      "sha256": "1ff4ddc46100706cc584f843b003d3c5b5298fcd619c0f124bc570365747020a",
+      "raw_rows": 4250,
+      "staged_rows": 4250,
+      "rejected_rows": 0,
+      "min_rank_rows": 4248,
+      "not_reported_rows": 2,
+      "not_reported_note": "中南大学（高校专项计划）专业组216、成都信息工程大学（联合培养）专业组212原表未公布投档结果。"
+    }
+  ]
+}

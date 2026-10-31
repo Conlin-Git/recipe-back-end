@@ -1,0 +1,134 @@
+[
+  {
+    "source_id": 43,
+    "path": "seeds/source-43-content_624_33355.htm.jsonl",
+    "publisher": "广西招生考试院",
+    "province": "广西",
+    "year": 2026,
+    "source_url": "https://www.gxeea.cn/view/content_624_33355.htm",
+    "sha256": "e919199c3c20f1c469d5a680c1288c838824ba81129bf405b8c2dbd7039fd321",
+    "rows": 308,
+    "validation_status": "verified"
+  },
+  {
+    "source_id": 44,
+    "path": "seeds/source-44-content_624_33354.htm.jsonl",
+    "publisher": "广西招生考试院",
+    "province": "广西",
+    "year": 2026,
+    "source_url": "https://www.gxeea.cn/view/content_624_33354.htm",
+    "sha256": "9bf82ef650184519cdca4b7269a888ecff69c1a3689833670be268b2ed3576a2",
+    "rows": 245,
+    "validation_status": "verified"
+  },
+  {
+    "source_id": 45,
+    "path": "seeds/source-45-content_624_33333.htm.jsonl",
+    "publisher": "广西招生考试院",
+    "province": "广西",
+    "year": 2026,
+    "source_url": "https://www.gxeea.cn/view/content_624_33333.htm",
+    "sha256": "db8d55556e923fce611292404eac6137c983f37cc53ec45492dcd6ce2aa9a7e2",
+    "rows": 558,
+    "validation_status": "verified"
+  },
+  {
+    "source_id": 46,
+    "path": "seeds/source-46-content_624_33332.htm.jsonl",
+    "publisher": "广西招生考试院",
+    "province": "广西",
+    "year": 2026,
+    "source_url": "https://www.gxeea.cn/view/content_624_33332.htm",
+    "sha256": "73986029010da5460151177769e9222b7923f4f8e875e5db546ae5dead61184b",
+    "rows": 453,
+    "validation_status": "verified"
+  },
+  {
+    "source_id": 47,
+    "path": "seeds/source-47-4746781.pdf.jsonl",
+    "publisher": "广东省教育考试院",
+    "province": "广东",
+    "year": 2025,
+    "source_url": "https://eea.gd.gov.cn/attachment/0/585/585885/4746781.pdf",
+    "sha256": "ab814f4a274132f23919471419a3bb1cdcf89b257177b7a640f2865af55f18df",
+    "rows": 1637,
+    "validation_status": "verified"
+  },
+  {
+    "source_id": 48,
+    "path": "seeds/source-48-4746786.pdf.jsonl",
+    "publisher": "广东省教育考试院",
+    "province": "广东",
+    "year": 2025,
+    "source_url": "https://eea.gd.gov.cn/attachment/0/585/585886/4746786.pdf",
+    "sha256": "2852813a5723c67d97925dc8ad3a897b4b37c3bc50fd58dfae758625f3daa7f0",
+    "rows": 3503,
+    "validation_status": "verified"
+  },
+  {
+    "source_id": 49,
+    "path": "seeds/source-49-2026071901.zip.jsonl",
+    "publisher": "湖南省教育考试院",
+    "province": "湖南",
+    "year": 2026,
+    "source_url": "http://www.hneeb.cn/hnxxg/741/742/2026071901.zip",
+    "sha256": "50c775afc5814f736a545bd02b9f5ddf671430696b00be2c65012658868b4a00",
+    "rows": 6624,
+    "validation_status": "verified"
+  },
+  {
+    "source_id": 50,
+    "path": "seeds/source-50-20260725125600_988.zip.jsonl",
+    "publisher": "福建省教育考试院",
+    "province": "福建",
+    "year": 2026,
+    "source_url": "https://www.eeafj.cn/u/cms/default/202607/20260725125600_988.zip",
+    "sha256": "ade851015e47fdd3f36ccca85c86b7af6b9f4c7bf087be1a6cd7191b26f04c9e",
+    "rows": 1232,
+    "validation_status": "verified"
+  },
+  {
+    "source_id": 51,
+    "path": "seeds/source-51-20260725125521_975.zip.jsonl",
+    "publisher": "福建省教育考试院",
+    "province": "福建",
+    "year": 2026,
+    "source_url": "https://www.eeafj.cn/u/cms/default/202607/20260725125521_975.zip",
+    "sha256": "23f25c833317a606a3464de40f1a11e20cdca311a388f3912e8c5be5668d69ca",
+    "rows": 2934,
+    "validation_status": "verified"
+  },
+  {
+    "source_id": 54,
+    "path": "seeds/source-54-4926622.pdf.jsonl",
+    "publisher": "广东省教育考试院",
+    "province": "广东",
+    "year": 2026,
+    "source_url": "https://eea.gd.gov.cn/attachment/0/620/620024/4926622.pdf",
+    "sha256": "fa53a0e4bdc68004b7c04862e06bc21d12201ae255438cc928b7982b14805d36",
+    "rows": 1797,
+    "validation_status": "verified"
+  },
+  {
+    "source_id": 55,
+    "path": "seeds/source-55-4926622.pdf.jsonl",
+    "publisher": "广东省教育考试院",
+    "province": "广东",
+    "year": 2026,
+    "source_url": "https://eea.gd.gov.cn/attachment/0/620/620025/4926622.pdf",
+    "sha256": "1ff4ddc46100706cc584f843b003d3c5b5298fcd619c0f124bc570365747020a",
+    "rows": 4250,
+    "validation_status": "verified"
+  },
+  {
+    "source_id": 56,
+    "path": "seeds/source-56-53767.pdf.jsonl",
+    "publisher": "上海市教育考试院",
+    "province": "上海",
+    "year": 2026,
+    "source_url": "https://cdn.shmeea.edu.cn/resource/upload/www/20260706/53767.pdf",
+    "sha256": "d26dcf12bc92d3270aa0e4e2801b31182f3fbd98604599dddafc664eb9db66df",
+    "rows": 1593,
+    "validation_status": "verified"
+  }
+]

@@ -36,6 +36,7 @@ dependencies = [
     "redis>=8.1.0",
     "sqlalchemy>=2.0.52",
     "tqdm>=4.70.1",
+    "xlrd>=2.0.1",
     "uvicorn[standard]>=0.52.4",
 ]
 

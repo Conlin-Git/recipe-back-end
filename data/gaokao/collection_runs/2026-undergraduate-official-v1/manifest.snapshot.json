@@ -1,0 +1,180 @@
+{
+  "manifest_sha256": "a269116836db713160a788a8e7243ccc1b1a5cf53ef531752ebff7b622e94a2f",
+  "sources": [
+    {
+      "source_id": "chsi-2025-guangxi-vocational-history-index",
+      "publisher": "广西招生考试院/教育部阳光高考",
+      "province": "广西",
+      "year": 2026,
+      "dataset_type": "admission_history_index",
+      "record_kind": "source_index",
+      "url": "https://gaokao.chsi.com.cn/gkxx/zc/ss/202606/20260626/2293847304.html",
+      "extension": "html"
+    },
+    {
+      "source_id": "chsi-2025-guangxi-vocational-history-physical",
+      "publisher": "广西招生考试院/教育部阳光高考",
+      "province": "广西",
+      "year": 2025,
+      "dataset_type": "admission",
+      "record_kind": "group_admit",
+      "url": "https://gaokao.chsi.com.cn/gkxx/zc/ss/202508/20250806/2293396201.html",
+      "extension": "html"
+    },
+    {
+      "source_id": "chsi-2025-guangxi-vocational-history-history",
+      "publisher": "广西招生考试院/教育部阳光高考",
+      "province": "广西",
+      "year": 2025,
+      "dataset_type": "admission",
+      "record_kind": "group_admit",
+      "url": "https://gaokao.chsi.com.cn/gkxx/zc/ss/202508/20250806/2293396202.html",
+      "extension": "html"
+    },
+    {
+      "source_id": "chsi-2025-shanxi-group-cutoff",
+      "publisher": "山西省招生考试管理中心/教育部阳光高考",
+      "province": "山西",
+      "year": 2025,
+      "dataset_type": "admission",
+      "record_kind": "group_admit",
+      "url": "https://gaokao.chsi.com.cn/news/file.do?attach=true&hist=false&id=2293394609&method=downFile"
+    },
+    {
+      "source_id": "chsi-2025-jiangsu-vocational-group-cutoff",
+      "publisher": "江苏省教育考试院/教育部阳光高考",
+      "province": "江苏",
+      "year": 2025,
+      "dataset_type": "admission",
+      "record_kind": "group_admit",
+      "url": "https://gaokao.chsi.com.cn/news/file.do?attach=true&hist=false&id=2293394788&method=downFile"
+    },
+    {
+      "source_id": "chsi-2026-anhui-history-query",
+      "publisher": "安徽省教育招生考试院/教育部阳光高考",
+      "province": "安徽",
+      "year": 2026,
+      "dataset_type": "admission_history_index",
+      "record_kind": "source_index",
+      "url": "https://gaokao.chsi.com.cn/gkxx/zc/ss/202605/20260509/2293469115.html",
+      "extension": "html"
+    },
+    {
+      "source_id": "chsi-2026-jiangxi-history-query",
+      "publisher": "江西省教育考试院/教育部阳光高考",
+      "province": "江西",
+      "year": 2026,
+      "dataset_type": "admission_history_index",
+      "record_kind": "source_index",
+      "url": "https://gaokao.chsi.com.cn/gkxx/zc/ss/202606/20260605/2293582843.html",
+      "extension": "html"
+    },
+    {
+      "source_id": "chsi-2025-gansu-history-query",
+      "publisher": "甘肃省教育考试院/教育部阳光高考",
+      "province": "甘肃",
+      "year": 2025,
+      "dataset_type": "admission_history_index",
+      "record_kind": "source_index",
+      "url": "https://gaokao.chsi.com.cn/gkxx/zc/ss/202506/20250618/2293392018.html",
+      "extension": "html"
+    },
+    {
+      "source_id": "gx-2026-vocational-second-physical",
+      "publisher": "广西招生考试院",
+      "province": "广西",
+      "year": 2026,
+      "dataset_type": "admission",
+      "record_kind": "group_admit",
+      "track": "物理类",
+      "batch": "高职高专普通批-征集志愿",
+      "admission_round": "第二次征集",
+      "url": "https://www.gxeea.cn/view/content_624_33355.htm",
+      "extension": "html",
+      "notes": "2026年高职高专普通批第二次征集投档最低分（物理类）"
+    },
+    {
+      "source_id": "gx-2026-vocational-second-history",
+      "publisher": "广西招生考试院",
+      "province": "广西",
+      "year": 2026,
+      "dataset_type": "admission",
+      "record_kind": "group_admit",
+      "track": "历史类",
+      "batch": "高职高专普通批-征集志愿",
+      "admission_round": "第二次征集",
+      "url": "https://www.gxeea.cn/view/content_624_33354.htm",
+      "extension": "html",
+      "notes": "2026年高职高专普通批第二次征集投档最低分（历史类）"
+    },
+    {
+      "source_id": "gx-2026-vocational-first-physical",
+      "publisher": "广西招生考试院",
+      "province": "广西",
+      "year": 2026,
+      "dataset_type": "admission",
+      "record_kind": "group_admit",
+      "track": "物理类",
+      "batch": "高职高专普通批-征集志愿",
+      "admission_round": "第一次征集",
+      "url": "https://www.gxeea.cn/view/content_624_33333.htm",
+      "extension": "html",
+      "notes": "2026年高职高专普通批第一次征集投档最低分（物理类）"
+    },
+    {
+      "source_id": "gx-2026-vocational-first-history",
+      "publisher": "广西招生考试院",
+      "province": "广西",
+      "year": 2026,
+      "dataset_type": "admission",
+      "record_kind": "group_admit",
+      "track": "历史类",
+      "batch": "高职高专普通批-征集志愿",
+      "admission_round": "第一次征集",
+      "url": "https://www.gxeea.cn/view/content_624_33332.htm",
+      "extension": "html",
+      "notes": "2026年高职高专普通批第一次征集投档最低分（历史类）"
+    },
+    {
+      "source_id": "gd-2025-undergraduate-regular-history",
+      "publisher": "广东省教育考试院",
+      "province": "广东",
+      "year": 2025,
+      "dataset_type": "admission",
+      "record_kind": "group_admit",
+      "track": "历史类",
+      "batch": "本科普通批",
+      "admission_round": "本科普通批正式投档",
+      "url": "https://eea.gd.gov.cn/attachment/0/585/585885/4746781.pdf",
+      "extension": "pdf",
+      "notes": "官方 PDF：广东省2025年本科普通类（历史）投档情况，含院校专业组、计划数、投档人数、最低分和最低排位。"
+    },
+    {
+      "source_id": "gd-2025-undergraduate-regular-physical",
+      "publisher": "广东省教育考试院",
+      "province": "广东",
+      "year": 2025,
+      "dataset_type": "admission",
+      "record_kind": "group_admit",
+      "track": "物理类",
+      "batch": "本科普通批",
+      "admission_round": "本科普通批正式投档",
+      "url": "https://eea.gd.gov.cn/attachment/0/585/585886/4746786.pdf",
+      "extension": "pdf",
+      "notes": "官方 PDF：广东省2025年本科普通类（物理）投档情况，含院校专业组、计划数、投档人数、最低分和最低排位。"
+    },
+    {
+      "source_id": "hn-2026-undergraduate-regular-general",
+      "publisher": "湖南省教育考试院",
+      "province": "湖南",
+      "year": 2026,
+      "dataset_type": "admission",
+      "record_kind": "group_admit",
+      "batch": "本科批-普通类",
+      "admission_round": "本科批第一次投档",
+      "url": "http://www.hneeb.cn/hnxxg/741/742/2026071901.zip",
+      "extension": "zip",
+      "notes": "湖南省教育考试院2026年普通类本科批院校专业组投档分数线官方XLSX压缩包；历史/物理科类同表，含投档线及同分排序字段，原表未提供最低位次。官方公告页：https://jyt.hunan.gov.cn/jyt/sjyt/hnsjyksy/web/ksyzkzx/202607/t20260719_34029635.html"
+    }
+  ]
+}

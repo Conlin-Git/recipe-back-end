@@ -1,0 +1,178 @@
+{
+  "manifest_version": "gaokao-source-manifest-v1",
+  "status": "2026_cutoff_verified; score_band_partial_verified; undergraduate_admission_verified_partial; admission_collection_resumable",
+  "official_entries": [
+    {
+      "publisher": "教育部阳光高考信息平台",
+      "dataset_type": "cutoff",
+      "year": 2026,
+      "province": null,
+      "url": "https://gaokao.chsi.com.cn/z/gkbmfslq/pcx.jsp?pageId=361",
+      "verification": "入口已确认，省级文件仍需逐份下载、解析和 SHA-256 核验"
+    },
+    {
+      "publisher": "教育部阳光高考信息平台",
+      "dataset_type": "cutoff",
+      "year": 2025,
+      "province": null,
+      "url": "https://gaokao.chsi.com.cn/z/gkbmfslq2025/pcx.jsp",
+      "verification": "入口已确认，省级文件仍需逐份下载、解析和 SHA-256 核验"
+    },
+    {
+      "publisher": "教育部阳光高考信息平台",
+      "dataset_type": "score_band_index",
+      "year": 2026,
+      "province": null,
+      "url": "https://gaokao.chsi.com.cn/gkxx/ss/202606/20260624/2293845984.html",
+      "verification": "索引已确认，链接文件需按省份落地后才可入库"
+    },
+    {
+      "publisher": "安徽省教育招生考试院（阳光高考镜像说明）",
+      "dataset_type": "admission_history",
+      "year": 2026,
+      "province": "安徽",
+      "url": "https://gaokao.chsi.com.cn/gkxx/zc/ss/202605/20260509/2293469115.html",
+      "verification": "公开说明历史查询覆盖2021-2025，含分批次、分校分专业组/专业最低/最高/平均分及排名；接入前需确认公开导出或公开接口。"
+    },
+    {
+      "publisher": "江西省教育考试院（阳光高考镜像说明）",
+      "dataset_type": "admission_history",
+      "year": 2026,
+      "province": "江西",
+      "url": "https://gaokao.chsi.com.cn/gkxx/zc/ss/202606/20260605/2293582843.html",
+      "verification": "公开说明可查询2024-2025在赣招生高校各专业最低分、排名和人数；接入前需保存查询响应和来源参数。"
+    },
+    {
+      "publisher": "广西招生考试院（阳光高考镜像说明）",
+      "dataset_type": "admission_history",
+      "year": 2026,
+      "province": "广西",
+      "url": "https://gaokao.chsi.com.cn/gkxx/zc/ss/202606/20260626/2293847304.html",
+      "verification": "公开说明《2026年高考指南》收录2025年各批次院校专业组及专业投档/录取数据，含计划数、录取数、最高/平均/最低分和最低排位。"
+    },
+    {
+      "publisher": "甘肃省教育考试院（阳光高考镜像说明）",
+      "dataset_type": "admission_history",
+      "year": 2025,
+      "province": "甘肃",
+      "url": "https://gaokao.chsi.com.cn/gkxx/zc/ss/202506/20250618/2293392018.html",
+      "verification": "公开说明志愿辅助系统可查看上一年度专业组最低/最高/平均分、录取数、最低位次及投档线位次；需确认公开访问边界。"
+    },
+    {
+      "publisher": "广东省教育考试院",
+      "dataset_type": "admission",
+      "year": 2025,
+      "province": "广东",
+      "track": "历史类",
+      "batch": "本科普通批",
+      "url": "https://eea.gd.gov.cn/attachment/0/585/585885/4746781.pdf",
+      "verification": "官方 PDF 已归档、SHA-256 校验、逐行解析并人工复核；1637 条院校专业组记录已 verified。"
+    },
+    {
+      "publisher": "广东省教育考试院",
+      "dataset_type": "admission",
+      "year": 2025,
+      "province": "广东",
+      "track": "物理类",
+      "batch": "本科普通批",
+      "url": "https://eea.gd.gov.cn/attachment/0/585/585886/4746786.pdf",
+      "verification": "官方 PDF 已归档、SHA-256 校验、逐行解析并人工复核；3503 条院校专业组记录已 verified。"
+    },
+    {
+      "publisher": "湖南省教育考试院",
+      "dataset_type": "admission",
+      "year": 2026,
+      "province": "湖南",
+      "track": "历史类/物理类",
+      "batch": "本科批-普通类",
+      "url": "https://jyt.hunan.gov.cn/jyt/sjyt/hnsjyksy/web/ksyzkzx/202607/t20260719_34029635.html",
+      "download_url": "http://www.hneeb.cn/hnxxg/741/742/2026071901.zip",
+      "verification": "官方公告及XLSX原始表已归档，6624条院校专业组记录入库；含投档线和同分排序项，原表无最低位次；SHA-256=50c775afc5814f736a545bd02b9f5ddf671430696b00be2c65012658868b4a00。"
+    },
+    {
+      "publisher": "福建省教育考试院",
+      "dataset_type": "admission",
+      "year": 2026,
+      "province": "福建",
+      "track": "历史类",
+      "batch": "本科批-常规志愿",
+      "url": "https://www.eeafj.cn/gkptgkgsgg/20260725/14749.html",
+      "download_url": "https://www.eeafj.cn/u/cms/default/202607/20260725125600_988.zip",
+      "verification": "官方扫描PDF；150/200 DPI Vision OCR仅保留院校代码、专业组、投档最低分交叉一致行，招生计划PDF用于代码名称映射；1232条入库，缺失/冲突行保留审计报告不入库；SHA-256=ade851015e47fdd3f36ccca85c86b7af6b9f4c7bf087be1a6cd7191b26f04c9e。"
+    },
+    {
+      "publisher": "福建省教育考试院",
+      "dataset_type": "admission",
+      "year": 2026,
+      "province": "福建",
+      "track": "物理类",
+      "batch": "本科批-常规志愿",
+      "url": "https://www.eeafj.cn/gkptgkgsgg/20260725/14750.html",
+      "download_url": "https://www.eeafj.cn/u/cms/default/202607/20260725125521_975.zip",
+      "verification": "官方扫描PDF；150/200 DPI Vision OCR仅保留院校代码、专业组、投档最低分交叉一致行，招生计划PDF用于代码名称映射；2934条入库，缺失/冲突行保留审计报告不入库；SHA-256=23f25c833317a606a3464de40f1a11e20cdca311a388f3912e8c5be5668d69ca。"
+    },
+    {
+      "publisher": "四川省教育考试院",
+      "dataset_type": "score_band",
+      "year": 2026,
+      "province": "四川",
+      "track": "历史类",
+      "url": "https://www.sceea.cn/Html/202606/Newsdetail_4858.html",
+      "verification": "官方文章20张成绩分段图片已归档、SHA-256=a63cf6a6ae44e1dd884f42ce9a9461d9d7abef32ae4fabf3c4f24dfff9f04217；513行 verified，150分以下按原文略。"
+    },
+    {
+      "publisher": "四川省教育考试院",
+      "dataset_type": "score_band",
+      "year": 2026,
+      "province": "四川",
+      "track": "物理类",
+      "url": "https://www.sceea.cn/Html/202606/Newsdetail_4857.html",
+      "verification": "官方文章20张成绩分段图片已归档、SHA-256=797f5f2b79b7ae2f6d07faa94dda6415a4af965a9aa7594f4f9bd659c0573a31；534行 verified，150分以下按原文略。"
+    },
+    {
+      "publisher": "广东省教育考试院",
+      "dataset_type": "admission",
+      "year": 2026,
+      "province": "广东",
+      "track": "历史类",
+      "batch": "本科普通批",
+      "url": "https://eea.gd.gov.cn/attachment/0/620/620024/4926622.pdf",
+      "verification": "官方 PDF SHA-256=fa53a0e4bdc68004b7c04862e06bc21d12201ae255438cc928b7982b14805d36；1797行 verified，含最低分/最低排位，2行官方未公布投档结果。"
+    },
+    {
+      "publisher": "广东省教育考试院",
+      "dataset_type": "admission",
+      "year": 2026,
+      "province": "广东",
+      "track": "物理类",
+      "batch": "本科普通批",
+      "url": "https://eea.gd.gov.cn/attachment/0/620/620025/4926622.pdf",
+      "verification": "官方 PDF SHA-256=1ff4ddc46100706cc584f843b003d3c5b5298fcd619c0f124bc570365747020a；4250行 verified，含最低分/最低排位，2行官方未公布投档结果。"
+    },
+    {
+      "publisher": "上海市教育考试院",
+      "dataset_type": "admission",
+      "year": 2026,
+      "province": "上海",
+      "track": "综合",
+      "batch": "本科普通批",
+      "url": "https://cdn.shmeea.edu.cn/resource/upload/www/20260706/53767.pdf",
+      "verification": "官方 PDF SHA-256=d26dcf12bc92d3270aa0e4e2801b31182f3fbd98604599dddafc664eb9db66df；1593行 verified；上海不分物理/历史，580分及以上保留区间说明。"
+    }
+  ],
+  "required_complete_matrix": {
+    "years": [
+      2022,
+      2023,
+      2024,
+      2025,
+      2026
+    ],
+    "province_count": 31,
+    "dataset_types": [
+      "score_band",
+      "cutoff",
+      "admission"
+    ]
+  }
+}

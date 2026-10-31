@@ -15,6 +15,30 @@ venv/
 
 # Docker 数据卷（MySQL / Milvus / Neo4j 本地数据）
 data/
+# 官方高考来源清单和断点状态需要随仓库部署；原始大文件仍默认忽略。
+!data/
+data/*
+!data/gaokao/
+data/gaokao/*
+!data/gaokao/admission_sources.json
+!data/gaokao/2026_followup_sources.json
+!data/gaokao/README.md
+!data/gaokao/seeds/
+!data/gaokao/seeds/*.jsonl
+!data/gaokao/seeds/manifest.json
+!data/gaokao/scoreband_seeds/
+!data/gaokao/scoreband_seeds/*.jsonl
+!data/gaokao/scoreband_seeds/manifest.json
+!data/gaokao/collection_runs/
+data/gaokao/collection_runs/*
+!data/gaokao/collection_runs/**/
+!data/gaokao/collection_runs/**/state.json
+!data/gaokao/collection_runs/**/manifest.snapshot.json
+# Collection raw/staging files stay out of Git; immutable state and manifest snapshots are kept.
+data/gaokao/collection_runs/**/raw/**
+data/gaokao/collection_runs/**/staging/**
+!data/gaokao/collection_runs/**/state.json
+!data/gaokao/collection_runs/**/manifest.snapshot.json
 # 命理命名规则是可部署的源码数据，不随 Docker 运行时数据忽略
 !app/naming/data/
 !app/naming/data/*.json

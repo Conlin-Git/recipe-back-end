@@ -1,0 +1,76 @@
+{
+  "manifest_sha256": "dc460d3218504ddcb2234353ca22172e2d63051e94fb66e2b2ccb1b1ae1a5212",
+  "sources": [
+    {
+      "source_id": "sichuan-2026-scoreband-physical",
+      "publisher": "四川省教育考试院",
+      "province": "四川",
+      "year": 2026,
+      "dataset_type": "score_band",
+      "record_kind": "score_band",
+      "track": "物理类",
+      "url": "https://www.sceea.cn/Html/202606/Newsdetail_4857.html",
+      "extension": "zip",
+      "sha256": "797f5f2b79b7ae2f6d07faa94dda6415a4af965a9aa7594f4f9bd659c0573a31",
+      "notes": "官方文章内20张成绩分段图片归档；页面注明150分以下略。"
+    },
+    {
+      "source_id": "sichuan-2026-scoreband-history",
+      "publisher": "四川省教育考试院",
+      "province": "四川",
+      "year": 2026,
+      "dataset_type": "score_band",
+      "record_kind": "score_band",
+      "track": "历史类",
+      "url": "https://www.sceea.cn/Html/202606/Newsdetail_4858.html",
+      "extension": "zip",
+      "sha256": "a63cf6a6ae44e1dd884f42ce9a9461d9d7abef32ae4fabf3c4f24dfff9f04217",
+      "notes": "官方文章内20张成绩分段图片归档；页面注明150分以下略。"
+    },
+    {
+      "source_id": "gd-2026-undergraduate-regular-history",
+      "publisher": "广东省教育考试院",
+      "province": "广东",
+      "year": 2026,
+      "dataset_type": "admission",
+      "record_kind": "group_admit",
+      "track": "历史类",
+      "batch": "本科普通批",
+      "admission_round": "本科普通批正式投档",
+      "url": "https://eea.gd.gov.cn/attachment/0/620/620024/4926622.pdf",
+      "extension": "pdf",
+      "sha256": "fa53a0e4bdc68004b7c04862e06bc21d12201ae255438cc928b7982b14805d36",
+      "notes": "官方2026本科普通类（历史）投档 PDF；含1797条院校专业组记录，2条官方未公布投档结果。"
+    },
+    {
+      "source_id": "gd-2026-undergraduate-regular-physical",
+      "publisher": "广东省教育考试院",
+      "province": "广东",
+      "year": 2026,
+      "dataset_type": "admission",
+      "record_kind": "group_admit",
+      "track": "物理类",
+      "batch": "本科普通批",
+      "admission_round": "本科普通批正式投档",
+      "url": "https://eea.gd.gov.cn/attachment/0/620/620025/4926622.pdf",
+      "extension": "pdf",
+      "sha256": "1ff4ddc46100706cc584f843b003d3c5b5298fcd619c0f124bc570365747020a",
+      "notes": "官方2026本科普通类（物理）投档 PDF；含4250条院校专业组记录，2条官方未公布投档结果。"
+    },
+    {
+      "source_id": "shanghai-2026-undergraduate-regular-general",
+      "publisher": "上海市教育考试院",
+      "province": "上海",
+      "year": 2026,
+      "dataset_type": "admission",
+      "record_kind": "group_admit",
+      "track": "综合",
+      "batch": "本科普通批",
+      "admission_round": "本科普通批平行志愿正式投档",
+      "url": "https://cdn.shmeea.edu.cn/resource/upload/www/20260706/53767.pdf",
+      "extension": "pdf",
+      "sha256": "d26dcf12bc92d3270aa0e4e2801b31182f3fbd98604599dddafc664eb9db66df",
+      "notes": "官方2026本科普通批次院校专业组投档分数线；上海不分物理/历史，1593条，580分及以上条目保留区间说明。"
+    }
+  ]
+}

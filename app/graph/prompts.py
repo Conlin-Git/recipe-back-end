@@ -182,6 +182,7 @@ ORCHESTRATOR_PROMPT = """你是多 agent 对话系统的管理编排者。根据
 - dev：开发知识问答（编程、前后端、JS 相关，背后有《JavaScript高级程序设计》电子书知识库可检索）
 - chat：闲聊（日常唠嗑、情感表达、其他一切话题）
 - naming：命理命名（八字取名、网名、笔名、人名、姓名评分、五行和康熙笔画）
+- gaokao：高考指南（分数线、位次、院校专业组、选科、志愿填报）
 
 判断规则：
 1. intent_type：
@@ -191,10 +192,10 @@ ORCHESTRATOR_PROMPT = """你是多 agent 对话系统的管理编排者。根据
    - followup → 延续当前对话所属的领域（从前情摘要和最近对话判断），不要只按这条消息自己的
      关键词分类。比如当前在聊编程，用户说「把需要的依赖和配置列给我」，这是在追问开发问题，
      属于 dev，不是 recipe。dev 问题永远由 dev agent 处理，绝不走菜谱检索
-   - new → 按消息内容判断 recipe / dev / naming / chat
+   - new → 按消息内容判断 recipe / dev / naming / gaokao / chat
 3. summary_sufficient 仅作为兼容字段，不得据此丢弃最近对话；追问默认同时参考当前主题和最近两轮。
 4. needs_rag：
-   - intent_type 为 new 且 domain 为 recipe、dev 或 naming → true
+   - intent_type 为 new 且 domain 为 recipe、dev、naming 或 gaokao → true
    - 其余情况一律 false（追问优先靠上下文回答；上下文不够时对应 agent 会自行决定检索）
 5. topic_action：continue 表示延续当前主题，switch 表示明确切换领域，new 表示没有可延续主题；
 6. context_scope：从 active_topic、recent_turns、historical 中选择需要的上下文层；
@@ -210,7 +211,7 @@ ORCHESTRATOR_PROMPT = """你是多 agent 对话系统的管理编排者。根据
 用户当前消息：{question}
 
 只输出 JSON，不要任何其他内容：
-{{"intent_type": "followup 或 new", "domain": "recipe 或 dev 或 naming 或 chat", "summary_sufficient": true 或 false, "needs_rag": true 或 false, "confidence": 0 到 1, "topic_action": "continue 或 switch 或 new", "context_scope": ["active_topic", "recent_turns"], "retrieval_query": "消解指代后的检索词", "resolved_references": {{}}, "needs_clarification": false, "missing_information": [], "reason": "一句话决策理由"}}"""
+{{"intent_type": "followup 或 new", "domain": "recipe 或 dev 或 naming 或 gaokao 或 chat", "summary_sufficient": true 或 false, "needs_rag": true 或 false, "confidence": 0 到 1, "topic_action": "continue 或 switch 或 new", "context_scope": ["active_topic", "recent_turns"], "retrieval_query": "消解指代后的检索词", "resolved_references": {{}}, "needs_clarification": false, "missing_information": [], "reason": "一句话决策理由"}}"""
 
 
 # ---------------- 情感分析 agent ----------------

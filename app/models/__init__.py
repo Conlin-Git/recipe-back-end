@@ -4,5 +4,9 @@ from app.models.conversation import Conversation
 from app.models.message import Message
 from app.models.conversation_state import ConversationState
 from app.models.naming_run import NamingRun
+from app.models.gaokao import GaokaoAdmission, GaokaoCutoff, GaokaoScoreBand, GaokaoSource
 
-__all__ = ["User", "Conversation", "Message", "ConversationState", "NamingRun"]
+__all__ = [
+    "User", "Conversation", "Message", "ConversationState", "NamingRun",
+    "GaokaoSource", "GaokaoCutoff", "GaokaoScoreBand", "GaokaoAdmission",
+]

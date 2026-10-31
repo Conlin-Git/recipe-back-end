@@ -1,0 +1,55 @@
+{
+  "audit_version": "sichuan-scoreband-2026-v1",
+  "sources": [
+    {
+      "source_id": "sichuan-2026-scoreband-physical",
+      "publisher": "四川省教育考试院",
+      "year": 2026,
+      "province": "四川",
+      "track": "物理类",
+      "source_url": "https://www.sceea.cn/Html/202606/Newsdetail_4857.html",
+      "source_sha256": "797f5f2b79b7ae2f6d07faa94dda6415a4af965a9aa7594f4f9bd659c0573a31",
+      "image_pages": 20,
+      "rows": 534,
+      "score_min": 150,
+      "score_max": 685,
+      "cumulative_rank_first": 66,
+      "cumulative_rank_last": 292426,
+      "validation": {
+        "rule": "按分数递减，累计人数严格递增；candidate_count=本行累计-上一行累计（首行使用原表人数）；累计列三种横向裁剪 OCR 结果一致。",
+        "manual_cumulative_overrides": {
+          "685": 66
+        },
+        "omitted_by_official_page": "150分以下略",
+        "raw_images": "collection_runs/2026-undergraduate-official-v4/raw/sichuan-2026-scoreband-physical/payload.zip"
+      }
+    },
+    {
+      "source_id": "sichuan-2026-scoreband-history",
+      "publisher": "四川省教育考试院",
+      "year": 2026,
+      "province": "四川",
+      "track": "历史类",
+      "source_url": "https://www.sceea.cn/Html/202606/Newsdetail_4858.html",
+      "source_sha256": "a63cf6a6ae44e1dd884f42ce9a9461d9d7abef32ae4fabf3c4f24dfff9f04217",
+      "image_pages": 20,
+      "rows": 513,
+      "score_min": 150,
+      "score_max": 662,
+      "cumulative_rank_first": 34,
+      "cumulative_rank_last": 177497,
+      "validation": {
+        "rule": "按分数递减，累计人数严格递增；candidate_count=本行累计-上一行累计（首行使用原表人数）；累计列三种横向裁剪 OCR 结果一致。",
+        "manual_cumulative_overrides": {
+          "662": 34,
+          "655": 99,
+          "467": 69004,
+          "425": 96906,
+          "150": 177497
+        },
+        "omitted_by_official_page": "150分以下略",
+        "raw_images": "collection_runs/2026-undergraduate-official-v4/raw/sichuan-2026-scoreband-history/payload.zip"
+      }
+    }
+  ]
+}

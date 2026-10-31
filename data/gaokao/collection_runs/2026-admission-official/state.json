@@ -1,0 +1,96 @@
+{
+  "state_version": "gaokao-collection-state-v1",
+  "manifest_sha256": "47da76e49a36777c33490c62d9e44ddf090e271ac85b3b931cbac8e26454ad43",
+  "created_at": "2026-10-31T12:26:14.587438+00:00",
+  "updated_at": "2026-10-31T12:28:57.526289+00:00",
+  "sources": {
+    "chsi-2025-guangxi-vocational-history-index": {
+      "status": "failed",
+      "attempts": 3,
+      "updated_at": "2026-10-31T12:27:08.409151+00:00",
+      "error": "HTTP 412",
+      "artifact": null,
+      "sha256": null,
+      "bytes": 0,
+      "http_status": 412,
+      "content_type": "text/html; charset=utf-8"
+    },
+    "chsi-2025-guangxi-vocational-history-physical": {
+      "status": "failed",
+      "attempts": 3,
+      "updated_at": "2026-10-31T12:27:11.252115+00:00",
+      "error": "HTTP 412",
+      "artifact": null,
+      "sha256": null,
+      "bytes": 0,
+      "http_status": 412,
+      "content_type": "text/html; charset=utf-8"
+    },
+    "chsi-2025-guangxi-vocational-history-history": {
+      "status": "failed",
+      "attempts": 3,
+      "updated_at": "2026-10-31T12:27:13.322655+00:00",
+      "error": "HTTP 412",
+      "artifact": null,
+      "sha256": null,
+      "bytes": 0,
+      "http_status": 412,
+      "content_type": "text/html; charset=utf-8"
+    },
+    "chsi-2025-shanxi-group-cutoff": {
+      "status": "failed",
+      "attempts": 3,
+      "updated_at": "2026-10-31T12:27:15.332045+00:00",
+      "error": "HTTP 412",
+      "artifact": null,
+      "sha256": null,
+      "bytes": 0,
+      "http_status": 412,
+      "content_type": "text/html; charset=utf-8"
+    },
+    "chsi-2025-jiangsu-vocational-group-cutoff": {
+      "status": "failed",
+      "attempts": 3,
+      "updated_at": "2026-10-31T12:27:16.935380+00:00",
+      "error": "HTTP 412",
+      "artifact": null,
+      "sha256": null,
+      "bytes": 0,
+      "http_status": 412,
+      "content_type": "text/html; charset=utf-8"
+    },
+    "chsi-2026-anhui-history-query": {
+      "status": "failed",
+      "attempts": 3,
+      "updated_at": "2026-10-31T12:27:18.698490+00:00",
+      "error": "HTTP 412",
+      "artifact": null,
+      "sha256": null,
+      "bytes": 0,
+      "http_status": 412,
+      "content_type": "text/html; charset=utf-8"
+    },
+    "chsi-2026-jiangxi-history-query": {
+      "status": "failed",
+      "attempts": 3,
+      "updated_at": "2026-10-31T12:27:20.670908+00:00",
+      "error": "HTTP 412",
+      "artifact": null,
+      "sha256": null,
+      "bytes": 0,
+      "http_status": 412,
+      "content_type": "text/html; charset=utf-8"
+    },
+    "chsi-2025-gansu-history-query": {
+      "status": "failed",
+      "attempts": 3,
+      "updated_at": "2026-10-31T12:27:23.247458+00:00",
+      "error": "HTTP 412",
+      "artifact": null,
+      "sha256": null,
+      "bytes": 0,
+      "http_status": 412,
+      "content_type": "text/html; charset=utf-8"
+    }
+  }
+}

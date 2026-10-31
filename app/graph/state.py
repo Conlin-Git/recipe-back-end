@@ -11,7 +11,7 @@ from langgraph.graph.message import add_messages
 class RouteDecision(TypedDict):
     """编排 agent 的路由决策（JSON 结构化输出的解析结果）。"""
     intent_type: str        # followup（追问） | new（全新查询）
-    domain: str             # recipe | dev | chat | naming
+    domain: str             # recipe | dev | chat | naming | gaokao
     summary_sufficient: bool  # 追问时：仅凭摘要是否足以回答
     needs_rag: bool         # 是否需要菜谱 RAG 检索
     reason: str             # 一句话决策理由（排查用）

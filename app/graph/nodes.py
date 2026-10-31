@@ -39,6 +39,7 @@ from app.graph.prompts import (
 from app.graph.state import GraphState, RouteDecision, TopicState
 from app.graph.tools.dev_book_search import search_dev_book_tool
 from app.graph.tools.recipe_search import search_recipe_tool
+from app.gaokao.chat_facts import extract_gaokao_facts
 from app.naming.chat_facts import extract_explicit_facts
 from app.services import (
     context_service,
@@ -52,6 +53,8 @@ from app.services.naming_rag_service import (
     format_naming_context,
     search_naming_knowledge,
 )
+from app.schemas.gaokao import DISCLAIMER, GaokaoGuideInput
+from app.services.gaokao_service import guide as get_gaokao_guide
 
 
 # ---------------- 上下文加载 ----------------
@@ -131,11 +134,12 @@ _SWITCH_MARKERS = re.compile(r"(换个话题|换一个问题|另外问|顺便问
 _RECIPE_TERMS = re.compile(r"(菜谱|食谱|做法|食材|配料|火候|下锅|炒|煮|炖|烤|蒸|牛肉|鸡|鱼|汤|面|饭)")
 _DEV_TERMS = re.compile(r"(代码|编程|前端|后端|接口|API|Docker|Milvus|MySQL|Redis|数据库|依赖|配置|部署|报错|Python|JavaScript|TypeScript|Vue|React|SQL)", re.I)
 _NAMING_TERMS = re.compile(r"(八字|生辰|取名|起名|姓名评分|名字评分|网名|笔名|人名|命理|五行|喜用神|康熙笔画)")
+_GAOKAO_TERMS = re.compile(r"(高考|志愿|报考|院校|专业组|一分一段|位次|录取线|分数线|选科|本科线)")
 
 
 def _last_domain(state: GraphState) -> str:
     topic = state.get("topic_state") or {}
-    if topic.get("domain") in {"recipe", "dev", "chat", "naming"}:
+    if topic.get("domain") in {"recipe", "dev", "chat", "naming", "gaokao"}:
         return topic["domain"]
     for message in reversed(state.get("window") or []):
         content = str(message.get("content", ""))
@@ -143,6 +147,8 @@ def _last_domain(state: GraphState) -> str:
             return "dev"
         if _NAMING_TERMS.search(content):
             return "naming"
+        if _GAOKAO_TERMS.search(content):
+            return "gaokao"
         if _RECIPE_TERMS.search(content):
             return "recipe"
     return "chat"
@@ -153,7 +159,9 @@ def _heuristic_route(state: GraphState) -> RouteDecision:
     previous_domain = _last_domain(state)
     explicit_switch = bool(_SWITCH_MARKERS.search(question))
     followup = bool(_FOLLOWUP_MARKERS.search(question)) and not explicit_switch
-    if _NAMING_TERMS.search(question):
+    if _GAOKAO_TERMS.search(question):
+        domain = "gaokao"
+    elif _NAMING_TERMS.search(question):
         domain = "naming"
     elif _DEV_TERMS.search(question):
         domain = "dev"
@@ -163,7 +171,7 @@ def _heuristic_route(state: GraphState) -> RouteDecision:
         domain = previous_domain
     else:
         domain = "chat"
-    if followup and not (_DEV_TERMS.search(question) or _RECIPE_TERMS.search(question) or _NAMING_TERMS.search(question)):
+    if followup and not (_DEV_TERMS.search(question) or _RECIPE_TERMS.search(question) or _NAMING_TERMS.search(question) or _GAOKAO_TERMS.search(question)):
         domain = previous_domain
     topic_action = "continue" if followup else ("switch" if explicit_switch else "new")
     query = question
@@ -176,14 +184,14 @@ def _heuristic_route(state: GraphState) -> RouteDecision:
                 references[pronoun] = topic_id
         if references:
             query = f"{topic.get('goal', '')}；追问：{question}".strip("；")
-    needs_rag = domain in {"recipe", "dev", "naming"} and (not followup or bool(_DEV_TERMS.search(question) or _RECIPE_TERMS.search(question) or _NAMING_TERMS.search(question)))
+    needs_rag = domain in {"recipe", "dev", "naming", "gaokao"} and (not followup or bool(_DEV_TERMS.search(question) or _RECIPE_TERMS.search(question) or _NAMING_TERMS.search(question) or _GAOKAO_TERMS.search(question)))
     return {
         "intent_type": "followup" if followup else "new",
         "domain": domain,
         "summary_sufficient": False,
         "needs_rag": needs_rag,
         "reason": "规则路由兜底，避免模型分类失败时误进入菜谱域",
-        "confidence": 0.82 if domain in {"recipe", "dev"} else 0.6,
+        "confidence": 0.82 if domain in {"recipe", "dev", "gaokao"} else 0.6,
         "topic_action": topic_action,
         "context_scope": ["active_topic", "recent_turns"] if followup else ["active_topic"],
         "retrieval_query": query,
@@ -254,7 +262,7 @@ async def orchestrator_node(state: GraphState) -> dict:
         if not raw:
             raise ValueError("router returned no valid JSON")
         raw_domain = raw.get("domain")
-        domain = raw_domain if raw_domain in ("recipe", "dev", "chat", "naming") else heuristic["domain"]
+        domain = raw_domain if raw_domain in ("recipe", "dev", "chat", "naming", "gaokao") else heuristic["domain"]
         intent = raw.get("intent_type") if raw.get("intent_type") in ("followup", "new") else heuristic["intent_type"]
         confidence = raw.get("confidence", 0.7)
         try:
@@ -265,7 +273,7 @@ async def orchestrator_node(state: GraphState) -> dict:
         # 重新判成闲聊或菜谱。
         if heuristic["intent_type"] == "followup" and not raw.get("topic_action"):
             intent = "followup"
-        if heuristic["domain"] in {"recipe", "dev", "naming"} and _FOLLOWUP_MARKERS.search(state["question"]):
+        if heuristic["domain"] in {"recipe", "dev", "naming", "gaokao"} and _FOLLOWUP_MARKERS.search(state["question"]):
             domain = heuristic["domain"]
         route: RouteDecision = {
             "intent_type": intent,
@@ -285,7 +293,7 @@ async def orchestrator_node(state: GraphState) -> dict:
         print(f"⚠️ 编排分类异常，使用规则路由：{e}")
         route = heuristic
 
-    if route["intent_type"] == "new" and route["domain"] in {"recipe", "dev", "naming"}:
+    if route["intent_type"] == "new" and route["domain"] in {"recipe", "dev", "naming", "gaokao"}:
         route["needs_rag"] = True
     topic = state.get("topic_state") or {}
     continuing = route.get("topic_action") == "continue" and topic.get("domain") == route["domain"]
@@ -309,7 +317,7 @@ def join_node(state: GraphState) -> dict:
 
 
 def pick_agent(state: GraphState) -> str:
-    return {"recipe": "recipe_agent", "dev": "dev_agent", "chat": "chat_agent", "naming": "naming_agent"}.get(
+    return {"recipe": "recipe_agent", "dev": "dev_agent", "chat": "chat_agent", "naming": "naming_agent", "gaokao": "gaokao_agent"}.get(
         (state.get("route") or {}).get("domain", "chat"), "chat_agent"
     )
 
@@ -504,3 +512,26 @@ async def naming_agent(state: GraphState) -> dict:
     content = resp.content if isinstance(resp.content, str) else str(resp.content)
     resp = AIMessage(content=f"{content.rstrip()}\n\n### 参考出处\n{citation_block}")
     return {"messages": [resp]}
+
+
+async def gaokao_agent(state: GraphState) -> dict:
+    """高考问答：先查结构化指南数据，再让模型解释，始终带免责声明。"""
+    facts = extract_gaokao_facts(state["question"])
+    required = [key for key in ("province", "year", "track") if key not in facts]
+    if required:
+        labels = {"province": "省份", "year": "年份", "track": "科类/选科口径"}
+        content = "为了精准匹配官方数据，请补充：" + "、".join(labels[key] for key in required) + f"。\n\n{DISCLAIMER}"
+        return {"messages": [AIMessage(content=content)]}
+    from app.database.mysql import AsyncSessionLocal
+    async with AsyncSessionLocal() as db:
+        result = await get_gaokao_guide(db, GaokaoGuideInput(**facts))
+    evidence = json.dumps(result, ensure_ascii=False)
+    system = build_qa_system_prompt(
+        PERSONA_CHAT,
+        "你是高考指南解释 agent。只能解释给定的结构化结果，不得补写未提供的学校、分数、位次或概率。明确区分官方数据与统计估算。",
+        state.get("sentiment"),
+    )
+    messages = [SystemMessage(content=system), *_layered_context(state), SystemMessage(content=f"【高考指南结构化结果】\n{evidence}"), HumanMessage(content=state["question"])]
+    resp = await answer_llm.ainvoke(messages)
+    content = resp.content if isinstance(resp.content, str) else str(resp.content)
+    return {"messages": [AIMessage(content=f"{content.rstrip()}\n\n{DISCLAIMER}")]}

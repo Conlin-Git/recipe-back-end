@@ -1,0 +1,16 @@
+{
+  "audit_version": "sh-admission-2026-v1",
+  "source_id": "shanghai-2026-undergraduate-regular-general",
+  "publisher": "上海市教育考试院",
+  "url": "https://cdn.shmeea.edu.cn/resource/upload/www/20260706/53767.pdf",
+  "sha256": "d26dcf12bc92d3270aa0e4e2801b31182f3fbd98604599dddafc664eb9db66df",
+  "raw_pages": 35,
+  "parsed_rows": 1593,
+  "score_range": [
+    431,
+    580
+  ],
+  "range_rows_580_plus": 24,
+  "track": "综合",
+  "note": "上海2026本科普通批次不区分物理/历史；原表无省内位次，580分及以上按原文保留区间说明，同分排序七项以 JSON 写入 tie_breaker。"
+}
