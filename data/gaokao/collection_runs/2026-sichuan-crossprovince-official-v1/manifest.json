@@ -1,0 +1,40 @@
+{
+  "run_id": "2026-sichuan-crossprovince-official-v1",
+  "scope": "2026年四川本科普通批广东、上海高校官方录取最低分",
+  "sources": [
+    {
+      "source_id": "tongji-2026-sichuan",
+      "url": "https://xxgk.tongji.edu.cn/index.php?classid=3140&newsid=21809&t=show",
+      "publisher": "同济大学信息公开网",
+      "province": "四川",
+      "school_province": "上海",
+      "year": 2026,
+      "dataset_type": "admission",
+      "sha256": "1f34d04fed932a565603745d8a839c76a5984d6c321577f65fba24f9d4dbe053",
+      "source_artifact": "raw/tongji-2026-sichuan/payload.html"
+    },
+    {
+      "source_id": "shu-2026-sichuan",
+      "url": "https://bkzsw.shu.edu.cn/info/7833/38950.htm",
+      "publisher": "上海大学本科招生网",
+      "province": "四川",
+      "school_province": "上海",
+      "year": 2026,
+      "dataset_type": "admission",
+      "sha256": "6fceabaeedc216f4c1b662aeb18425d14d91f0490b2165a95dfe152e3ecec3ee",
+      "source_artifact": "raw/shu-2026-sichuan/payload.html"
+    },
+    {
+      "source_id": "jnu-2026-sichuan",
+      "url": "https://lxlz.jnu.edu.cn/pugao/index.php?r=lqcx%2Fquery",
+      "publisher": "暨南大学招生办公室官方录取查询系统",
+      "province": "四川",
+      "school_province": "广东",
+      "year": 2026,
+      "dataset_type": "admission",
+      "sha256": "7b3bc6f48433f4ad6dbb8877166a3151ee53d2af67f8dc7a44a09f9d58f3ff32",
+      "source_artifact": "raw/jnu-2026-sichuan/payload.txt",
+      "notes": "官方查询页启用行为验证，保存需求相关两条官方结果摘录；非完整导出。"
+    }
+  ]
+}

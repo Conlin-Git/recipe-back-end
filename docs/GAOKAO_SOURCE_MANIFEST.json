@@ -1,6 +1,6 @@
 {
   "manifest_version": "gaokao-source-manifest-v1",
-  "status": "2026_cutoff_verified; score_band_partial_verified; undergraduate_admission_verified_partial; admission_collection_resumable",
+  "status": "2026_cutoff_verified; score_band_partial_verified; undergraduate_admission_verified_partial; target_scope_sichuan_gd_sh_verified; collection_run_2025_v2_imported",
   "official_entries": [
     {
       "publisher": "教育部阳光高考信息平台",
@@ -158,6 +158,209 @@
       "batch": "本科普通批",
       "url": "https://cdn.shmeea.edu.cn/resource/upload/www/20260706/53767.pdf",
       "verification": "官方 PDF SHA-256=d26dcf12bc92d3270aa0e4e2801b31182f3fbd98604599dddafc664eb9db66df；1593行 verified；上海不分物理/历史，580分及以上保留区间说明。"
+    },
+    {
+      "publisher": "成都信息工程大学本科招生网",
+      "dataset_type": "admission",
+      "year": 2026,
+      "province": "四川",
+      "school_province": "四川",
+      "track": "物理类/历史类",
+      "batch": "本科批次B段",
+      "url": "https://zs.cuit.edu.cn/info/1096/1742.htm",
+      "verification": "官方页面直接公布2026年四川本科B段（不含征集）分专业最低分及最低位次；65条已归档、SHA-256=3d3f3a076ab89d74241d23a958675275c37e3e00025f1e322993d94b9e2da108。"
+    },
+    {
+      "publisher": "四川大学锦江学院招生信息网",
+      "dataset_type": "admission",
+      "year": 2026,
+      "province": "四川",
+      "school_province": "四川",
+      "track": "物理类/历史类",
+      "batch": "本科批次B段",
+      "url": "https://zs.scujj.edu.cn/News/Info/2973",
+      "verification": "官方页面直接公布四川本科批次B段调档分数线；6条已归档，位次按四川官方成绩分段表换算，SHA-256=e7a9b4241a03caf8b620e457b9cf001dad60eea2da3e82004ab1c13ac4c6d342。"
+    },
+    {
+      "publisher": "广东以色列理工学院",
+      "dataset_type": "admission",
+      "year": 2026,
+      "province": "四川",
+      "school_province": "广东",
+      "track": "物理类",
+      "batch": "本科批次B段",
+      "url": "https://sites.gtiit.edu.cn/admissions/admission-plan01/",
+      "verification": "官方页面直接公布四川本科最低分及最低位次；5条已归档，SHA-256=1172cabe431a9f07cba94d7bc0c80f118d35dbe6bcdcee413f8482eb17114af0。"
+    },
+    {
+      "publisher": "广东白云学院招生信息网",
+      "dataset_type": "admission",
+      "year": 2026,
+      "province": "四川",
+      "school_province": "广东",
+      "track": "物理类/历史类",
+      "batch": "本科批次B段",
+      "url": "https://zsb.baiyunu.edu.cn/info/10571/24521.htm",
+      "verification": "官方页面公布四川本科最低录取/调档分；3条已归档，位次按四川官方成绩分段表换算，SHA-256=59448247deea766e95452634490037a05c3ef007d35d6614fe358949b987b379。"
+    },
+    {
+      "publisher": "上海大学本科招生网",
+      "dataset_type": "admission",
+      "year": 2026,
+      "province": "四川",
+      "school_province": "上海",
+      "track": "物理类/历史类",
+      "batch": "本科批次B段",
+      "url": "https://bkzsw.shu.edu.cn/info/7833/38950.htm",
+      "verification": "官方页面公布四川各类最低录取分；6条已归档，位次按四川官方成绩分段表换算，SHA-256=6fceabaeedc216f4c1b662aeb18425d14d91f0490b2165a95dfe152e3ecec3ee。"
+    },
+    {
+      "publisher": "上海政法学院信息公开网",
+      "dataset_type": "admission",
+      "year": 2026,
+      "province": "四川",
+      "school_province": "上海",
+      "track": "物理类/历史类",
+      "batch": "本科批次B段",
+      "url": "https://xxgk.shupl.edu.cn/2026/0916/c3604a151837/page.htm",
+      "verification": "官方页面公布四川各专业组最低录取分；5条已归档，位次按四川官方成绩分段表换算，SHA-256=e0de0daf074ca639e5aa9146fff07bbeef6be330813d2fe7c9c832e8cd049552。"
+    },
+    {
+      "publisher": "暨南大学招生办公室",
+      "dataset_type": "admission",
+      "year": 2025,
+      "province": "四川",
+      "track": "历史类/物理类",
+      "batch": "本科普通批",
+      "url": "https://zsb.jnu.edu.cn/2026/0331/c3454a852783/page.htm",
+      "verification": "3条，SHA-256=2db6e8c8632eaac67c8eaf2af63b0ae0a3c5ccb2c3c5c9d2f972a6cb6b51a69e"
+    },
+    {
+      "publisher": "深圳大学本科招生网",
+      "dataset_type": "admission",
+      "year": 2025,
+      "province": "四川",
+      "track": "历史类/物理类",
+      "batch": "本科普通批",
+      "url": "https://zs.szu.edu.cn/info/1153/2965.htm",
+      "verification": "3条，SHA-256=e6c2956657aa00dcf45fa90c48a90b940b034366fabcf56336c8f6862ae3f003"
+    },
+    {
+      "publisher": "广东财经大学",
+      "dataset_type": "admission",
+      "year": 2025,
+      "province": "四川",
+      "track": "历史类/物理类",
+      "batch": "本科普通批",
+      "url": "https://www.gdufe.edu.cn/_upload/article/files/3b/1a/9a8491b44429a675bd114fd3beec/028fe998-0131-45f2-9ac9-12f26c7358d0.pdf",
+      "verification": "2条，SHA-256=b04d2a9fea087c8b0fee1b77e5126d89ed8ddee3cc9fe038a82f7c6fe8123c79"
+    },
+    {
+      "publisher": "复旦大学招生办公室",
+      "dataset_type": "admission",
+      "year": 2025,
+      "province": "四川",
+      "track": "历史类/物理类",
+      "batch": "本科普通批",
+      "url": "https://ao.fudan.edu.cn/b7/a6/c36333a767910/page.htm",
+      "verification": "3条，SHA-256=1c9acb3a919d41f99428881bb64614e56467f2807b8866ebe2c3972207348e3b"
+    },
+    {
+      "publisher": "同济大学信息公开网",
+      "dataset_type": "admission",
+      "year": 2025,
+      "province": "四川",
+      "track": "历史类/物理类",
+      "batch": "本科普通批",
+      "url": "https://xxgk.tongji.edu.cn/index.php?classid=3140&newsid=20942&t=show",
+      "verification": "5条，SHA-256=09ce73cf110de7e9b20ca030dc035bc9d662ad3a8fd0a52e8209133d67e9738d"
+    },
+    {
+      "publisher": "东华大学本科招生网",
+      "dataset_type": "admission",
+      "year": 2025,
+      "province": "四川",
+      "track": "历史类/物理类",
+      "batch": "本科普通批",
+      "url": "https://zs.dhu.edu.cn/2026/0228/c25199a371806/page.htm",
+      "verification": "2条，SHA-256=75a4194aa1509c4289d71979cba2aed6b6d6bc6db8f836963a11a5c540d43c1f"
+    },
+    {
+      "publisher": "上海理工大学信息公开网",
+      "dataset_type": "admission",
+      "year": 2025,
+      "province": "四川",
+      "track": "历史类/物理类",
+      "batch": "本科普通批",
+      "url": "https://xxgk.usst.edu.cn/2025/1030/c8490a349660/page.htm",
+      "verification": "3条，SHA-256=f7c778d524a6edf14afdb6941e3f0e1787c368a7da0c3a882f226ef316c69cd6"
+    },
+    {
+      "publisher": "上海大学本科招生网",
+      "dataset_type": "admission",
+      "year": 2025,
+      "province": "四川",
+      "track": "历史类/物理类",
+      "batch": "本科普通批",
+      "url": "https://bkzsw.shu.edu.cn/info/1798/38010.htm",
+      "verification": "4条，SHA-256=17f6e0b79f07cbfa6b9be24c60566620f563300f044cf3115de40abbee73488b"
+    },
+    {
+      "publisher": "上海海事大学信息公开网",
+      "dataset_type": "admission",
+      "year": 2025,
+      "province": "四川",
+      "track": "历史类/物理类",
+      "batch": "本科普通批",
+      "url": "https://info.shmtu.edu.cn/2025/1030/c10187a281226/page.htm",
+      "verification": "2条，SHA-256=72cdbd76b3a1132c0dfb5e9db926847a11a7ba9074f90c4280fedc1582bba4d4"
+    },
+    {
+      "publisher": "暨南大学官方录取查询系统",
+      "dataset_type": "admission",
+      "year": 2026,
+      "province": "四川",
+      "track": "历史类/物理类",
+      "batch": "本科普通批",
+      "url": "https://lxlz.jnu.edu.cn/pugao/index.php?r=lqcx%2Fquery",
+      "verification": "2条官方查询页摘录，SHA-256=7b3bc6f48433f4ad6dbb8877166a3151ee53d2af67f8dc7a44a09f9d58f3ff32；页面有行为验证"
+    },
+    {
+      "publisher": "同济大学信息公开网",
+      "dataset_type": "admission",
+      "year": 2026,
+      "province": "四川",
+      "track": "历史类/物理类",
+      "batch": "本科普通批",
+      "url": "https://xxgk.tongji.edu.cn/index.php?classid=3140&newsid=21809&t=show",
+      "verification": "4条，SHA-256=1f34d04fed932a565603745d8a839c76a5984d6c321577f65fba24f9d4dbe053"
+    },
+    {
+      "publisher": "东莞理工学院",
+      "dataset_type": "admission",
+      "year": 2025,
+      "province": "四川",
+      "school_province": "广东",
+      "url": "https://www.dgut.edu.cn/info/1066/84392.htm",
+      "verification": "官方页面已下载、SHA-256核验并导入；四川本科批出档最低分；collection_run=2025-sichuan-crossprovince-official-v2"
+    },
+    {
+      "publisher": "华东师范大学",
+      "dataset_type": "admission",
+      "year": 2025,
+      "province": "四川",
+      "school_province": "上海",
+      "url": "https://xxgk.ecnu.edu.cn/e9/c6/c29049a715206/page.htm",
+      "verification": "官方逐专业录取结果已下载、SHA-256核验并导入；四川普通类本科批专业最低录取分汇总；record_kind=major_admit；collection_run=2025-sichuan-crossprovince-official-v2"
+    },
+    {
+      "publisher": "华东师范大学",
+      "dataset_type": "admission",
+      "year": 2026,
+      "province": "四川",
+      "school_province": "上海",
+      "url": "https://xxgk.ecnu.edu.cn/d2/83/c11818a774787/page.htm",
+      "verification": "官方逐专业录取结果已下载、SHA-256核验并导入；四川普通类本科批专业最低录取分汇总；record_kind=major_admit；collection_run=2025-sichuan-crossprovince-official-v2"
     }
   ],
   "required_complete_matrix": {

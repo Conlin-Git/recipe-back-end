@@ -1,0 +1,116 @@
+{
+  "state_version": "gaokao-collection-state-v1",
+  "manifest_sha256": "cb000fdecceb522d6ddd8b20edc1a6b310c65c2f50e79e6438ed89f58a8b2106",
+  "created_at": "2026-11-01T00:55:00Z",
+  "updated_at": "2026-10-31T17:11:40.280935+00:00",
+  "sources": {
+    "jnu-2025-sichuan": {
+      "status": "downloaded",
+      "attempts": 0,
+      "updated_at": "2026-10-31T17:11:40.279527+00:00",
+      "error": null,
+      "artifact": "raw/jnu-2025-sichuan/payload.html",
+      "sha256": "2db6e8c8632eaac67c8eaf2af63b0ae0a3c5ccb2c3c5c9d2f972a6cb6b51a69e",
+      "bytes": 113304,
+      "http_status": 200,
+      "content_type": "text/html",
+      "manually_attached": true
+    },
+    "szu-2025-sichuan": {
+      "status": "downloaded",
+      "attempts": 0,
+      "updated_at": "2026-10-31T17:11:40.279929+00:00",
+      "error": null,
+      "artifact": "raw/szu-2025-sichuan/payload.html",
+      "sha256": "e6c2956657aa00dcf45fa90c48a90b940b034366fabcf56336c8f6862ae3f003",
+      "bytes": 440148,
+      "http_status": 200,
+      "content_type": "text/html",
+      "manually_attached": true
+    },
+    "gdufe-2025-sichuan": {
+      "status": "downloaded",
+      "attempts": 0,
+      "updated_at": "2026-10-31T17:11:40.280078+00:00",
+      "error": null,
+      "artifact": "raw/gdufe-2025-sichuan/payload.pdf",
+      "sha256": "b04d2a9fea087c8b0fee1b77e5126d89ed8ddee3cc9fe038a82f7c6fe8123c79",
+      "bytes": 229910,
+      "http_status": 200,
+      "content_type": "application/pdf",
+      "manually_attached": true
+    },
+    "fudan-2025-sichuan": {
+      "status": "downloaded",
+      "attempts": 0,
+      "updated_at": "2026-10-31T17:11:40.280194+00:00",
+      "error": null,
+      "artifact": "raw/fudan-2025-sichuan/payload.html",
+      "sha256": "1c9acb3a919d41f99428881bb64614e56467f2807b8866ebe2c3972207348e3b",
+      "bytes": 177205,
+      "http_status": 200,
+      "content_type": "text/html",
+      "manually_attached": true
+    },
+    "tongji-2025-sichuan": {
+      "status": "downloaded",
+      "attempts": 0,
+      "updated_at": "2026-10-31T17:11:40.280258+00:00",
+      "error": null,
+      "artifact": "raw/tongji-2025-sichuan/payload.html",
+      "sha256": "09ce73cf110de7e9b20ca030dc035bc9d662ad3a8fd0a52e8209133d67e9738d",
+      "bytes": 41884,
+      "http_status": 200,
+      "content_type": "text/html",
+      "manually_attached": true
+    },
+    "donghua-2025-sichuan": {
+      "status": "downloaded",
+      "attempts": 0,
+      "updated_at": "2026-10-31T17:11:40.280317+00:00",
+      "error": null,
+      "artifact": "raw/donghua-2025-sichuan/payload.html",
+      "sha256": "75a4194aa1509c4289d71979cba2aed6b6d6bc6db8f836963a11a5c540d43c1f",
+      "bytes": 41294,
+      "http_status": 200,
+      "content_type": "text/html",
+      "manually_attached": true
+    },
+    "usst-2025-sichuan": {
+      "status": "downloaded",
+      "attempts": 0,
+      "updated_at": "2026-10-31T17:11:40.280466+00:00",
+      "error": null,
+      "artifact": "raw/usst-2025-sichuan/payload.html",
+      "sha256": "f7c778d524a6edf14afdb6941e3f0e1787c368a7da0c3a882f226ef316c69cd6",
+      "bytes": 267620,
+      "http_status": 200,
+      "content_type": "text/html",
+      "manually_attached": true
+    },
+    "shu-2025-sichuan": {
+      "status": "downloaded",
+      "attempts": 0,
+      "updated_at": "2026-10-31T17:11:40.280805+00:00",
+      "error": null,
+      "artifact": "raw/shu-2025-sichuan.html",
+      "sha256": "17f6e0b79f07cbfa6b9be24c60566620f563300f044cf3115de40abbee73488b",
+      "bytes": 714875,
+      "http_status": 200,
+      "content_type": "text/html",
+      "manually_attached": true
+    },
+    "shmtu-2025-sichuan": {
+      "status": "downloaded",
+      "attempts": 0,
+      "updated_at": "2026-10-31T17:11:40.280934+00:00",
+      "error": null,
+      "artifact": "raw/shmtu-2025.pdf",
+      "sha256": "72cdbd76b3a1132c0dfb5e9db926847a11a7ba9074f90c4280fedc1582bba4d4",
+      "bytes": 232664,
+      "http_status": 200,
+      "content_type": "application/pdf",
+      "manually_attached": true
+    }
+  }
+}

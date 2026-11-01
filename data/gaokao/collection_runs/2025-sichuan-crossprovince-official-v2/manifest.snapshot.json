@@ -1,0 +1,57 @@
+{
+  "collection_run": "2025-sichuan-crossprovince-official-v2",
+  "collected_at": "2026-11-01",
+  "purpose": "补充四川考生按2026参考年度查询广东、上海本科院校",
+  "scope": {
+    "candidate_province": "四川",
+    "admission_province": "四川",
+    "school_provinces": [
+      "广东",
+      "上海"
+    ]
+  },
+  "sources": [
+    {
+      "publisher": "东莞理工学院",
+      "year": 2025,
+      "url": "https://www.dgut.edu.cn/info/1066/84392.htm",
+      "artifact": "raw/dgut-2025-sichuan.html",
+      "sha256": "510096a1615aca0ec386727f7d311f6a7f0199e1edf9ceb3f4f494e08caed9f9",
+      "rows": "staging/dgut-2025.jsonl",
+      "status": "imported",
+      "record_kinds": [
+        "group_admit"
+      ]
+    },
+    {
+      "publisher": "华东师范大学",
+      "year": 2025,
+      "url": "https://xxgk.ecnu.edu.cn/e9/c6/c29049a715206/page.htm",
+      "artifact": "raw/ecnu-2025-sichuan.html",
+      "sha256": "4cb85e59bc9153341a85604f7b2ae8b8b47ac295bfdc8e7d06af35fe2068716c",
+      "rows": "staging/ecnu-2025.jsonl",
+      "status": "imported",
+      "record_kinds": [
+        "major_admit"
+      ]
+    },
+    {
+      "publisher": "华东师范大学",
+      "year": 2026,
+      "url": "https://xxgk.ecnu.edu.cn/d2/83/c11818a774787/page.htm",
+      "artifact": "raw/ecnu-2026-sichuan.html",
+      "sha256": "c18b57362f616d2203e5f5891735d25daf0e4aa970b353193b3f5dcf32e6741d",
+      "rows": "staging/ecnu-2026.jsonl",
+      "status": "imported",
+      "record_kinds": [
+        "major_admit"
+      ]
+    }
+  ],
+  "excluded": [
+    {
+      "name": "华南师范大学2025 PDF",
+      "reason": "下载响应为反爬 HTML，不入库；避免把错误文件当作官方数据。"
+    }
+  ]
+}

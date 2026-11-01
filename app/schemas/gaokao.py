@@ -38,6 +38,8 @@ class GaokaoGuideInput(BaseModel):
     preferred_regions: list[str] = Field(default_factory=list, max_length=10)
     keywords: str = Field(default="", max_length=120)
     limit: int = Field(default=30, ge=1, le=100)
+    history_years: int = Field(default=5, ge=1, le=5)
+    sort_by: Literal["min_score_desc", "min_rank_asc", "rank_gap_desc"] = "min_score_desc"
 
     @model_validator(mode="before")
     @classmethod
@@ -83,8 +85,8 @@ class GaokaoGuideInput(BaseModel):
 
 
 class GaokaoRecommendation(BaseModel):
-    tier: Literal["冲", "稳", "保"]
-    rank_status: Literal["已超过", "未达到"]
+    tier: Literal["冲", "稳", "保", "数据不足"]
+    rank_status: Literal["已超过", "未达到", "暂无位次"]
     record_kind: str = "major_admit"
     admission_round: str = "regular"
     university_name: str
@@ -102,8 +104,10 @@ class GaokaoRecommendation(BaseModel):
     historical_years: list[int]
     historical_min_ranks: list[int]
     rank_gap: int | None = None
+    comparison_rank: int | None = None
     plan_count: int | None = None
     confidence: Literal["高", "中", "低"]
+    data_quality: Literal["官方位次", "换算位次", "仅最低分", "无可用数据"] = "无可用数据"
     evidence: list[dict]
     reason: str
 
@@ -116,3 +120,45 @@ class GaokaoGuideOut(BaseModel):
     sections: dict[str, list[GaokaoRecommendation]] = Field(default_factory=dict)
     sources: list[dict]
     warnings: list[str]
+    summary: dict = Field(default_factory=dict)
+    coverage: dict = Field(default_factory=dict)
+    school_recommendations: list[dict] = Field(default_factory=list)
+    rule_note: str = ""
+
+
+class GaokaoCatalogInput(BaseModel):
+    admission_province: str = Field(default="四川", max_length=30)
+    school_provinces: list[str] = Field(default_factory=lambda: ["四川", "广东", "上海"], max_length=3)
+    year: int | None = Field(default=None, ge=2022, le=2100)
+    track: str | None = Field(default=None, max_length=30)
+    batch: str | None = Field(default=None, max_length=60)
+    keywords: str = Field(default="", max_length=120)
+    page: int = Field(default=1, ge=1, le=10000)
+    page_size: int = Field(default=30, ge=1, le=100)
+
+    @field_validator("admission_province", "track", "keywords", mode="before")
+    @classmethod
+    def strip_catalog_text(cls, value):
+        return value.strip() if isinstance(value, str) else value
+
+    @field_validator("school_provinces", mode="before")
+    @classmethod
+    def normalize_catalog_provinces(cls, value):
+        if value is None:
+            return []
+        if isinstance(value, str):
+            value = [value]
+        return [item.strip() for item in value if isinstance(item, str) and item.strip()]
+
+    @field_validator("batch", mode="before")
+    @classmethod
+    def canonicalize_catalog_batch(cls, value):
+        return normalize_batch(value) if isinstance(value, str) else value
+
+
+class GaokaoCatalogOut(BaseModel):
+    items: list[dict]
+    total: int
+    page: int
+    page_size: int
+    coverage: dict = Field(default_factory=dict)

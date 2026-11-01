@@ -1,28 +1,58 @@
 [
   {
-    "source_id": "sichuan-2026-scoreband-physical",
-    "path": "scoreband_seeds/sichuan-2026-scoreband-physical.jsonl",
+    "source_key": "sceea:sichuan:2025:score_band:physical",
+    "publisher": "四川省教育考试院",
+    "province": "四川",
+    "year": 2025,
+    "track": "物理类",
+    "dataset_type": "score_band",
+    "source_url": "https://www.sceea.cn/Html/202506/Newsdetail_4335.html",
+    "sha256": "745925926b97ccfb7958f67bf86421ea3edcc770fd990651e8eaa09d16d46b31",
+    "path": "scoreband_seeds/2025-sichuan-physical.jsonl",
+    "rows": 540,
+    "source_artifact": "collection_runs/2025-scorebands/raw/pages/sceea-physical.html",
+    "extraction_note": "官方页面以图片发布；结构化行逐项与页面图片核对，镜像 HTML 仅作机器提取辅助，不作为权威来源。"
+  },
+  {
+    "source_key": "sceea:sichuan:2025:score_band:history",
+    "publisher": "四川省教育考试院",
+    "province": "四川",
+    "year": 2025,
+    "track": "历史类",
+    "dataset_type": "score_band",
+    "source_url": "https://www.sceea.cn/Html/202506/Newsdetail_4334.html",
+    "sha256": "0f65428fd2aa07311027dd03aabfb8a386737b9b894098b1d00967f46cf6a3e5",
+    "path": "scoreband_seeds/2025-sichuan-history.jsonl",
+    "rows": 512,
+    "source_artifact": "collection_runs/2025-scorebands/raw/pages/sceea-history.html",
+    "extraction_note": "官方页面以图片发布；结构化行逐项与页面图片核对，镜像 HTML 仅作机器提取辅助，不作为权威来源。"
+  },
+  {
+    "source_key": "sceea:sichuan:2026:score_band:physical",
     "publisher": "四川省教育考试院",
     "province": "四川",
     "year": 2026,
     "track": "物理类",
+    "dataset_type": "score_band",
     "source_url": "https://www.sceea.cn/Html/202606/Newsdetail_4857.html",
     "sha256": "797f5f2b79b7ae2f6d07faa94dda6415a4af965a9aa7594f4f9bd659c0573a31",
+    "path": "scoreband_seeds/sichuan-2026-scoreband-physical.jsonl",
     "rows": 534,
-    "validation_status": "verified",
-    "notes": "官方文章内20张成绩分段图片；150分以下按原文略去；zip为下载图片的可审计归档。"
+    "source_artifact": "2026_scoreband_sources.json",
+    "extraction_note": "官方页面图片归档并经累计位次校验。"
   },
   {
-    "source_id": "sichuan-2026-scoreband-history",
-    "path": "scoreband_seeds/sichuan-2026-scoreband-history.jsonl",
+    "source_key": "sceea:sichuan:2026:score_band:history",
     "publisher": "四川省教育考试院",
     "province": "四川",
     "year": 2026,
     "track": "历史类",
+    "dataset_type": "score_band",
     "source_url": "https://www.sceea.cn/Html/202606/Newsdetail_4858.html",
     "sha256": "a63cf6a6ae44e1dd884f42ce9a9461d9d7abef32ae4fabf3c4f24dfff9f04217",
+    "path": "scoreband_seeds/sichuan-2026-scoreband-history.jsonl",
     "rows": 513,
-    "validation_status": "verified",
-    "notes": "官方文章内20张成绩分段图片；150分以下按原文略去；zip为下载图片的可审计归档。"
+    "source_artifact": "2026_scoreband_sources.json",
+    "extraction_note": "官方页面图片归档并经累计位次校验。"
   }
 ]

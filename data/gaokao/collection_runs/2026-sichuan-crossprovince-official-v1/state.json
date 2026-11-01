@@ -1,0 +1,44 @@
+{
+  "state_version": "gaokao-collection-state-v1",
+  "manifest_sha256": "731a9eb022f49d965536441e750acf573a375822d31159ef99d5ff86c2017bcf",
+  "created_at": "2026-10-31T17:03:02.916760+00:00",
+  "updated_at": "2026-10-31T17:03:11.581544+00:00",
+  "sources": {
+    "tongji-2026-sichuan": {
+      "status": "downloaded",
+      "attempts": 0,
+      "updated_at": "2026-10-31T17:03:11.580931+00:00",
+      "error": null,
+      "artifact": "raw/tongji-2026-sichuan/payload.html",
+      "sha256": "1f34d04fed932a565603745d8a839c76a5984d6c321577f65fba24f9d4dbe053",
+      "bytes": 50078,
+      "http_status": null,
+      "content_type": null,
+      "manually_attached": true
+    },
+    "shu-2026-sichuan": {
+      "status": "downloaded",
+      "attempts": 0,
+      "updated_at": "2026-10-31T17:03:11.581493+00:00",
+      "error": null,
+      "artifact": "raw/shu-2026-sichuan/payload.html",
+      "sha256": "6fceabaeedc216f4c1b662aeb18425d14d91f0490b2165a95dfe152e3ecec3ee",
+      "bytes": 800550,
+      "http_status": null,
+      "content_type": null,
+      "manually_attached": true
+    },
+    "jnu-2026-sichuan": {
+      "status": "downloaded",
+      "attempts": 0,
+      "updated_at": "2026-10-31T17:03:11.581542+00:00",
+      "error": null,
+      "artifact": "raw/jnu-2026-sichuan/payload.txt",
+      "sha256": "7b3bc6f48433f4ad6dbb8877166a3151ee53d2af67f8dc7a44a09f9d58f3ff32",
+      "bytes": 589,
+      "http_status": null,
+      "content_type": null,
+      "manually_attached": true
+    }
+  }
+}

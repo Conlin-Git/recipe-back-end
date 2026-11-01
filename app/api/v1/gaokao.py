@@ -5,8 +5,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.deps import get_current_user, get_db
 from app.models.gaokao import GaokaoAdmission, GaokaoCutoff, GaokaoScoreBand
 from app.models.user import User
-from app.schemas.gaokao import GaokaoGuideInput, GaokaoGuideOut
-from app.services.gaokao_service import guide
+from app.schemas.gaokao import GaokaoCatalogInput, GaokaoCatalogOut, GaokaoGuideInput, GaokaoGuideOut
+from app.services.gaokao_service import SUPPORTED_SCHOOL_PROVINCES, catalog, coverage_snapshot, guide
 
 router = APIRouter(prefix="/gaokao", tags=["gaokao"])
 
@@ -19,6 +19,35 @@ async def get_guide(
 ):
     del current_user
     return await guide(db, data)
+
+
+@router.post("/catalog", response_model=GaokaoCatalogOut)
+async def get_catalog(
+    data: GaokaoCatalogInput,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    del current_user
+    return await catalog(db, data)
+
+
+@router.get("/catalog", response_model=GaokaoCatalogOut)
+async def get_catalog_default(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """给直接打开接口地址的场景提供默认本科目录，避免出现裸 404。"""
+    del current_user
+    return await catalog(db, GaokaoCatalogInput())
+
+
+@router.get("/coverage")
+async def get_coverage(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    del current_user
+    return await coverage_snapshot(db)
 
 
 @router.get("/options")
@@ -72,5 +101,6 @@ async def get_options(
             province: {year: sorted(batches) for year, batches in years_map.items()}
             for province, years_map in province_reference_batches.items()
         },
-        "school_provinces": ["四川", "广东", "上海"],
+        "school_provinces": list(SUPPORTED_SCHOOL_PROVINCES),
+        "coverage": await coverage_snapshot(db),
     }

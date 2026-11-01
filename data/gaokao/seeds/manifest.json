@@ -130,5 +130,192 @@
     "sha256": "d26dcf12bc92d3270aa0e4e2801b31182f3fbd98604599dddafc664eb9db66df",
     "rows": 1593,
     "validation_status": "verified"
+  },
+  {
+    "source_id": 59,
+    "path": "seeds/source-59-admission.jsonl",
+    "publisher": "广东以色列理工学院",
+    "province": "四川",
+    "year": 2026,
+    "source_url": "https://sites.gtiit.edu.cn/admissions/admission-plan01/",
+    "sha256": "1172cabe431a9f07cba94d7bc0c80f118d35dbe6bcdcee413f8482eb17114af0",
+    "rows": 5,
+    "validation_status": "verified"
+  },
+  {
+    "source_id": 60,
+    "path": "seeds/source-60-24521.htm.jsonl",
+    "publisher": "广东白云学院",
+    "province": "四川",
+    "year": 2026,
+    "source_url": "https://zsb.baiyunu.edu.cn/info/10571/24521.htm",
+    "sha256": "59448247deea766e95452634490037a05c3ef007d35d6614fe358949b987b379",
+    "rows": 3,
+    "validation_status": "verified"
+  },
+  {
+    "source_id": 61,
+    "path": "seeds/source-61-38950.htm.jsonl",
+    "publisher": "上海大学",
+    "province": "四川",
+    "year": 2026,
+    "source_url": "https://bkzsw.shu.edu.cn/info/7833/38950.htm",
+    "sha256": "6fceabaeedc216f4c1b662aeb18425d14d91f0490b2165a95dfe152e3ecec3ee",
+    "rows": 6,
+    "validation_status": "verified"
+  },
+  {
+    "source_id": 62,
+    "path": "seeds/source-62-page.htm.jsonl",
+    "publisher": "上海政法学院",
+    "province": "四川",
+    "year": 2026,
+    "source_url": "https://xxgk.shupl.edu.cn/2026/0916/c3604a151837/page.htm",
+    "sha256": "e0de0daf074ca639e5aa9146fff07bbeef6be330813d2fe7c9c832e8cd049552",
+    "rows": 5,
+    "validation_status": "verified"
+  },
+  {
+    "source_id": 63,
+    "path": "seeds/source-63-2973.jsonl",
+    "publisher": "四川大学锦江学院",
+    "province": "四川",
+    "year": 2026,
+    "source_url": "https://zs.scujj.edu.cn/News/Info/2973",
+    "sha256": "e7a9b4241a03caf8b620e457b9cf001dad60eea2da3e82004ab1c13ac4c6d342",
+    "rows": 6,
+    "validation_status": "verified"
+  },
+  {
+    "source_id": 64,
+    "path": "seeds/source-64-page.htm.jsonl",
+    "publisher": "暨南大学招生办公室",
+    "province": "四川",
+    "year": 2025,
+    "source_url": "https://zsb.jnu.edu.cn/2026/0331/c3454a852783/page.htm",
+    "sha256": "2db6e8c8632eaac67c8eaf2af63b0ae0a3c5ccb2c3c5c9d2f972a6cb6b51a69e",
+    "rows": 3,
+    "validation_status": "verified"
+  },
+  {
+    "source_id": 65,
+    "path": "seeds/source-65-2965.htm.jsonl",
+    "publisher": "深圳大学本科招生网",
+    "province": "四川",
+    "year": 2025,
+    "source_url": "https://zs.szu.edu.cn/info/1153/2965.htm",
+    "sha256": "e6c2956657aa00dcf45fa90c48a90b940b034366fabcf56336c8f6862ae3f003",
+    "rows": 3,
+    "validation_status": "verified"
+  },
+  {
+    "source_id": 66,
+    "path": "seeds/source-66-028fe998-0131-45f2-9ac9-12f26c7358d0.pdf.jsonl",
+    "publisher": "广东财经大学",
+    "province": "四川",
+    "year": 2025,
+    "source_url": "https://www.gdufe.edu.cn/_upload/article/files/3b/1a/9a8491b44429a675bd114fd3beec/028fe998-0131-45f2-9ac9-12f26c7358d0.pdf",
+    "sha256": "b04d2a9fea087c8b0fee1b77e5126d89ed8ddee3cc9fe038a82f7c6fe8123c79",
+    "rows": 2,
+    "validation_status": "verified"
+  },
+  {
+    "source_id": 67,
+    "path": "seeds/source-67-page.htm.jsonl",
+    "publisher": "复旦大学招生办公室",
+    "province": "四川",
+    "year": 2025,
+    "source_url": "https://ao.fudan.edu.cn/b7/a6/c36333a767910/page.htm",
+    "sha256": "1c9acb3a919d41f99428881bb64614e56467f2807b8866ebe2c3972207348e3b",
+    "rows": 3,
+    "validation_status": "verified"
+  },
+  {
+    "source_id": 68,
+    "path": "seeds/source-68-index.php_classid_3140_newsid_20942_t_show.jsonl",
+    "publisher": "同济大学信息公开网",
+    "province": "四川",
+    "year": 2025,
+    "source_url": "https://xxgk.tongji.edu.cn/index.php?classid=3140&newsid=20942&t=show",
+    "sha256": "09ce73cf110de7e9b20ca030dc035bc9d662ad3a8fd0a52e8209133d67e9738d",
+    "rows": 5,
+    "validation_status": "verified"
+  },
+  {
+    "source_id": 69,
+    "path": "seeds/source-69-page.htm.jsonl",
+    "publisher": "东华大学本科招生网",
+    "province": "四川",
+    "year": 2025,
+    "source_url": "https://zs.dhu.edu.cn/2026/0228/c25199a371806/page.htm",
+    "sha256": "75a4194aa1509c4289d71979cba2aed6b6d6bc6db8f836963a11a5c540d43c1f",
+    "rows": 2,
+    "validation_status": "verified"
+  },
+  {
+    "source_id": 70,
+    "path": "seeds/source-70-page.htm.jsonl",
+    "publisher": "上海理工大学信息公开网",
+    "province": "四川",
+    "year": 2025,
+    "source_url": "https://xxgk.usst.edu.cn/2025/1030/c8490a349660/page.htm",
+    "sha256": "f7c778d524a6edf14afdb6941e3f0e1787c368a7da0c3a882f226ef316c69cd6",
+    "rows": 3,
+    "validation_status": "verified"
+  },
+  {
+    "source_id": 71,
+    "path": "seeds/source-71-1742.htm.jsonl",
+    "publisher": "成都信息工程大学本科招生网",
+    "province": "四川",
+    "year": 2026,
+    "source_url": "https://zs.cuit.edu.cn/info/1096/1742.htm",
+    "sha256": "3d3f3a076ab89d74241d23a958675275c37e3e00025f1e322993d94b9e2da108",
+    "rows": 65,
+    "validation_status": "verified"
+  },
+  {
+    "source_id": 72,
+    "path": "seeds/source-72-38010.htm.jsonl",
+    "publisher": "上海大学本科招生网",
+    "province": "四川",
+    "year": 2025,
+    "source_url": "https://bkzsw.shu.edu.cn/info/1798/38010.htm",
+    "sha256": "17f6e0b79f07cbfa6b9be24c60566620f563300f044cf3115de40abbee73488b",
+    "rows": 4,
+    "validation_status": "verified"
+  },
+  {
+    "source_id": 73,
+    "path": "seeds/source-73-page.htm.jsonl",
+    "publisher": "上海海事大学信息公开网",
+    "province": "四川",
+    "year": 2025,
+    "source_url": "https://info.shmtu.edu.cn/2025/1030/c10187a281226/page.htm",
+    "sha256": "72cdbd76b3a1132c0dfb5e9db926847a11a7ba9074f90c4280fedc1582bba4d4",
+    "rows": 2,
+    "validation_status": "verified"
+  },
+  {
+    "source_id": 74,
+    "path": "seeds/source-74-index.php_classid_3140_newsid_21809_t_show.jsonl",
+    "publisher": "同济大学信息公开网",
+    "province": "四川",
+    "year": 2026,
+    "source_url": "https://xxgk.tongji.edu.cn/index.php?classid=3140&newsid=21809&t=show",
+    "sha256": "1f34d04fed932a565603745d8a839c76a5984d6c321577f65fba24f9d4dbe053",
+    "rows": 4,
+    "validation_status": "verified"
+  },
+  {
+    "source_id": 75,
+    "path": "seeds/source-75-38950.htm.jsonl",
+    "publisher": "上海大学本科招生网",
+    "province": "四川",
+    "year": 2026,
+    "source_url": "https://bkzsw.shu.edu.cn/info/7833/38950.htm",
+    "sha256": "6fceabaeedc216f4c1b662aeb18425d14d91f0490b2165a95dfe152e3ecec3ee",
+    "rows": 4,
+    "validation_status": "verified"
   }
 ]

@@ -1,0 +1,106 @@
+{
+  "run_id": "2025-sichuan-crossprovince-official-v1",
+  "scope": "2025年四川本科普通批（B段）广东、上海院校官方录取最低分；院校所在地与生源省分开保存",
+  "manifest_sha256": "cb000fdecceb522d6ddd8b20edc1a6b310c65c2f50e79e6438ed89f58a8b2106",
+  "sources": [
+    {
+      "source_id": "jnu-2025-sichuan",
+      "url": "https://zsb.jnu.edu.cn/2026/0331/c3454a852783/page.htm",
+      "publisher": "暨南大学招生办公室",
+      "province": "四川",
+      "school_province": "广东",
+      "year": 2025,
+      "dataset_type": "admission",
+      "sha256": "2db6e8c8632eaac67c8eaf2af63b0ae0a3c5ccb2c3c5c9d2f972a6cb6b51a69e",
+      "source_artifact": "raw/jnu-2025-sichuan/payload.html"
+    },
+    {
+      "source_id": "szu-2025-sichuan",
+      "url": "https://zs.szu.edu.cn/info/1153/2965.htm",
+      "publisher": "深圳大学本科招生网",
+      "province": "四川",
+      "school_province": "广东",
+      "year": 2025,
+      "dataset_type": "admission",
+      "sha256": "e6c2956657aa00dcf45fa90c48a90b940b034366fabcf56336c8f6862ae3f003",
+      "source_artifact": "raw/szu-2025-sichuan/payload.html"
+    },
+    {
+      "source_id": "gdufe-2025-sichuan",
+      "url": "https://www.gdufe.edu.cn/_upload/article/files/3b/1a/9a8491b44429a675bd114fd3beec/028fe998-0131-45f2-9ac9-12f26c7358d0.pdf",
+      "publisher": "广东财经大学",
+      "province": "四川",
+      "school_province": "广东",
+      "year": 2025,
+      "dataset_type": "admission",
+      "sha256": "b04d2a9fea087c8b0fee1b77e5126d89ed8ddee3cc9fe038a82f7c6fe8123c79",
+      "source_artifact": "raw/gdufe-2025-sichuan/payload.pdf"
+    },
+    {
+      "source_id": "fudan-2025-sichuan",
+      "url": "https://ao.fudan.edu.cn/b7/a6/c36333a767910/page.htm",
+      "publisher": "复旦大学招生办公室",
+      "province": "四川",
+      "school_province": "上海",
+      "year": 2025,
+      "dataset_type": "admission",
+      "sha256": "1c9acb3a919d41f99428881bb64614e56467f2807b8866ebe2c3972207348e3b",
+      "source_artifact": "raw/fudan-2025-sichuan/payload.html"
+    },
+    {
+      "source_id": "tongji-2025-sichuan",
+      "url": "https://xxgk.tongji.edu.cn/index.php?classid=3140&newsid=20942&t=show",
+      "publisher": "同济大学信息公开网",
+      "province": "四川",
+      "school_province": "上海",
+      "year": 2025,
+      "dataset_type": "admission",
+      "sha256": "09ce73cf110de7e9b20ca030dc035bc9d662ad3a8fd0a52e8209133d67e9738d",
+      "source_artifact": "raw/tongji-2025-sichuan/payload.html"
+    },
+    {
+      "source_id": "donghua-2025-sichuan",
+      "url": "https://zs.dhu.edu.cn/2026/0228/c25199a371806/page.htm",
+      "publisher": "东华大学本科招生网",
+      "province": "四川",
+      "school_province": "上海",
+      "year": 2025,
+      "dataset_type": "admission",
+      "sha256": "75a4194aa1509c4289d71979cba2aed6b6d6bc6db8f836963a11a5c540d43c1f",
+      "source_artifact": "raw/donghua-2025-sichuan/payload.html"
+    },
+    {
+      "source_id": "usst-2025-sichuan",
+      "url": "https://xxgk.usst.edu.cn/2025/1030/c8490a349660/page.htm",
+      "publisher": "上海理工大学信息公开网",
+      "province": "四川",
+      "school_province": "上海",
+      "year": 2025,
+      "dataset_type": "admission",
+      "sha256": "f7c778d524a6edf14afdb6941e3f0e1787c368a7da0c3a882f226ef316c69cd6",
+      "source_artifact": "raw/usst-2025-sichuan/payload.html"
+    },
+    {
+      "source_id": "shu-2025-sichuan",
+      "url": "https://bkzsw.shu.edu.cn/info/1798/38010.htm",
+      "publisher": "上海大学本科招生网",
+      "province": "四川",
+      "school_province": "上海",
+      "year": 2025,
+      "dataset_type": "admission",
+      "sha256": "17f6e0b79f07cbfa6b9be24c60566620f563300f044cf3115de40abbee73488b",
+      "source_artifact": "raw/shu-2025-sichuan.html"
+    },
+    {
+      "source_id": "shmtu-2025-sichuan",
+      "url": "https://info.shmtu.edu.cn/2025/1030/c10187a281226/page.htm",
+      "publisher": "上海海事大学信息公开网",
+      "province": "四川",
+      "school_province": "上海",
+      "year": 2025,
+      "dataset_type": "admission",
+      "sha256": "72cdbd76b3a1132c0dfb5e9db926847a11a7ba9074f90c4280fedc1582bba4d4",
+      "source_artifact": "raw/shmtu-2025.pdf"
+    }
+  ]
+}

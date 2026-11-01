@@ -35,7 +35,7 @@ data/gaokao/<year>/<province>/admission.csv
 - `2026-undergraduate-official-v1`：湖南官方 XLSX（6624 条），下载时因官方站点证书链问题使用了 `--insecure-tls`，文件 SHA-256 已记录，生产环境应优先使用正常证书校验。
 - `2026-undergraduate-official-v2`：福建官方扫描 PDF（历史 1232 条、物理 2934 条）。由于附件为扫描 PDF，采集机用 macOS Vision 150/200 DPI 双分辨率交叉识别；只把代码、专业组、最低分两次一致的记录标为 verified，冲突/缺失行不导入。部署使用 seeds，不需要服务器安装 Vision。
 
-此前 verified seed manifest 为 9 个来源、17494 条记录；本轮追加后 admission seed 已更新为 12 个来源、25134 条记录。湖南、福建和上海官方附件没有最低位次，推荐接口会明确提示位次缺失，不会用分数反推排名。
+此前 verified seed manifest 为 9 个来源、17494 条记录；追加官方广东、福建、湖南、上海及四川目标范围数据后，当前 admission seed 已更新为 29 个来源、25259 条记录。湖南、福建和上海考试院附件没有最低位次，推荐接口会明确提示位次缺失，不会用分数反推排名；本轮四川交叉院校记录的位次换算规则另见下文报告。
 
 
 ## 2026 四川、广东、上海追加批次
@@ -48,3 +48,20 @@ data/gaokao/<year>/<province>/admission.csv
 ```
 
 四川两份 scoreband seed 共 1047 行，分数覆盖物理 685--150、历史 662--150，原文明确 150 分以下略；广东 2026 本科两科共 6047 条院校专业组记录，上海共 1593 条且使用 `综合` 科类。所有推荐只使用 `verification_status=verified` 数据，缺失位次时返回数据不足。
+
+## 四川 2025/2026 广东、上海院校交叉推荐数据
+
+`2025-sichuan-crossprovince-official-v1` 固化了 2025 年四川本科普通批广东、上海院校官网最低分，当前 9 所院校、27 条院校组记录：暨南大学、深圳大学、广东财经大学、复旦大学、同济大学、东华大学、上海理工大学、上海大学、上海海事大学。高校官网只公布最低分时，`min_rank` 严格按四川省教育考试院同年度一分一段表换算，并在 `evidence_note` 标记 `derived_rank_from_sichuan_*_score_band`；这不是高校单独发布的排位。
+
+`2026-sichuan-crossprovince-official-v1` 固化了 2026 年四川本科批次 B 段目前能从广东、上海高校官方渠道形成可复核推荐的记录：上海的同济大学 4 条和上海大学 4 条。暨南大学录取查询页启用了行为验证，仓库保存了 2 条人工核对官方结果摘录及 SHA-256，但因不是完整专业组导出而保持 `pending`，不把摘录扩大为专业组全量数据。
+
+推荐查询使用 `candidate_year=2027`、四川省内位次和 `reference_year=2026`；院校所在地筛选使用 `school_provinces=["广东"]` 或 `["上海"]`。当前 2026 数据仍是“已核验可用子集”，不能声称覆盖全部广东、上海本科院校。没有对应官方记录时接口返回 `data_status=insufficient`，不会用第三方聚合数据补齐。
+
+断网重放与部署：
+
+```bash
+.venv/bin/python scripts/import_gaokao_scoreband_seeds.py --seed-dir data/gaokao/scoreband_seeds
+.venv/bin/python scripts/import_gaokao_seeds.py --seed-dir data/gaokao/seeds
+```
+
+原始来源、采集状态、staging 和人工复核报告分别保存在 `collection_runs/2025-sichuan-crossprovince-official-v1/`、`collection_runs/2026-sichuan-crossprovince-official-v1/`；先离线校验 SHA-256，再导入数据库。不要修改已导入原始行，新增或更正必须新建来源批次并保留旧记录。
