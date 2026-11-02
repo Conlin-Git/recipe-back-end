@@ -1,5 +1,7 @@
 from typing import Literal
 
+from app.gaokao.regions import SCHOOL_REGIONS, candidate_region, target_regions
+
 from pydantic import BaseModel, Field, field_validator, model_validator
 
 
@@ -24,7 +26,7 @@ class GaokaoGuideInput(BaseModel):
     province: str | None = Field(default=None, max_length=30)
     candidate_province: str | None = Field(default=None, max_length=30)
     admission_province: str | None = Field(default=None, max_length=30)
-    school_provinces: list[str] = Field(default_factory=list, max_length=3)
+    school_provinces: list[str] = Field(default_factory=list, max_length=len(SCHOOL_REGIONS))
     # candidate_year 是考生画像年份，reference_year 是拿来对比的历史投档年份。
     # year 仅保留给旧客户端，收到后会同时填充两个新字段。
     candidate_year: int = Field(default=2026, ge=2022, le=2100)
@@ -52,6 +54,14 @@ class GaokaoGuideInput(BaseModel):
             values.setdefault("province", legacy_province)
             values.setdefault("candidate_province", legacy_province)
             values.setdefault("admission_province", legacy_province)
+        # 旧客户端曾把目标地区发在 preferred_regions；按所在地处理，
+        # 不能再过滤无关且常为空的 province_code。
+        if values.get("preferred_regions"):
+            old = target_regions(values["preferred_regions"])
+            new = target_regions(values.get("school_provinces"))
+            if new and set(old) != set(new):
+                raise ValueError("两组目标院校所在地不一致。")
+            values["school_provinces"] = new or old
         legacy_year = values.get("year")
         if legacy_year is not None:
             values.setdefault("candidate_year", legacy_year)
@@ -62,6 +72,11 @@ class GaokaoGuideInput(BaseModel):
     def require_province_dimensions(self):
         if not self.candidate_province or not self.admission_province:
             raise ValueError("必须提供考生省份和招生省份")
+        self.candidate_province=candidate_region(self.candidate_province)
+        self.admission_province=candidate_region(self.admission_province)
+        if self.candidate_province != self.admission_province or (self.province and candidate_region(self.province) != self.candidate_province):
+            raise ValueError("录取数据必须来自考生的生源地；院校目标地区请使用 school_provinces。")
+        self.province=self.candidate_province
         return self
 
     @field_validator("province", "candidate_province", "admission_province", "track", "keywords", mode="before")
@@ -77,11 +92,7 @@ class GaokaoGuideInput(BaseModel):
     @field_validator("school_provinces", mode="before")
     @classmethod
     def normalize_school_provinces(cls, value):
-        if value is None:
-            return []
-        if isinstance(value, str):
-            value = [value]
-        return [item.strip() for item in value if isinstance(item, str) and item.strip()]
+        return target_regions(value)
 
 
 class GaokaoRecommendation(BaseModel):
@@ -94,6 +105,7 @@ class GaokaoRecommendation(BaseModel):
     group_name: str = ""
     major_name: str = ""
     subject_requirements: str | None = None
+    tie_breaker: str | None = None
     min_score: int | None = None
     min_rank: int | None = None
     avg_score: int | None = None
@@ -105,9 +117,10 @@ class GaokaoRecommendation(BaseModel):
     historical_min_ranks: list[int]
     rank_gap: int | None = None
     comparison_rank: int | None = None
+    comparison_mode: Literal["rank", "score_only"] = "rank"
     plan_count: int | None = None
     confidence: Literal["高", "中", "低"]
-    data_quality: Literal["官方位次", "换算位次", "仅最低分", "无可用数据"] = "无可用数据"
+    data_quality: Literal["官方位次", "截图位次", "截图位次未细分", "换算位次", "仅最低分", "无可用数据"] = "无可用数据"
     evidence: list[dict]
     reason: str
 
@@ -124,11 +137,13 @@ class GaokaoGuideOut(BaseModel):
     coverage: dict = Field(default_factory=dict)
     school_recommendations: list[dict] = Field(default_factory=list)
     rule_note: str = ""
+    # 规划 Agent 的可审计轨迹；不允许客户端据此修改候选数据。
+    agent_plan: dict = Field(default_factory=dict)
 
 
 class GaokaoCatalogInput(BaseModel):
     admission_province: str = Field(default="四川", max_length=30)
-    school_provinces: list[str] = Field(default_factory=lambda: ["四川", "广东", "上海"], max_length=3)
+    school_provinces: list[str] = Field(default_factory=list, max_length=len(SCHOOL_REGIONS))
     year: int | None = Field(default=None, ge=2022, le=2100)
     track: str | None = Field(default=None, max_length=30)
     batch: str | None = Field(default=None, max_length=60)
@@ -138,17 +153,14 @@ class GaokaoCatalogInput(BaseModel):
 
     @field_validator("admission_province", "track", "keywords", mode="before")
     @classmethod
-    def strip_catalog_text(cls, value):
+    def strip_catalog_text(cls, value, info):
+        if info.field_name == "admission_province" and isinstance(value,str): return candidate_region(value)
         return value.strip() if isinstance(value, str) else value
 
     @field_validator("school_provinces", mode="before")
     @classmethod
     def normalize_catalog_provinces(cls, value):
-        if value is None:
-            return []
-        if isinstance(value, str):
-            value = [value]
-        return [item.strip() for item in value if isinstance(item, str) and item.strip()]
+        return target_regions(value)
 
     @field_validator("batch", mode="before")
     @classmethod

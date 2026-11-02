@@ -1,0 +1,957 @@
+{
+  "schema": "sichuan-2026-image-inventory-v1",
+  "tracks": {
+    "history": {
+      "image_files": 42,
+      "unique_pages": 42,
+      "unique_rows": 1476,
+      "rows_including_duplicate_pages": 1476
+    },
+    "physical": {
+      "image_files": 92,
+      "unique_pages": 91,
+      "unique_rows": 3256,
+      "rows_including_duplicate_pages": 3292
+    }
+  },
+  "pages": [
+    {
+      "track": "历史类",
+      "image": "640.webp",
+      "sha256": "e871aa726b6b26f7f1ae6afcfb90c010cea38d5b372dfeb3c47d9daf912214eb",
+      "rows": 34,
+      "duplicate_of": null
+    },
+    {
+      "track": "历史类",
+      "image": "640-1.webp",
+      "sha256": "a889496fc47a8a73b9c2d7cc4c40b9bdecd3fe248a8d2b36a08c1d891748e755",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "历史类",
+      "image": "640-2.webp",
+      "sha256": "85afa718d71adc0a821b1aab9de84f27065eee32bbba077d20ed4bf78d73da6d",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "历史类",
+      "image": "640-3.webp",
+      "sha256": "9d64b88e367bbf1ae23489c765240e1f8d5cc84b8282bde00e8a124a494efc67",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "历史类",
+      "image": "640-4.webp",
+      "sha256": "884e81c3d5759a8ee05554cf211c1b48e10335b1164bb2ac1992fc4b0ddcb4fd",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "历史类",
+      "image": "640-5.webp",
+      "sha256": "b342967583f8ea2a5d6d944374f836ff7f1e6bd0e5ad8299de41b8914a1fcac3",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "历史类",
+      "image": "640-6.webp",
+      "sha256": "bbf44fe48abf11b51d4c1acad0441b6080e46801dc67377c8c0940a00c56222c",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "历史类",
+      "image": "640-7.webp",
+      "sha256": "73740430115f9ef428d88ac20903e51346d6b2ea0d0a16434957ed62b7df9dac",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "历史类",
+      "image": "640-8.webp",
+      "sha256": "dba3db0c1ec1fbb7b470f6ad9056c1f3f067ba37e225dfd92dec19b01f552ae3",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "历史类",
+      "image": "640-9.webp",
+      "sha256": "c57874d73d90d23d9443f2ea9b92f2ca4b435de5c72423d5b1fc5ed8d686fdbf",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "历史类",
+      "image": "640-10.webp",
+      "sha256": "2c967ebe92cbec9da992ac28a290707f84210348d8a69f2ac1fcecbfed8ba16d",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "历史类",
+      "image": "640-11.webp",
+      "sha256": "a88f6e69421a2097528cec442583cc796157cf9fb9d80ea311726c388b2685cd",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "历史类",
+      "image": "640-12.webp",
+      "sha256": "22519082c5f5c6f52297d83ed6a58781eb51969ca5ced85744866d4b1ee327e7",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "历史类",
+      "image": "640-13.webp",
+      "sha256": "58bcd1d32f535d94228b9c7373d6eee54b28f89da31485766a4ae7b80d34ab4e",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "历史类",
+      "image": "640-14.webp",
+      "sha256": "c68b75ffb9398dfe43d08e8f8d3bf4035ad91c069d93f6f47646f1466cb3d845",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "历史类",
+      "image": "640-15.webp",
+      "sha256": "14b429ee3b076c99123537f9801aa67079a63e98e8f5479ae5396601a4d31e4d",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "历史类",
+      "image": "640-16.webp",
+      "sha256": "2a4e757005cdf662a5366bc63836ce5f8dec877f2f7850bfa06a95ff4f6c46c2",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "历史类",
+      "image": "640-17.webp",
+      "sha256": "84ca521ccfe15a697015c8a1bf756663db453527462fabefc15af19655f3302f",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "历史类",
+      "image": "640-18.webp",
+      "sha256": "435e0603bacff122b172a4d05f0886b2ef6955c4cc39627f012647afc7fbefae",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "历史类",
+      "image": "640-19.webp",
+      "sha256": "40c860699498ed8f6a10cc7586c2e81cac772c36f3ccc5bbaaaa7ced0f0350b8",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "历史类",
+      "image": "640-20.webp",
+      "sha256": "dcb30c9a9920f95612dce39156434192d24c3726a3866db116d05ea483ac0df2",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "历史类",
+      "image": "640-21.webp",
+      "sha256": "849fa42dda8ca5d5a601c52edf7820a22df22e00a73de03eae44c276c036029e",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "历史类",
+      "image": "640-22.webp",
+      "sha256": "f289f1240945a41049f50c4ef90d6085679aef559485eb744e6e20a1795acf02",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "历史类",
+      "image": "640-23.webp",
+      "sha256": "44fe7a7c2a20f81e8c57a86937d6a7d222930aafd38806c11e86c2414a43733a",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "历史类",
+      "image": "640-24.webp",
+      "sha256": "bbca3bed0b8cb9ef715c386dfefba4d35e6886228cab3bcd3c696efc83b99f8d",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "历史类",
+      "image": "640-25.webp",
+      "sha256": "34b2d924a4e18f32c8dd6ae63751784a7b2c2ed07c95e4c9c251e1311c951123",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "历史类",
+      "image": "640-26.webp",
+      "sha256": "1dec0b7cda7c1b5a3412eb96b0b1154dbc4fe2ac51a93984ef048b52b9e022ca",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "历史类",
+      "image": "640-27.webp",
+      "sha256": "81302f6696050cd97aaca6a735d2378e544efa77f2311165d808effcf9fbfaab",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "历史类",
+      "image": "640-28.webp",
+      "sha256": "f33a6ee472c62d85e0329e47f26c0c5c5cee12379da94fb20e2ca01a36f8e758",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "历史类",
+      "image": "640-29.webp",
+      "sha256": "4fd8714cc4a708ca5cf96df082f55383b4055e7b9895412190beffcc5f490d01",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "历史类",
+      "image": "640-30.webp",
+      "sha256": "fa2968cf4ba750f2c5d677b22a5fa118602c758a19cec6c788ef544468a6b857",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "历史类",
+      "image": "640-31.webp",
+      "sha256": "872c77f99920abf6f64a6254873c05ff2ad72d98071cd83878fa0f4b27308272",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "历史类",
+      "image": "640-32.webp",
+      "sha256": "1bf4cb2d533b3126805054c642dbaf1236791ff49bc0f489398705fe11171d43",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "历史类",
+      "image": "640-33.webp",
+      "sha256": "56781fbe16bfab94195d752461d4250d9629462248aaade010655aeba7276d97",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "历史类",
+      "image": "640-34.webp",
+      "sha256": "28a887262ae30da7f36ecc029f5d0d80e951ce5bc31529ff106e85279ce32c68",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "历史类",
+      "image": "640-35.webp",
+      "sha256": "cce0cdc534456b9461f72ea6356cbc69ae7125d5983fa407459a0c72fe718da3",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "历史类",
+      "image": "640-36.webp",
+      "sha256": "dbbbeca6322091dcc5e9496952744020c6a1150fe01bbc3deb61a25bafb4ff6d",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "历史类",
+      "image": "640-37.webp",
+      "sha256": "d9a13812547ee53e667cfa390f991c86f5a67839502b4a68d87cf710b09b95b8",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "历史类",
+      "image": "640-38.webp",
+      "sha256": "759e6f56ab793bfa3bae6a343041f9946eaf151b00ebad286e330e5830c1b472",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "历史类",
+      "image": "640-39.webp",
+      "sha256": "cea9952567f25cbe6b2bca9cd59c8f0d5eb946c3140d97d61c02cdd25da43d29",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "历史类",
+      "image": "640-40.webp",
+      "sha256": "e45f0799ed4b2183197598acb99dc35fea6eaa7dde1f65581bf10e2471286a1a",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "历史类",
+      "image": "640-41.webp",
+      "sha256": "9dbf9794cd30f8d323512f4c037c658cbbceafca99bd927f9ba23c0fa03483ff",
+      "rows": 2,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640.webp",
+      "sha256": "e0399a860111b16bf85830f0e98f8abeccff3fafb7053709a0fa56dc49314880",
+      "rows": 34,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-1.webp",
+      "sha256": "47f62a691e6aa6a4eb9d01f3e15fab19dbe170e781626c016e8c46089d41d156",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-2.webp",
+      "sha256": "e68aa2a3603a751e4c36a7a4ac8caeffb27860a27d3829891a65af4f92cfbc89",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-3.webp",
+      "sha256": "a36632921ec64abfe3dc8c3b8ab5865e5beb971261bb233b0a166f1a0e9fc6fb",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-4.webp",
+      "sha256": "cfc499ab5a94d9cc2f97a9d34caef9569d6a1dcc99876c78d48e82eada4157b0",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-5.webp",
+      "sha256": "353d3c8b493d8f2a3a4c573744ca2d1b326b204a74983aa5dceef47f8740e899",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-6.webp",
+      "sha256": "f06ff7ad5a337d40cc06f2e51719881798171eada2b7eca54bbc18be7421b66e",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-7.webp",
+      "sha256": "556e94bca3af57504c030863dc37b63924abacebefec285afdab43a93c9d87de",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-8.webp",
+      "sha256": "742a9f9659e416ddbc1782d66946f4f4e618e60da28a796c4c8de1774b814e41",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-9.webp",
+      "sha256": "a685331ad36bff279dd6ae27c8f24af483ee7a49246370287e143865a7c50123",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-10.webp",
+      "sha256": "aafbce0b754facee3eb03e63f1a06244afa6d612fa962808b53c3a0855397903",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-11.webp",
+      "sha256": "0778b966dd6e46313fd2523564e7c5bb15285449d87827864c04f09242286d79",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-12.webp",
+      "sha256": "cfbea4ce859481587f91f0cf0ea9f9ddaa5e997d8eaddd3d6dc0aa393fafb4a4",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-13.webp",
+      "sha256": "9703102c25fc5546fb58142f601e90783380913560352120fdf466cdd07d56d7",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-14.webp",
+      "sha256": "2b98a911164f67c01591f3e316416e80192919a33b4232ac23442275b0442dbe",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-15.webp",
+      "sha256": "354e76318d6062298852f58c06b91da1d267f18d5c177c08e52c58177968cf40",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-16.webp",
+      "sha256": "de709c03144b1cbb71fefe724db1f0d2ffc67f89a11d507c31ecc93ddc8f6639",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-17.webp",
+      "sha256": "565b9af98f1f91c29a062c6cb8378dc45c655223dfba7eec72a654ea417d4faf",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-18.webp",
+      "sha256": "a73f34acd05b25ca1ef7729f5c030de0547521e9d9d958c800f26a43140d614a",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-19.webp",
+      "sha256": "d9745b430c9a711997da11520daa97e8eb56f389917b2297a651491b7b5121a1",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-20.webp",
+      "sha256": "9e4f9205abf66df4f103ace367bd3f0deec57cd419f3f8d44f121463e5a2e276",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-21.webp",
+      "sha256": "decb3c18c63784298c6e53b2af8bb670663b706793c7e9b45433f8d9ae12b4d4",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-22.webp",
+      "sha256": "ddf3106437fa7c6a53cde064fd637dcb02262de9a8fdfe76cd6a6ce023cd5497",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-23.webp",
+      "sha256": "bf3895399e9c8b0f407ee132f2bff6c190e2066f90c943d0c616e91cfa9a7e63",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-24.webp",
+      "sha256": "3f2e5cad35d3bdf2ccfc26c508008a33320b999436ac35dae5e9c80ac1973aae",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-25.webp",
+      "sha256": "69d76dd5399b6658261bca5afcb54c00f5813556f53c2832877349086ffb6157",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-26.webp",
+      "sha256": "62cc979b736bcd3b4cb84c68eae7de8391a0beda39a81e3fa5ab117d67488f14",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-27.webp",
+      "sha256": "03337f96c68de24874486403b0247203aac8491e4221f663a5722724b8716a53",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-28.webp",
+      "sha256": "ecb7b42bd579476531edfb2f6121af6c54e2b63adef19735a8af38b28c3eb583",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-29.webp",
+      "sha256": "7f6669278273d7e98d18c95d1217b1b7d88ba7628fc00d47964fbf20f3f48cd2",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-30.webp",
+      "sha256": "3b0bca38da13efdc20769c8d02f4faeae8f88b9a27b3c01fcf3c4b5bc3335e33",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-31.webp",
+      "sha256": "095722bb358077d7da536a4502fe80078756e9f611cd2ad898b004761a1e7cbf",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-32.webp",
+      "sha256": "ec65871bceb29ec846177819eabd4c10b496ef31297564584afd6dfa9cc2b6c3",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-33.webp",
+      "sha256": "9ce1fa9edb8209a3aa9a2e44e4e12fd3393840fa5f59e8a25fde69346a5fe50a",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-34.webp",
+      "sha256": "014aaaf0cbafe3af5117ec17f46fc5eca60458400eff837bcf5e26d415d9f95c",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-35.webp",
+      "sha256": "b5ba7eb79bc92f3f48ece10ffbab743fd54e96e745b224492c0de638a401bbe7",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-36.webp",
+      "sha256": "0ca8708545edf86ec83c4634d622957a6206b53d3610948a1e051b7bfa108499",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-37.webp",
+      "sha256": "45cb67e81b2893ceaaa625853e7798addc5670c8ca912fbb7219af07012a3bd5",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-38.webp",
+      "sha256": "d506a6e8d7892a860ff1a4bb117d1c402a3092db633ffee0df4ed36eb8381703",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-39.webp",
+      "sha256": "cf0db167aa9e9555f5a6d7ae0e70511ea48070ddc1781eba4051a8c9e56a2416",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-40.webp",
+      "sha256": "ec890bd189ffe2b31828ac75f3fccc91edd31be6b2accf099ed11d89c513d660",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-41.webp",
+      "sha256": "af3e5550d6ffd202d7a12644ba0e44913d8b4413597172754bfe927dd0eeb4fe",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-42.webp",
+      "sha256": "9b9dfb0e6f3802b66065126993ab1425a5904e00351de8ad0a69e3bbb8eb2ad1",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-43.webp",
+      "sha256": "82dc8458669628770147b9b40c58182cbf4230b4e96fc0ef393bdb43def60637",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-44.webp",
+      "sha256": "89b528f2b874499fa551d9dcdca0420d8168412b9cac01201c107268815af784",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-45.webp",
+      "sha256": "2b9c86b8ab3958953b340deb36fd736c61ad24e7e1ac167aaaa11dbdd17caf40",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-46.webp",
+      "sha256": "8311ce60ea8d5df988dff7e598c4e1199fd96395bb1d091974fc4d977f9d10a6",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-47.webp",
+      "sha256": "4d5df78f88f3388a0708405c6b54f7d90d6caec3d074c69e98c074aa9b6a1b2f",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-48.webp",
+      "sha256": "e9e83c6699e8759b936be9c4d8067576b5adf77a38ec75e2c09f7e72c5f100a8",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-49.webp",
+      "sha256": "afeeec0622f0b01a6e02e7e42d11d9a571ae85ed82b81444379941aab253a17f",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-50.webp",
+      "sha256": "707ad157836da70aee6a3c57b6c4a6c3e30a7de92121f8ed7b98ab9444723c0d",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-51.webp",
+      "sha256": "d476820a8c914bf6bb2d3e1fab29fdaef4553d5c33420f72f024c985aa50d396",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-52.webp",
+      "sha256": "5c0fccc2f9b6bc3493f9901dd962cec7c1d6b861a67b2cc1eb95d2b694cd8bc9",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-53.webp",
+      "sha256": "69507e72757a408ad5f9e2b9fb02848a87d974d323f1f4065213c4983456873a",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-54.webp",
+      "sha256": "08f05bde6721279b277708da7cd0fac276c77e601f63f770a34175038ccc71f7",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-55.webp",
+      "sha256": "959845ea81f97960e3dc87953d547ef0c5dc6ce0e8279db71f03658fe8c77b8c",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-56.webp",
+      "sha256": "55d688b2d0d42e45b979b706772859d99244ee0d9e5ed6d03af108856ae81247",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-57.webp",
+      "sha256": "d0b7f54b46636e5c1adcdd6ea324067b55a0d613470e81c33e60ef67bf22feae",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-58.webp",
+      "sha256": "6001f4c00c30a679b62d20092a524270f549d24de69a99cd12f38c564efad6b1",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-59.webp",
+      "sha256": "6b71b369d745bcab280b8d98f68ff873bc10ccdbaa26a378c80860021cf02911",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-60.webp",
+      "sha256": "0fbfb0687112e521e83c692ac470d725cd59d2ba381715411db769cdbd2f5d30",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-61.webp",
+      "sha256": "3df812ef7d450016b3d0f4870263c08551710590056f6db109ae579e63dc1c5d",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-62.webp",
+      "sha256": "698847ae7aea218ebf7bfccba629b93e02bc990c6698e77656d50d4932f17427",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-63.webp",
+      "sha256": "61d071252bb73a4de7f31f9cbcafb5dc70d0e5835455d0ddd090a99c1a00272f",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-64.webp",
+      "sha256": "4d6c8fb7fa03d40887f64984b3fc225670af9ba878f099246fdd0757fe93f250",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-65.webp",
+      "sha256": "80f8aef3c66d46344e4eb556040059e76a120711d52fb0f12791d185d8077a73",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-66.webp",
+      "sha256": "e58f2bfb984d69d239d0c3d16c18b5f401e6dccbe284069aea75ec5190780c78",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-67.webp",
+      "sha256": "b89f53b42e3c4b22e6b97342cbee687a839f989665c5305c8fcd1479650f208e",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-68.webp",
+      "sha256": "4d90638b2b7ba2d4e873f25d4d6af7681e6143871e9d8dac416707a519e1eb63",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-69.webp",
+      "sha256": "628d77c1b15a8eb49f83a2322211abd1f140323f12f4cbea4a86c2c5bd550204",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-70.webp",
+      "sha256": "fbd9e0391dc9b2b38555c164a28abe15782bdb6b1741a88cf43429ac09bb8e65",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-71.webp",
+      "sha256": "fbd9e0391dc9b2b38555c164a28abe15782bdb6b1741a88cf43429ac09bb8e65",
+      "rows": 36,
+      "duplicate_of": "640-70.webp"
+    },
+    {
+      "track": "物理类",
+      "image": "640-72.webp",
+      "sha256": "6268b35d36e82334644151449852fa5c579617c096cd653764258c227d7dfed7",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-73.webp",
+      "sha256": "bfbce998bb9b47f209c5365b4476724bb51b6274e28f79f674fc68ebba00da1a",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-74.webp",
+      "sha256": "a4c60f94303c4728fc1aae1317258d6973b1d4e5bfbc2dff017bda71a7f994ae",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-75.webp",
+      "sha256": "2d3168435ae34d498bfb8fd5ac5ac5b3ce37aac87e04f875debd981d291e6438",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-76.webp",
+      "sha256": "523d7f44ba18c67b4348d0d84c41ddd2873741cffd3464744b3091afb94a8539",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-77.webp",
+      "sha256": "a0ca93627141feaff74115f9edaf59689617617e511066fa5b20e93870d28a22",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-78.webp",
+      "sha256": "babc56be3ea8652234ac6c2bc68d4292951d4275b4f410fcc748e17852009220",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-79.webp",
+      "sha256": "a99cd3031e7606c1a7b155a48e08fbaaf4477e4528c8346ce431ebd1ab534a5a",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-80.webp",
+      "sha256": "531e63958b12f56afc5af71056736d67a8fcd0a247d4984d528dea735cc4339e",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-81.webp",
+      "sha256": "875c64a6fa651945f1e72b6868aa46c49ba0980aecd5dc7b414dc02e52fa8cef",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-82.webp",
+      "sha256": "8492369d1ba112097c70f73841f307b84c41cd347f7778aa53376f8ccec3233a",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-83.webp",
+      "sha256": "da6430e2017f4c2937df42551f3af2ae9b9873437d974a6a3dc8f165027153be",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-84.webp",
+      "sha256": "6d3b91b36b12dbda8dc933f3e00b380b4b2b5d6d2b162433f79a69851ad778d7",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-85.webp",
+      "sha256": "5d143efde237aa37d60dcea75963f664b28985c906ca182ceb861fd6a8e648a4",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-86.webp",
+      "sha256": "3593afa17584763795308475e8d6b30c75146353df391e4fd2f8e3bcd7edb9c9",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-87.webp",
+      "sha256": "5582686193b4463708c2da37fa3bff206c41626d8912918003dbb258fdcb5fa7",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-88.webp",
+      "sha256": "3f6a34fdbd605254f991d68512e574a2f470b37904ef4dcd5bd34e6b32b9b987",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-89.webp",
+      "sha256": "6bc02bebed9ac1dfde8c51f9d271f89e4bb1d965745b540fad946dcb91106f86",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-90.webp",
+      "sha256": "1afc79b52c2e27a6ebfe896fa32dd4e301dbbd52b6928f8c935a0d5d222ec630",
+      "rows": 36,
+      "duplicate_of": null
+    },
+    {
+      "track": "物理类",
+      "image": "640-91.webp",
+      "sha256": "d8dfc47af2155e97abc6bf2cc50dfef55f9b9c9978a504eae0c7fabf7b61d6b0",
+      "rows": 18,
+      "duplicate_of": null
+    }
+  ]
+}

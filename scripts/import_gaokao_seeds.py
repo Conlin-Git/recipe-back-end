@@ -25,13 +25,13 @@ def main():
             "--publisher", item["publisher"],
             "--year", str(item["year"]),
             "--province", item["province"],
-            "--validation-status", "verified",
-            "--confirm-official",
-            "--verified-by", "seed manifest official review",
-            "--verification-note", "从仓库 verified seed 重建；原始来源 SHA-256 见 source manifest。",
+            "--validation-status", item.get("validation_status", "verified"),
+            "--verification-note", item.get("notes", "从仓库 seed 重建；原始来源 SHA-256 见 source manifest。"),
             "--source-sha256", item["sha256"],
             "--source-artifact", f"seed:{item['path']}",
         ]
+        if item.get("validation_status", "verified") == "verified":
+            command.extend(["--confirm-official", "--verified-by", "seed manifest official review"])
         if args.dry_run:
             print(" ".join(command))
         else:

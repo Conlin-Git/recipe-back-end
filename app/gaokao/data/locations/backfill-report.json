@@ -1,0 +1,485 @@
+{
+ "applied": true,
+ "national_directory": 2952,
+ "exam_regions_changed": {
+  "广西": 1564,
+  "广东": 11181,
+  "湖南": 6624,
+  "福建": 4074,
+  "上海": 1563,
+  "四川": 4621
+ },
+ "methods": {
+  "directory_exact": 28329,
+  "region_consensus": 311,
+  "llm_alias_crosschecked": 806,
+  "campus_alias_crosschecked": 13,
+  "reviewed_alias": 166,
+  "same_release_code": 2
+ },
+ "missing_before": 29771,
+ "matched": 29627,
+ "remaining": 144,
+ "unresolved": [
+  {
+   "province": "上海",
+   "name": "三峡科技(01)",
+   "count": 1
+  },
+  {
+   "province": "上海",
+   "name": "中国劳关(01)",
+   "count": 1
+  },
+  {
+   "province": "上海",
+   "name": "中国劳关(02)",
+   "count": 1
+  },
+  {
+   "province": "上海",
+   "name": "冀油职大(01)",
+   "count": 1
+  },
+  {
+   "province": "上海",
+   "name": "冀油职大(02)",
+   "count": 1
+  },
+  {
+   "province": "上海",
+   "name": "冀油职大(03)",
+   "count": 1
+  },
+  {
+   "province": "上海",
+   "name": "北京理工(01)",
+   "count": 1
+  },
+  {
+   "province": "上海",
+   "name": "南湖学院(01)",
+   "count": 1
+  },
+  {
+   "province": "上海",
+   "name": "南湖学院(02)",
+   "count": 1
+  },
+  {
+   "province": "上海",
+   "name": "南湖学院(03)",
+   "count": 1
+  },
+  {
+   "province": "上海",
+   "name": "厦门医学(01)",
+   "count": 1
+  },
+  {
+   "province": "上海",
+   "name": "四川轻化(01)",
+   "count": 1
+  },
+  {
+   "province": "上海",
+   "name": "山西电科(01)",
+   "count": 1
+  },
+  {
+   "province": "上海",
+   "name": "山西财大(01)",
+   "count": 1
+  },
+  {
+   "province": "上海",
+   "name": "山西财大(02)",
+   "count": 1
+  },
+  {
+   "province": "上海",
+   "name": "山西财大(03)",
+   "count": 1
+  },
+  {
+   "province": "上海",
+   "name": "川外国语(01)",
+   "count": 1
+  },
+  {
+   "province": "上海",
+   "name": "川外国语(02)",
+   "count": 1
+  },
+  {
+   "province": "上海",
+   "name": "成都航大(01)",
+   "count": 1
+  },
+  {
+   "province": "上海",
+   "name": "攀枝花(01)",
+   "count": 1
+  },
+  {
+   "province": "上海",
+   "name": "攀枝花(02)",
+   "count": 1
+  },
+  {
+   "province": "上海",
+   "name": "柳州职大(01)",
+   "count": 1
+  },
+  {
+   "province": "上海",
+   "name": "柳州职大(02)",
+   "count": 1
+  },
+  {
+   "province": "上海",
+   "name": "桂航工院(01)",
+   "count": 1
+  },
+  {
+   "province": "上海",
+   "name": "湖北汽院(01)",
+   "count": 1
+  },
+  {
+   "province": "上海",
+   "name": "电科成院(01)",
+   "count": 1
+  },
+  {
+   "province": "上海",
+   "name": "贵州师院(01)",
+   "count": 1
+  },
+  {
+   "province": "上海",
+   "name": "贵州师院(02)",
+   "count": 1
+  },
+  {
+   "province": "上海",
+   "name": "赣应科院(01)",
+   "count": 1
+  },
+  {
+   "province": "上海",
+   "name": "鄂医药护(01)",
+   "count": 1
+  },
+  {
+   "province": "四川",
+   "name": "厦门大学(马来西亚分校)",
+   "count": 1
+  },
+  {
+   "province": "四川",
+   "name": "厦门大学（马来西亚分校）",
+   "count": 2
+  },
+  {
+   "province": "四川",
+   "name": "院校代码 0094（原图校名不全）",
+   "count": 5
+  },
+  {
+   "province": "四川",
+   "name": "院校代码 1185（原图校名不全）",
+   "count": 2
+  },
+  {
+   "province": "四川",
+   "name": "院校代码 3193（原图校名不全）",
+   "count": 3
+  },
+  {
+   "province": "四川",
+   "name": "院校代码 4289（原图校名不全）",
+   "count": 3
+  },
+  {
+   "province": "广东",
+   "name": "厦门大学(马来西亚分校)",
+   "count": 6
+  },
+  {
+   "province": "福建",
+   "name": "上海交通大学（组1）教",
+   "count": 1
+  },
+  {
+   "province": "福建",
+   "name": "与美国圣克劳德州立大学",
+   "count": 4
+  },
+  {
+   "province": "福建",
+   "name": "与韩国启明大学",
+   "count": 2
+  },
+  {
+   "province": "福建",
+   "name": "中国人民大学教",
+   "count": 1
+  },
+  {
+   "province": "福建",
+   "name": "中国社会科学院",
+   "count": 3
+  },
+  {
+   "province": "福建",
+   "name": "中国科学院",
+   "count": 1
+  },
+  {
+   "province": "福建",
+   "name": "云南大学（组））",
+   "count": 1
+  },
+  {
+   "province": "福建",
+   "name": "像北医学院",
+   "count": 1
+  },
+  {
+   "province": "福建",
+   "name": "光云大学",
+   "count": 2
+  },
+  {
+   "province": "福建",
+   "name": "北京化工大学（组1）教",
+   "count": 1
+  },
+  {
+   "province": "福建",
+   "name": "北京协和医学院教",
+   "count": 1
+  },
+  {
+   "province": "福建",
+   "name": "北京航空航天大学（中外1）",
+   "count": 1
+  },
+  {
+   "province": "福建",
+   "name": "华侨大学(国际项目",
+   "count": 1
+  },
+  {
+   "province": "福建",
+   "name": "厦门大学(马来西亚分校",
+   "count": 2
+  },
+  {
+   "province": "福建",
+   "name": "厦门理工学皖",
+   "count": 1
+  },
+  {
+   "province": "福建",
+   "name": "合作办学单位为美国纽约州立大学",
+   "count": 2
+  },
+  {
+   "province": "福建",
+   "name": "商学院",
+   "count": 1
+  },
+  {
+   "province": "福建",
+   "name": "国际学院",
+   "count": 1
+  },
+  {
+   "province": "福建",
+   "name": "士学位证书及英国牛津布鲁克斯大学",
+   "count": 2
+  },
+  {
+   "province": "福建",
+   "name": "天津大学（内地与港澳台合作作）",
+   "count": 1
+  },
+  {
+   "province": "福建",
+   "name": "学位证书和英国西英格兰大学",
+   "count": 7
+  },
+  {
+   "province": "福建",
+   "name": "学和蒙纳士大学",
+   "count": 1
+  },
+  {
+   "province": "福建",
+   "name": "学院",
+   "count": 1
+  },
+  {
+   "province": "福建",
+   "name": "工科试验班(竺可桢学院",
+   "count": 2
+  },
+  {
+   "province": "福建",
+   "name": "待定美国迪吉彭理工学院",
+   "count": 1
+  },
+  {
+   "province": "福建",
+   "name": "愿申请第三年赴美国科罗拉多大学(丹佛",
+   "count": 1
+  },
+  {
+   "province": "福建",
+   "name": "新疆理工职业大学教",
+   "count": 1
+  },
+  {
+   "province": "福建",
+   "name": "时获得武汉大学",
+   "count": 1
+  },
+  {
+   "province": "福建",
+   "name": "月南京林业大学（组1）",
+   "count": 1
+  },
+  {
+   "province": "福建",
+   "name": "湖北医药学院A",
+   "count": 1
+  },
+  {
+   "province": "福建",
+   "name": "湖南大学(边防子女预科班",
+   "count": 1
+  },
+  {
+   "province": "福建",
+   "name": "牙利潘诺尼亚大学",
+   "count": 1
+  },
+  {
+   "province": "福建",
+   "name": "物科北京林业大学(高校专项",
+   "count": 1
+  },
+  {
+   "province": "福建",
+   "name": "物科海南大学",
+   "count": 5
+  },
+  {
+   "province": "福建",
+   "name": "电子大学",
+   "count": 6
+  },
+  {
+   "province": "福建",
+   "name": "福州大学(地矿专业",
+   "count": 1
+  },
+  {
+   "province": "福建",
+   "name": "福建师范大学(中日合作",
+   "count": 1
+  },
+  {
+   "province": "福建",
+   "name": "福建师范大学(中英合作",
+   "count": 1
+  },
+  {
+   "province": "福建",
+   "name": "管理学学士学位证书及英国基尔大学",
+   "count": 2
+  },
+  {
+   "province": "福建",
+   "name": "管理管理学学士学位、雷丁大学",
+   "count": 3
+  },
+  {
+   "province": "福建",
+   "name": "组东北石油大学",
+   "count": 1
+  },
+  {
+   "province": "福建",
+   "name": "组中国农业大学",
+   "count": 3
+  },
+  {
+   "province": "福建",
+   "name": "组南方医科大学",
+   "count": 1
+  },
+  {
+   "province": "福建",
+   "name": "组四川大学(中外合作",
+   "count": 1
+  },
+  {
+   "province": "福建",
+   "name": "组广东金融学院",
+   "count": 2
+  },
+  {
+   "province": "福建",
+   "name": "组浙江传媒学院",
+   "count": 3
+  },
+  {
+   "province": "福建",
+   "name": "组温州医科大学",
+   "count": 1
+  },
+  {
+   "province": "福建",
+   "name": "组西安交通大学",
+   "count": 1
+  },
+  {
+   "province": "福建",
+   "name": "育",
+   "count": 3
+  },
+  {
+   "province": "福建",
+   "name": "贵州財经大学（中外合作）",
+   "count": 1
+  },
+  {
+   "province": "福建",
+   "name": "贵州财经大学（组1）（",
+   "count": 1
+  },
+  {
+   "province": "福建",
+   "name": "长春工业大学（组4）教",
+   "count": 1
+  },
+  {
+   "province": "福建",
+   "name": "闽江大学(新华都商学院",
+   "count": 1
+  },
+  {
+   "province": "福建",
+   "name": "需出国均在南京传媒学院",
+   "count": 2
+  },
+  {
+   "province": "福建",
+   "name": "青岛恒星科技学院教可",
+   "count": 1
+  }
+ ]
+}

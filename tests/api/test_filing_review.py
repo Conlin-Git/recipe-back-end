@@ -53,6 +53,11 @@ class FilingReviewTests(unittest.TestCase):
             ("POST", "/api/v1/chat"),
             ("GET", "/api/v1/chat/{conversation_id}/stream"),
             ("POST", "/api/v1/chat/{conversation_id}/stop"),
+            ("GET", "/api/v1/gaokao/options"),
+            ("GET", "/api/v1/gaokao/catalog"),
+            ("POST", "/api/v1/gaokao/catalog"),
+            ("GET", "/api/v1/gaokao/coverage"),
+            ("POST", "/api/v1/gaokao/guide"),
             ("POST", "/api/v1/other"),
         ]
         api = APIRouter(prefix="/api/v1")
@@ -93,6 +98,11 @@ class FilingReviewTests(unittest.TestCase):
             ("POST", "/api/v1/conversations/1/read"),
             ("POST", "/api/v1/chat"), ("GET", "/api/v1/chat/1/stream"),
             ("POST", "/api/v1/chat/1/stop"),
+            ("GET", "/api/v1/gaokao/options"),
+            ("GET", "/api/v1/gaokao/catalog"),
+            ("POST", "/api/v1/gaokao/catalog"),
+            ("GET", "/api/v1/gaokao/coverage"),
+            ("POST", "/api/v1/gaokao/guide"),
         ]:
             with self.subTest(method=method, path=path):
                 self.assertEqual(self.request(method, path, token).status_code, 200)

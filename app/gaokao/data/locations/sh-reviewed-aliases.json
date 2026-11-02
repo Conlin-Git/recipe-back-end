@@ -1,0 +1,56 @@
+[
+ {
+  "prefix": "532",
+  "label": "中国科大",
+  "name": "中国科学技术大学",
+  "source": "https://xxgk.ustc.edu.cn/2017/1026/c13824a658030/page.htm"
+ },
+ {
+  "prefix": "392",
+  "label": "哈工大",
+  "name": "哈尔滨工业大学",
+  "source": "https://xxgk.hit.edu.cn/_upload/article/files/26/b0/aaf6d58f4c5d8d2dee465d117e04/860ec0df-dd3e-4694-adad-cf91a1ea5109.pdf"
+ },
+ {
+  "prefix": "849",
+  "label": "四川美院",
+  "name": "四川美术学院",
+  "source": "https://www.scfai.edu.cn/xxgk/info/1015/2264.htm"
+ },
+ {
+  "prefix": "478",
+  "label": "西浦大学",
+  "name": "西交利物浦大学",
+  "source": "https://www.xjtlu.edu.cn/zh/about/overview"
+ },
+ {
+  "prefix": "793",
+  "label": "港城莞",
+  "name": "香港城市大学（东莞）",
+  "source": "https://edu.dg.gov.cn/gkmlpt/content/4/4419/post_4419452.html"
+ },
+ {
+  "prefix": "126",
+  "label": "海医大",
+  "name": "海军军医大学",
+  "source": "https://www.smmu.edu.cn/2019/0422/c423a4396/page.htm"
+ },
+ {
+  "prefix": "644",
+  "label": "山大威海",
+  "name": "山东大学威海分校",
+  "source": "https://www.zjzs.net/col/xk2024/allcollege.html"
+ },
+ {
+  "prefix": "673",
+  "label": "北交威海",
+  "name": "北京交通大学(威海校区)",
+  "source": "https://www.zjzs.net/col/xk2024/allcollege.html"
+ },
+ {
+  "prefix": "120",
+  "label": "交大医学",
+  "name": "上海交通大学医学院",
+  "source": "https://edu.sh.gov.cn/study_cn_school/"
+ }
+]

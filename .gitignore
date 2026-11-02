@@ -26,6 +26,8 @@ data/gaokao/*
 !data/gaokao/seeds/
 !data/gaokao/seeds/*.jsonl
 !data/gaokao/seeds/manifest.json
+!data/gaokao/user_import/
+!data/gaokao/user_import/*.jsonl
 !data/gaokao/scoreband_seeds/
 !data/gaokao/scoreband_seeds/*.jsonl
 !data/gaokao/scoreband_seeds/manifest.json
@@ -59,3 +61,16 @@ uploads/avatars/*
 # local restore backups
 data-local-backup-*/
 data/mysql-failed-*/
+
+# Offline, reconciled evidence bundle (the replay importer validates all image and page hashes).
+!data/gaokao/user_import/sichuan_2026_image_evidence_v1.zip
+
+# Scratch files are reproducible; keep only the audit manifest and the deployment bundle.
+data/gaokao/collection_runs/2026-sichuan-images-parallel/numeric/
+# Raw OCR and page working copies are included or reproducible from the checked deployment archive.
+data/gaokao/collection_runs/2026-sichuan-images-parallel/observations/
+data/gaokao/collection_runs/2026-sichuan-images-parallel/pages/
+data/gaokao/user_import/sichuan_2026_images/
+
+# 校名佐证下载工作副本；部署使用经核对的快照。
+.cache/gaokao-location-hints/

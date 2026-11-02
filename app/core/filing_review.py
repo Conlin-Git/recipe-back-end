@@ -14,6 +14,12 @@ _ALLOWED_PATHS = {
     ("POST", "/api/v1/chat"),
     ("GET", r"/api/v1/chat/[0-9]+/stream"),
     ("POST", r"/api/v1/chat/[0-9]+/stop"),
+    # 高考指南和院校总表只读查询：审核态需要能复现页面，不开放任何写操作。
+    ("GET", "/api/v1/gaokao/options"),
+    ("GET", "/api/v1/gaokao/catalog"),
+    ("POST", "/api/v1/gaokao/catalog"),
+    ("GET", "/api/v1/gaokao/coverage"),
+    ("POST", "/api/v1/gaokao/guide"),
 }
 
 

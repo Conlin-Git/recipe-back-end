@@ -2,19 +2,45 @@
 from collections import defaultdict
 from statistics import median
 
-from sqlalchemy import func, select
+from sqlalchemy import and_, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.gaokao.image_policy import CONFIRMED, SOURCE_KEY
 from app.models.gaokao import GaokaoAdmission, GaokaoScoreBand, GaokaoSource
 from app.schemas.gaokao import DISCLAIMER, GaokaoCatalogInput, GaokaoGuideInput
 
 
-SUPPORTED_SCHOOL_PROVINCES = ("四川", "广东", "上海")
+from app.gaokao.regions import CANDIDATE_REGIONS, SCHOOL_REGIONS as SUPPORTED_SCHOOL_PROVINCES
+
+
+def eligible_admissions():
+    confirmed_source = select(GaokaoSource.id).where(
+        GaokaoSource.source_key == SOURCE_KEY, GaokaoSource.validation_status == CONFIRMED
+    )
+    return or_(GaokaoAdmission.verification_status == "verified",
+               and_(GaokaoAdmission.verification_status == CONFIRMED,
+                    GaokaoAdmission.source_id.in_(confirmed_source)))
+
+
+def is_image(item):
+    return getattr(item, "verification_status", None) == CONFIRMED
+
+
+def limited_rank(item):
+    # 用户已确认的官方投档截图与院校/考试院发布记录同等参与计算。
+    # 历史审计标记仍保留，但不再阻断已确认记录的位次匹配。
+    return False
+
+
+def coverage_counts(rows):
+    image_count=sum(is_image(r) for r in rows)
+    return {"verified_record_count": len(rows), "eligible_record_count": len(rows)}
 
 
 def guide_rule_note(candidate_province: str, reference_year: int) -> str:
+    area = candidate_province + ("市" if candidate_province == "上海" else "省" if candidate_province in {"四川", "广东"} else "")
     return (
-        f"生成规则：使用考生在{candidate_province}省的省内排位，比较学校在 {reference_year} 年"
+        f"生成规则：使用考生在{area}的省内排位，比较学校在 {reference_year} 年"
         f"{candidate_province}招生口径下的最低投档/录取门槛；不会使用学校所在地的本地录取线替代{candidate_province}招生数据。"
     )
 
@@ -25,6 +51,8 @@ def batch_aliases(batch: str | None) -> set[str]:
         return set()
     if batch in {"本科", "本科批", "本科普通批"}:
         return {"本科", "本科批", "本科普通批", "本科批次B段", "本科批B段", "普通本科批次B段", "普通本科批"}
+    if batch in {"提前批", "本科提前批"}:
+        return {"提前批", "本科提前批"}
     return {batch}
 
 
@@ -52,8 +80,11 @@ def _tier(rank: int, historical: list[int]) -> tuple[str, int]:
     """返回档位和相对位次差，位次数值越小越有利。"""
     benchmark = int(median(sorted(historical)))
     gap = benchmark - rank
-    # 当前位次落后历史线就明确标为“冲”，避免“未达到但显示稳”。
+    # 只有在历史线附近才允许进入“冲”。相差数倍时属于口径/数据不匹配，
+    # 不能把明显不可达的院校包装成冲刺项。
     if gap < 0:
+        if rank > benchmark * 1.2:
+            return "数据不足", gap
         return "冲", gap
     if gap / max(rank, 1) >= 0.12:
         return "保", gap
@@ -68,7 +99,7 @@ def _rank_status(gap: int | None) -> str:
 
 def _rank_reason(gap: int | None, benchmark: int | None, reference_year: int) -> str:
     if gap is None or benchmark is None:
-        return "官方来源未提供可比最低位次，暂不进行冲稳保分档。"
+        return "当前记录没有可比的精确最低位次，暂不进行冲稳保分档。"
     if gap > 0:
         return f"{reference_year} 年参考最低位次约为 {benchmark}，当前位次领先 {gap} 位。"
     if gap < 0:
@@ -76,12 +107,46 @@ def _rank_reason(gap: int | None, benchmark: int | None, reference_year: int) ->
     return f"{reference_year} 年参考最低位次约为 {benchmark}，当前位次与历史线接近。"
 
 
+def _comparison_mode(comparison_rank: int | None) -> str:
+    """只有存在同口径最低位次时才允许进入位次比较。"""
+    return "rank" if comparison_rank is not None else "score_only"
+
+
 def _data_quality(item: GaokaoAdmission) -> str:
+    if is_image(item) and item.min_rank is not None:
+        return "官方位次"
     if item.min_rank is None:
         return "仅最低分" if item.min_score is not None else "无可用数据"
     if item.verification_note and "换算" in item.verification_note:
         return "换算位次"
     return "官方位次"
+
+
+def _has_exact_min_score(item: GaokaoAdmission) -> bool:
+    """“580 分及以上”等区间值不能被当作精确分数换算位次。"""
+    note = item.tie_breaker or ""
+    return not any(marker in note for marker in ("及以上", "以上", "≥", ">="))
+
+
+def _effective_rank(item: GaokaoAdmission, scoreband_ranks: dict[tuple[int, int], int]) -> int | None:
+    """返回可比较位次、质量和位次来源 source_id。
+
+    官方录取表没有位次时，只在同一招生省、同一年、同一科类有精确最低分且存在
+    官方一分一段表的情况下换算。分数区间（例如上海 580 分及以上）永不换算。
+    """
+    if limited_rank(item):
+        return None
+    if item.min_rank is not None:
+        return item.min_rank
+    if item.min_score is None or not _has_exact_min_score(item):
+        return None
+    return scoreband_ranks.get((item.year, item.min_score))
+
+
+def _row_data_quality(item: GaokaoAdmission, effective_rank: int | None) -> str:
+    if item.min_rank is not None:
+        return _data_quality(item)
+    return "换算位次" if effective_rank is not None else _data_quality(item)
 
 
 def _sort_recommendations(items: list[dict], sort_by: str) -> None:
@@ -102,24 +167,31 @@ def _base_admission_query(data: GaokaoGuideInput):
             max(2022, data.reference_year - data.history_years + 1),
             data.reference_year,
         ),
-        GaokaoAdmission.verification_status == "verified",
+        eligible_admissions(),
     )
 
 
+def _school_scope_clause(school_provinces: list[str]):
+    """生源省不是学校所在地；未标注地点仅能在不限地区时展示。"""
+    if not school_provinces:
+        return None
+    return GaokaoAdmission.school_province.in_(school_provinces)
+
+
 def _coverage_payload(data: GaokaoGuideInput, rows: list[GaokaoAdmission], history_years: list[int]) -> dict:
-    selected = data.school_provinces or list(SUPPORTED_SCHOOL_PROVINCES)
+    selected = data.school_provinces
     is_known_partial = data.admission_province == "四川" and data.reference_year == 2026
     return {
         "selected_school_provinces": selected,
         "supported_school_provinces": list(SUPPORTED_SCHOOL_PROVINCES),
-        "verified_record_count": len(rows),
+        **coverage_counts(rows),
         "university_count": len({(row.university_code, row.school_province) for row in rows}),
         "history_years": history_years,
         "is_full_scope": False,
         "scope_note": (
-            "当前四川 2026 本科全量院校专业组投档明细尚未公开归档，结果只覆盖已核验官方来源。"
+            "四川 2026 数据按批次分别展示，包含已核验的官方投档记录。"
             if is_known_partial
-            else "当前目录和推荐仅覆盖已核验官方来源，不代表对应省份全部招生院校。"
+            else "当前目录仅覆盖已收录的招生记录。"
         ),
     }
 
@@ -151,8 +223,9 @@ def _build_school_recommendations(items: list[dict], candidate_rank: int | None,
                 "min_rank": school_rank,
                 "rank_gap": school_gap,
                 "comparison_rank": school_rank,
+                "comparison_mode": _comparison_mode(school_rank),
                 "major_count": len(majors),
-                "data_quality": "官方位次" if any(item.get("data_quality") == "官方位次" for item in majors) else ("换算位次" if any(item.get("data_quality") == "换算位次" for item in majors) else "仅最低分"),
+                "data_quality": next((item.get("data_quality") for item in majors if item.get("min_rank")==school_rank), "仅最低分"),
                 "historical_years": sorted({year for item in majors for year in item.get("historical_years", [])}, reverse=True),
                 "confidence": "高" if len(majors) >= 4 else "中" if len(majors) >= 2 else "低",
                 "reason": _rank_reason(school_gap, school_rank, reference_year),
@@ -166,11 +239,6 @@ def _build_school_recommendations(items: list[dict], candidate_rank: int | None,
 async def guide(db: AsyncSession, data: GaokaoGuideInput) -> dict:
     rank = await resolve_rank(db, data)
     warnings: list[str] = []
-    if data.reference_year == 2026 and data.admission_province == "四川":
-        warnings.append(
-            "2026 年四川本科批次 B 段全量院校专业组投档明细尚未由四川省教育考试院公开归档；"
-            "以下结果仅覆盖数据库中已核验的官方院校来源，不代表全部招生院校。"
-        )
     if data.rank is None and data.score is not None and rank is None:
         warnings.append("当前分数没有匹配到同省同科类的一分一段表；结果仍可查看最低分，但不会按位次分档。")
     if data.rank is None and data.score is None:
@@ -190,10 +258,9 @@ async def guide(db: AsyncSession, data: GaokaoGuideInput) -> dict:
         }
 
     statement = _base_admission_query(data)
-    if data.school_provinces:
-        statement = statement.where(GaokaoAdmission.school_province.in_(data.school_provinces))
-    if data.preferred_regions:
-        statement = statement.where(GaokaoAdmission.province_code.in_(data.preferred_regions))
+    school_scope = _school_scope_clause(data.school_provinces)
+    if school_scope is not None:
+        statement = statement.where(school_scope)
     if data.keywords:
         like = f"%{data.keywords}%"
         statement = statement.where(
@@ -202,13 +269,32 @@ async def guide(db: AsyncSession, data: GaokaoGuideInput) -> dict:
             | GaokaoAdmission.major_name.like(like)
         )
     rows = (await db.execute(statement)).scalars().all()
-    available_years = sorted({row.year for row in rows}, reverse=True)
-    if rows and not any(row.min_rank is not None for row in rows):
-        warnings.append(
-            "已命中官方核验的院校专业组最低分数据，但来源没有发布最低位次；结果会保留在表格中，但不会生成冲稳保推荐。"
+    scoreband_rows = (
+        await db.execute(
+            select(GaokaoScoreBand).where(
+                GaokaoScoreBand.province == data.admission_province,
+                GaokaoScoreBand.year.in_({row.year for row in rows}),
+                GaokaoScoreBand.track == data.track,
+            )
         )
+    ).scalars().all() if rows else []
+    scoreband_ranks = {(row.year, row.score): row.cumulative_rank for row in scoreband_rows}
+    derived_source_ids = {row.source_id for row in scoreband_rows}
+    effective_ranks = {row.id: _effective_rank(row, scoreband_ranks) for row in rows}
+    row_quality = {row.id: _row_data_quality(row, effective_ranks[row.id]) for row in rows}
+    available_years = sorted({row.year for row in rows}, reverse=True)
+    if rows and not any(effective_ranks[row.id] is not None for row in rows):
+        warnings.append(
+            "部分院校专业组仅提供最低分，无法和考生位次做同口径比较；此类记录不会进入冲、稳、保档位。"
+        )
+        if data.admission_province == "上海" and data.track == "综合":
+            warnings.append(
+                "上海 2026 本科普通批官方表按综合改革口径发布，当前来源只有投档最低分和同分排序，未提供可复核的专业组最低位次；"
+                "不能把上海分数横向换算成四川或广东位次。"
+            )
 
     source_ids = set()
+    source_ids.update(derived_source_ids)
     if data.score is not None:
         band_source_id = (
             await db.execute(
@@ -234,12 +320,12 @@ async def guide(db: AsyncSession, data: GaokaoGuideInput) -> dict:
         by_year: dict[int, GaokaoAdmission] = {}
         for item in items:
             previous = by_year.get(item.year)
-            if previous is None or (item.min_rank is not None and previous.min_rank is None):
+            if previous is None or (effective_ranks[item.id] is not None, not is_image(item), -item.id) > (effective_ranks[previous.id] is not None, not is_image(previous), -previous.id):
                 by_year[item.year] = item
         if not by_year:
             continue
         reference_item = by_year.get(data.reference_year) or by_year[max(by_year)]
-        rank_values = sorted(item.min_rank for item in by_year.values() if item.min_rank is not None)
+        rank_values = sorted(effective_ranks[item.id] for item in by_year.values() if effective_ranks[item.id] is not None)
         comparison_rank = int(median(rank_values)) if rank_values else None
         gap = comparison_rank - rank if rank is not None and comparison_rank is not None else None
         tier = _tier(rank, [comparison_rank])[0] if rank is not None and comparison_rank is not None else "数据不足"
@@ -247,10 +333,14 @@ async def guide(db: AsyncSession, data: GaokaoGuideInput) -> dict:
         evidence = [
             {
                 "year": item.year,
-                "min_rank": item.min_rank,
+                "min_rank": effective_ranks[item.id],
                 "min_score": item.min_score,
                 "source_id": item.source_id,
-                "data_quality": _data_quality(item),
+                "source_type": "official",
+                "source_locator": None if is_image(item) else item.source_locator,
+                "note": None,
+                "reported_rank": item.min_rank,
+                "data_quality": row_quality[item.id],
             }
             for item in sorted(by_year.values(), key=lambda x: x.year, reverse=True)
         ]
@@ -266,20 +356,23 @@ async def guide(db: AsyncSession, data: GaokaoGuideInput) -> dict:
                 "group_name": reference_item.group_name or "",
                 "major_name": reference_item.major_name or "",
                 "subject_requirements": reference_item.subject_requirements,
+                "tie_breaker": reference_item.tie_breaker,
                 "min_score": reference_item.min_score,
-                "min_rank": reference_item.min_rank,
+                "min_rank": effective_ranks[reference_item.id],
                 "avg_score": reference_item.avg_score,
                 "max_score": reference_item.max_score,
                 "historical_years": historical_years,
-                "historical_min_ranks": [by_year[year].min_rank for year in historical_years if by_year[year].min_rank is not None],
+                "historical_min_ranks": [effective_ranks[by_year[year].id] for year in historical_years if effective_ranks[by_year[year].id] is not None],
                 "rank_gap": gap,
                 "comparison_rank": comparison_rank,
+                "comparison_mode": _comparison_mode(comparison_rank),
                 "plan_count": reference_item.plan_count,
                 "admission_count": reference_item.admission_count,
                 "submission_count": reference_item.submission_count,
                 "admission_status": reference_item.admission_status,
                 "confidence": "高" if len(rank_values) >= 4 else "中" if len(rank_values) >= 2 else "低",
-                "data_quality": _data_quality(reference_item),
+                "data_quality": row_quality[reference_item.id],
+                "tie_breaker": reference_item.tie_breaker,
                 "evidence": evidence,
                 "reason": _rank_reason(gap, comparison_rank, data.reference_year),
             }
@@ -287,9 +380,14 @@ async def guide(db: AsyncSession, data: GaokaoGuideInput) -> dict:
 
     _sort_recommendations(recommendations, data.sort_by)
     total_recommendations = len(recommendations)
+    # Apply the requested sort within rank-comparable results before truncation;
+    # a large release must not fill the first page with unreachable schools.
+    recommendations.sort(key=lambda item: item["tier"] == "数据不足")
     returned = recommendations[: data.limit]
-    school_recommendations = _build_school_recommendations(recommendations, rank, data.reference_year)[: data.limit]
-    returned_school_recommendations = _build_school_recommendations(returned, rank, data.reference_year)
+    schools = _build_school_recommendations(recommendations, rank, data.reference_year)
+    _sort_recommendations(schools, data.sort_by)
+    schools.sort(key=lambda item: item["tier"] == "数据不足")
+    school_recommendations = schools[:data.limit]
     tier_counts = {tier: sum(1 for item in school_recommendations if item["tier"] == tier) for tier in ("冲", "稳", "保", "数据不足")}
     recommendations_by_school_province: dict[str, list] = defaultdict(list)
     for recommendation in returned:
@@ -303,18 +401,19 @@ async def guide(db: AsyncSession, data: GaokaoGuideInput) -> dict:
                 "publisher": source.publisher,
                 "year": source.year,
                 "dataset_type": source.dataset_type,
-                "url": source.source_url,
+                "url": source.source_url if source.validation_status != CONFIRMED else None,
                 "sha256": source.sha256,
                 "validation_status": source.validation_status,
             }
             for source in (
                 await db.execute(select(GaokaoSource).where(GaokaoSource.id.in_(source_ids)))
             ).scalars().all()
+            if source.validation_status != CONFIRMED and source.source_url
         ]
-    if not returned and not warnings:
+    if not returned:
         provinces = "、".join(data.school_provinces) if data.school_provinces else "当前范围"
         warnings.append(
-            f"当前数据库没有满足招生省份、年份、科类、批次及院校所在地（{provinces}）口径的已核验录取数据；"
+            f"当前数据库没有满足招生省份、年份、科类、批次及院校所在地（{provinces}）口径的可用投档或录取数据；"
             "院校所在地未标注或来源未完成核验的记录不会用于推荐。"
         )
     return {
@@ -326,38 +425,39 @@ async def guide(db: AsyncSession, data: GaokaoGuideInput) -> dict:
         "sources": sources,
         "warnings": warnings,
         "summary": {
-            "matched_count": len(school_recommendations),
+            "matched_count": len(schools),
             "returned_count": len(returned),
             "record_count": total_recommendations,
-            "school_count": len(school_recommendations),
+            "school_count": len(schools),
             "tier_counts": tier_counts,
             "available_years": available_years,
             "sort_by": data.sort_by,
         },
         "coverage": _coverage_payload(data, rows, available_years),
-        "school_recommendations": returned_school_recommendations,
+        "school_recommendations": school_recommendations,
         "rule_note": guide_rule_note(data.candidate_province or data.admission_province or "当前", data.reference_year),
     }
 
 
 def _catalog_coverage(data: GaokaoCatalogInput, rows: list[GaokaoAdmission], total: int) -> dict:
     return {
-        "selected_school_provinces": data.school_provinces or list(SUPPORTED_SCHOOL_PROVINCES),
+        "selected_school_provinces": data.school_provinces,
         "supported_school_provinces": list(SUPPORTED_SCHOOL_PROVINCES),
-        "verified_record_count": len(rows),
+        **coverage_counts(rows),
         "university_count": total,
         "is_full_catalog": False,
-        "note": "本科院校总表当前基于已核验官方录取数据，暂无录取记录的院校不会被推断或补写。",
+        "note": "院校总表展示已收录的官方投档/录取记录，并标注可复核来源。",
     }
 
 
 async def catalog(db: AsyncSession, data: GaokaoCatalogInput) -> dict:
     statement = select(GaokaoAdmission).where(
         GaokaoAdmission.province == data.admission_province,
-        GaokaoAdmission.verification_status == "verified",
+        eligible_admissions(),
     )
-    if data.school_provinces:
-        statement = statement.where(GaokaoAdmission.school_province.in_(data.school_provinces))
+    school_scope = _school_scope_clause(data.school_provinces)
+    if school_scope is not None:
+        statement = statement.where(school_scope)
     if data.year is not None:
         statement = statement.where(GaokaoAdmission.year == data.year)
     if data.track:
@@ -379,7 +479,7 @@ async def catalog(db: AsyncSession, data: GaokaoCatalogInput) -> dict:
     for (university_code, university_name, school_province), university_rows in grouped.items():
         latest = max(university_rows, key=lambda row: (row.year, row.min_score or -1))
         scores = [row.min_score for row in university_rows if row.min_score is not None]
-        ranks = [row.min_rank for row in university_rows if row.min_rank is not None]
+        ranks = [row.min_rank for row in university_rows if row.min_rank is not None and not limited_rank(row)]
         items.append(
             {
                 "university_code": university_code,
@@ -389,10 +489,13 @@ async def catalog(db: AsyncSession, data: GaokaoCatalogInput) -> dict:
                 "tracks": sorted({row.track for row in university_rows}),
                 "years": sorted({row.year for row in university_rows}, reverse=True),
                 "record_count": len(university_rows),
-                "min_score": max(scores) if scores else None,
-                "min_rank": min(ranks) if ranks else None,
+                # 学校维度的“最低分/最低位次”必须取最低门槛：分数取最小值，
+                # 位次取最靠后的值（数值越大越靠后）。此前取反导致同济大学
+                # 634/643/655 被错误聚合成 655，页面与官方口径不一致。
+                "min_score": min(scores) if scores else None,
+                "min_rank": max(ranks) if ranks else None,
                 "data_levels": sorted({"专业录取线" if row.record_kind == "major_admit" else "院校专业组投档/录取线" for row in university_rows}),
-                "data_status": "已核验录取数据",
+                "data_status": "官方记录",
             }
         )
     items.sort(key=lambda item: (item["min_score"] is None, -(item["min_score"] or -1), item["university_name"]))
@@ -410,21 +513,37 @@ async def catalog(db: AsyncSession, data: GaokaoCatalogInput) -> dict:
 async def coverage_snapshot(db: AsyncSession) -> dict:
     rows = (
         await db.execute(
-            select(GaokaoAdmission.school_province, GaokaoAdmission.year, func.count(GaokaoAdmission.id))
-            .where(
-                GaokaoAdmission.province == "四川",
-                GaokaoAdmission.school_province.in_(SUPPORTED_SCHOOL_PROVINCES),
-                GaokaoAdmission.verification_status == "verified",
+            select(
+                GaokaoAdmission.province,
+                GaokaoAdmission.school_province,
+                GaokaoAdmission.year,
+                GaokaoAdmission.track,
+                func.count(GaokaoAdmission.id),
             )
-            .group_by(GaokaoAdmission.school_province, GaokaoAdmission.year)
+            .where(
+                eligible_admissions(), GaokaoAdmission.province.in_(CANDIDATE_REGIONS),
+            )
+            .group_by(
+                GaokaoAdmission.province,
+                GaokaoAdmission.school_province,
+                GaokaoAdmission.year,
+                GaokaoAdmission.track,
+            )
         )
     ).all()
     counts: dict[str, dict[str, int]] = defaultdict(dict)
-    for school_province, year, count in rows:
-        counts[school_province][str(year)] = count
+    admission_counts: dict[str, dict[str, dict[str, int]]] = defaultdict(lambda: defaultdict(dict))
+    for admission_province, school_province, year, track, count in rows:
+        if school_province in SUPPORTED_SCHOOL_PROVINCES:
+            counts[school_province][str(year)] = counts[school_province].get(str(year), 0) + count
+        admission_counts[admission_province][str(year)][track] = admission_counts[admission_province][str(year)].get(track, 0) + count
     return {
         "supported_school_provinces": list(SUPPORTED_SCHOOL_PROVINCES),
         "counts_by_school_province_year": dict(counts),
+        "counts_by_admission_province_year_track": {
+            province: {year: dict(tracks) for year, tracks in years.items()}
+            for province, years in admission_counts.items()
+        },
         "is_full_catalog": False,
-        "note": "当前范围只展示已核验官方录取数据；缺少全量公开来源的院校不会被补写。",
+        "note": "当前范围包含已核验的官方投档/录取记录；缺少全量公开来源的院校不会被补写。四川、广东、上海的科类按各省官方口径分别保存，上海综合改革不拆分为物理/历史。",
     }

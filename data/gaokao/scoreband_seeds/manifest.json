@@ -54,5 +54,19 @@
     "rows": 513,
     "source_artifact": "2026_scoreband_sources.json",
     "extraction_note": "官方页面图片归档并经累计位次校验。"
+  },
+  {
+    "source_key": "chsi-2026-score-band:上海:4801f8e6af25b05d",
+    "publisher": "教育部阳光高考信息平台/省级考试机构",
+    "province": "上海",
+    "year": 2026,
+    "track": "综合",
+    "dataset_type": "score_band",
+    "source_url": "https://gaokao.chsi.com.cn/gkxx/zc/ss/202606/20260624/2293844300.html",
+    "sha256": "057f58483e7c54f519982d45a91d27f6994a753543d2a4fb73aa7b49474320e",
+    "path": "scoreband_seeds/2026-shanghai-comprehensive.jsonl",
+    "rows": 214,
+    "source_artifact": "2026_scorebands/assets/002_上海.bin … 024_上海.bin",
+    "extraction_note": "官方附件逐行解析；普通类分数、人数和累计人数校验通过。上海本科阶段综合改革口径，不拆分物理/历史。"
   }
 ]

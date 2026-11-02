@@ -317,5 +317,29 @@
     "sha256": "6fceabaeedc216f4c1b662aeb18425d14d91f0490b2165a95dfe152e3ecec3ee",
     "rows": 4,
     "validation_status": "verified"
+  },
+  {
+    "source_id": 80,
+    "path": "user_import/2026_sichuan_undergraduate_admission_user_table.jsonl",
+    "publisher": "用户提供表格/微信公众号文章",
+    "province": "四川",
+    "year": 2026,
+    "source_url": "https://mp.weixin.qq.com/s?__biz=MzI1NTc1NDMxOQ==&mid=2247587446&idx=1&sn=bd71bd82111c9a92b220baf9797c01f1&chksm=eba374ad2e912647a143e4bc39322f81fea76c81c8992a601ae78052c7afd5afb93d108fd6d7&scene=27",
+    "sha256": "ba2c68f55f7951418806d590e0cac0d7a72882a3ae4edd7aa3e0cc33a2fefae0",
+    "rows": 132,
+    "validation_status": "pending",
+    "notes": "用户附件表格OCR结构化；历史类40、物理类92，覆盖28所院校；待官方逐行核验。"
+  },
+  {
+    "source_id": 81,
+    "path": "user_import/2026_sichuan_b_section_article_admissions.jsonl",
+    "publisher": "用户指定微信公众号文章（经可访问镜像图片提取）",
+    "province": "四川",
+    "year": 2026,
+    "source_url": "https://mp.weixin.qq.com/s?__biz=MzI1NTc1NDMxOQ==&mid=2247587446&idx=1&sn=bd71bd82111c9a92b220baf9797c01f1&chksm=eba374ad2e912647a143e4bc39322f81fea76c81c8992a601ae78052c7afd5afb93d108fd6d7&scene=27",
+    "sha256": "5bf4340b4f5dfb409895d8afda0446c5a693420ebb3efe4f89c7b6fd3d6174b6",
+    "rows": 407,
+    "validation_status": "pending",
+    "notes": "文章历史类117条、物理类290条；403条位次由四川2026官方一分一段表换算，4条未满无分数/位次；表格图片哈希和镜像地址见 data/gaokao/user_import/2026_sichuan_b_section_article_source.json。"
   }
 ]

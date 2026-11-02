@@ -1,0 +1,170 @@
+[
+ {
+  "name": "香港中文大学",
+  "region": "香港",
+  "source": "https://www.edb.gov.hk/sc/edu-system/postsecondary/local-higher-edu/institutions/index.html",
+  "locator": "香港可颁授学位高等教育院校名单"
+ },
+ {
+  "name": "香港珠海学院",
+  "region": "香港",
+  "source": "https://www.edb.gov.hk/sc/edu-system/postsecondary/local-higher-edu/institutions/index.html",
+  "locator": "香港可颁授学位高等教育院校名单"
+ },
+ {
+  "name": "河北工业大学",
+  "region": "天津",
+  "source": "https://zs.hebut.edu.cn/2026-05-29/225.html",
+  "locator": "本科招生章程第二条第七项，学校住所地"
+ },
+ {
+  "name": "西藏民族大学",
+  "region": "陕西",
+  "source": "https://zs.xzmu.edu.cn/getcontent?id=110826&url=show",
+  "locator": "2026招生章程，校区地址"
+ },
+ {
+  "name": "北京师范大学(珠海校区)",
+  "region": "广东",
+  "source": "https://admission.bnu.edu.cn/zszc/ae38868c24064dab993597b5ab750a1b.html",
+  "locator": "珠海校区地址"
+ },
+ {
+  "name": "汕头大学医学院",
+  "region": "广东",
+  "source": "https://www.med.stu.edu.cn/",
+  "locator": "地址：汕头市新陵路"
+ },
+ {
+  "name": "北京航空航天大学(杭州校区)",
+  "region": "浙江",
+  "source": "https://zeaie.zjedu.gov.cn/art/2023/5/30/art_20_51064.html",
+  "locator": "杭州中法航空校园"
+ },
+ {
+  "name": "中国人民大学(苏州校区)",
+  "region": "江苏",
+  "source": "https://sc.ruc.edu.cn/about/index.htm",
+  "locator": "校区地址"
+ },
+ {
+  "name": "四川师范大学(遂宁校区)",
+  "region": "四川",
+  "source": "https://sn.sicnu.edu.cn/",
+  "locator": "校区地址"
+ },
+ {
+  "name": "成都理工大学(宜宾校区)",
+  "region": "四川",
+  "source": "https://www.sceea.cn/Html/202512/Newsdetail_4591.html",
+  "locator": "考点及考点地址"
+ },
+ {
+  "name": "成都工业学院(宜宾校区)",
+  "region": "四川",
+  "source": "https://www.sceea.cn/Html/202512/Newsdetail_4591.html",
+  "locator": "考点及考点地址"
+ },
+ {
+  "name": "成都外国语学院(宜宾校区)",
+  "region": "四川",
+  "source": "https://www.sceea.cn/Html/202512/Newsdetail_4591.html",
+  "locator": "考点及考点地址"
+ },
+ {
+  "name": "西华大学(宜宾校区)",
+  "region": "四川",
+  "source": "https://zb.xhu.edu.cn/b0/5e/c7892a241758/page.htm",
+  "locator": "2026本科招生章程第二条"
+ },
+ {
+  "name": "西华大学(彭州校区)",
+  "region": "四川",
+  "source": "https://zb.xhu.edu.cn/b0/5e/c7892a241758/page.htm",
+  "locator": "2026本科招生章程第二条"
+ },
+ {
+  "name": "西南石油大学(南充校区)",
+  "region": "四川",
+  "source": "https://www.swpu.edu.cn/xqzl/xxzc.htm",
+  "locator": "第三条，南充校区"
+ },
+ {
+  "name": "中国传媒大学(海南校区)",
+  "region": "海南",
+  "source": "https://gla-hn.uestc.edu.cn/__local/9/02/A8/F7DF022AECF450927EFD5EC9213_4D8CDAFC_1BD41.pdf",
+  "locator": "海南校区入驻院校"
+ },
+ {
+  "name": "电子科技大学(海南校区)",
+  "region": "海南",
+  "source": "https://gla-hn.uestc.edu.cn/__local/9/02/A8/F7DF022AECF450927EFD5EC9213_4D8CDAFC_1BD41.pdf",
+  "locator": "海南校区入驻院校"
+ },
+ {
+  "name": "北京体育大学(海南校区)",
+  "region": "海南",
+  "source": "https://gla-hn.uestc.edu.cn/__local/9/02/A8/F7DF022AECF450927EFD5EC9213_4D8CDAFC_1BD41.pdf",
+  "locator": "海南校区入驻院校"
+ },
+ {
+  "name": "北京邮电大学(海南校区)",
+  "region": "海南",
+  "source": "https://gla-hn.uestc.edu.cn/__local/9/02/A8/F7DF022AECF450927EFD5EC9213_4D8CDAFC_1BD41.pdf",
+  "locator": "海南校区入驻院校"
+ },
+ {
+  "name": "华南师范大学(汕尾校区)",
+  "region": "广东",
+  "source": "https://eea.gd.gov.cn/attachment/0/585/585885/4746781.pdf",
+  "locator": "地方校区单列代码 80002、80004、80003"
+ },
+ {
+  "name": "广东技术师范大学(河源校区)",
+  "region": "广东",
+  "source": "https://eea.gd.gov.cn/attachment/0/585/585885/4746781.pdf",
+  "locator": "地方校区单列代码 80002、80004、80003"
+ },
+ {
+  "name": "广东工业大学(揭阳校区)",
+  "region": "广东",
+  "source": "https://eea.gd.gov.cn/attachment/0/585/585885/4746781.pdf",
+  "locator": "地方校区单列代码 80002、80004、80003"
+ },
+ {
+  "name": "国防科技大学",
+  "region": "湖南",
+  "source": "https://www.nudt.edu.cn/xxgk/index.htm",
+  "locator": "学校概况，校本部"
+ },
+ {
+  "name": "海军军医大学",
+  "region": "上海",
+  "source": "https://www.smmu.edu.cn/2019/0422/c423a4396/page.htm",
+  "locator": "学校简介"
+ },
+ {
+  "name": "空军军医大学",
+  "region": "陕西",
+  "source": "https://www.fmmu.edu.cn/zhaosheng/info/1022/1477.htm",
+  "locator": "学校地址"
+ },
+ {
+  "name": "陆军军医大学",
+  "region": "重庆",
+  "source": "https://zs.tmmu.edu.cn/zsjy/houtai/eWebEditorV12/uploads/20240129/20240129163519948.pdf",
+  "locator": "高滩岩、江津校区"
+ },
+ {
+  "name": "陆军工程大学",
+  "region": "江苏",
+  "source": "https://www.81.cn/yw_208727/16222874.html",
+  "locator": "校本部驻地"
+ },
+ {
+  "name": "武警警官学院",
+  "region": "四川",
+  "source": "https://www.81.cn/jx_208569/jdt_208570/10003672.html",
+  "locator": "第12项：校本部"
+ }
+]

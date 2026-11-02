@@ -1,3 +1,6 @@
+import json
+from pathlib import Path
+
 import pytest
 
 from app.gaokao.chat_facts import extract_gaokao_facts
@@ -5,6 +8,70 @@ from app.api.v1.gaokao import router
 from app.schemas.gaokao import GaokaoGuideInput
 from app.schemas.gaokao import GaokaoCatalogInput
 from app.services.gaokao_service import _build_school_recommendations, _sort_recommendations, _tier, catalog, guide, guide_rule_note
+
+
+@pytest.mark.parametrize(
+    ("candidate_rank", "school_rank", "expected"),
+    [
+        (1000, 38000, "保"),       # 明显领先：不能误报为冲
+        (38000, 37156, "冲"),      # 只在历史线附近允许冲
+        (38000, 1162, "数据不足"),  # 数十倍口径差异：禁止伪造冲
+        (38000, 45000, "保"),
+        (38000, 39000, "稳"),
+    ],
+)
+def test_tier_matrix_rejects_implausible_chong(candidate_rank, school_rank, expected):
+    assert _tier(candidate_rank, [school_rank])[0] == expected
+
+
+@pytest.mark.parametrize("province", ["四川", "广东", "上海"])
+def test_local_province_dimensions_are_preserved_for_every_supported_province(province):
+    data = GaokaoGuideInput(
+        candidate_province=province,
+        admission_province=province,
+        school_provinces=["四川", "广东", "上海"],
+        candidate_year=2027,
+        reference_year=2026,
+        track="物理类",
+        rank=38000,
+        score=600,
+    )
+    assert data.candidate_province == province
+    assert data.admission_province == province
+    assert data.model_dump()["candidate_province"] == province
+    assert data.model_dump()["admission_province"] == province
+
+
+def test_rank_is_preferred_over_score_in_the_resolved_profile():
+    data = GaokaoGuideInput(
+        candidate_province="广东",
+        admission_province="广东",
+        school_provinces=["广东"],
+        track="物理类",
+        rank=1000,
+        score=680,
+    )
+    assert data.rank == 1000
+    assert data.score == 680
+
+
+def test_official_local_source_manifest_matches_the_required_rows():
+    manifest = json.loads((Path(__file__).parents[2] / "docs" / "GAOKAO_SOURCE_MANIFEST.json").read_text())
+    required = {
+        "https://www.sceea.cn/Html/202606/Newsdetail_4858.html": "513",
+        "https://www.sceea.cn/Html/202606/Newsdetail_4857.html": "534",
+        "https://eea.gd.gov.cn/attachment/0/620/620024/4926622.pdf": "1797",
+        "https://eea.gd.gov.cn/attachment/0/620/620025/4926622.pdf": "4250",
+        "https://cdn.shmeea.edu.cn/resource/upload/www/20260706/53767.pdf": "1593",
+    }
+    entries = {
+        item["url"]: item["verification"]
+        for item in manifest["official_entries"]
+        if item.get("url") in required
+    }
+    assert set(entries) == set(required)
+    for url, row_count in required.items():
+        assert row_count in entries[url]
 
 
 class _EmptyDbResult:
@@ -47,8 +114,13 @@ def test_rank_tier_is_based_on_rank_gap():
 
 
 def test_rank_behind_cutoff_is_always_chong():
-    # 位次 38000 比历史线 37156 落后 844 位，不能再显示为“稳”。
+    # 位次 38000 比历史线 37156 落后 844 位，仍属于合理冲刺范围。
     assert _tier(38000, [37156])[0] == "冲"
+
+
+def test_rank_far_behind_cutoff_is_not_a_chong_recommendation():
+    # 38000 位对 1162 位相差数十倍，不能输出为冲刺。
+    assert _tier(38000, [1162])[0] == "数据不足"
 
 
 def test_recommendations_default_to_score_descending():
@@ -181,3 +253,47 @@ async def test_catalog_empty_match_is_a_valid_empty_page_not_not_found():
     assert result["total"] == 0
     assert result["page"] == 1
     assert result["coverage"]["is_full_catalog"] is False
+
+
+@pytest.mark.asyncio
+async def test_catalog_school_minimum_uses_lowest_score_and_worst_rank():
+    class Result:
+        def scalars(self):
+            return self
+
+        def all(self):
+            class Row:
+                university_code = "TJU"
+                university_name = "同济大学"
+                school_province = "上海"
+                year = 2026
+                track = "物理类"
+                batch = "本科普通批"
+                min_score = 634
+                min_rank = 5669
+                record_kind = "group_admit"
+
+            rows = []
+            for score, rank, group in [(655, 1541, "普通本科"), (634, 5669, "医学类"), (643, 3420, "中外合作办学")]:
+                row = Row()
+                row.min_score, row.min_rank, row.group_code = score, rank, group
+                rows.append(row)
+            return rows
+
+    class Db:
+        async def execute(self, _statement):
+            return Result()
+
+    result = await catalog(
+        Db(),
+        GaokaoCatalogInput(
+            admission_province="四川",
+            school_provinces=["上海"],
+            year=2026,
+            track="物理类",
+            batch="本科普通批",
+        ),
+    )
+    assert result["items"][0]["university_name"] == "同济大学"
+    assert result["items"][0]["min_score"] == 634
+    assert result["items"][0]["min_rank"] == 5669

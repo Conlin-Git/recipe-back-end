@@ -55,6 +55,7 @@ from app.services.naming_rag_service import (
 )
 from app.schemas.gaokao import DISCLAIMER, GaokaoGuideInput
 from app.services.gaokao_service import guide as get_gaokao_guide
+from app.agents.gaokao_planner import plan_gaokao
 
 
 # ---------------- 上下文加载 ----------------
@@ -516,22 +517,39 @@ async def naming_agent(state: GraphState) -> dict:
 
 async def gaokao_agent(state: GraphState) -> dict:
     """高考问答：先查结构化指南数据，再让模型解释，始终带免责声明。"""
+    from app.gaokao.regions import CANDIDATE_REGIONS
     facts = extract_gaokao_facts(state["question"])
+    if facts.get("province") and facts["province"] not in CANDIDATE_REGIONS:
+        return {"messages": [AIMessage(content=f"目前只支持四川、广东、上海考生。目标院校可选全国，但不能拿其他省的投档位次替代您所在省的位次。\n\n{DISCLAIMER}")]}
     required = [key for key in ("province", "year", "track") if key not in facts]
     if required:
-        labels = {"province": "省份", "year": "年份", "track": "科类/选科口径"}
-        content = "为了精准匹配官方数据，请补充：" + "、".join(labels[key] for key in required) + f"。\n\n{DISCLAIMER}"
+        labels = {"province": "考生生源地（四川、广东或上海）", "year": "年份", "track": "科类/选科口径"}
+        content = "为了匹配同口径投档数据，请补充：" + "、".join(labels[key] for key in required) + f"。\n\n{DISCLAIMER}"
         return {"messages": [AIMessage(content=content)]}
     from app.database.mysql import AsyncSessionLocal
     async with AsyncSessionLocal() as db:
-        result = await get_gaokao_guide(db, GaokaoGuideInput(**facts))
-    evidence = json.dumps(result, ensure_ascii=False)
+        from sqlalchemy import func, select
+        from app.models.gaokao import GaokaoAdmission
+        from app.services.gaokao_service import batch_aliases, eligible_admissions
+        candidate_year = int(facts["year"])
+        latest = (await db.execute(select(func.max(GaokaoAdmission.year)).where(
+            eligible_admissions(), GaokaoAdmission.province == facts["province"],
+            GaokaoAdmission.track == facts["track"], GaokaoAdmission.year <= candidate_year,
+            GaokaoAdmission.batch.in_(batch_aliases(facts.get("batch","本科普通批"))),
+        ))).scalar_one_or_none()
+        result = await plan_gaokao(db, GaokaoGuideInput(**facts, candidate_year=candidate_year,
+                                                        reference_year=latest or candidate_year, history_years=1))
+    # Keep the LLM context bounded even when the guide matches thousands of groups.
+    samples = result.get("recommendations", [])[:12]
+    evidence = json.dumps({key: result.get(key) for key in ("profile","summary","warnings","rule_note")} |
+                          {"recommendations": samples}, ensure_ascii=False)
     system = build_qa_system_prompt(
         PERSONA_CHAT,
-        "你是高考指南解释 agent。只能解释给定的结构化结果，不得补写未提供的学校、分数、位次或概率。明确区分官方数据与统计估算。",
+        "你是高考指南解释 agent。只能解释给定的结构化结果，不得补写未提供的学校、分数、位次或概率。只引用结构化结果中的已核验官方出处；不得把缺少位次的记录当成精确位次。",
         state.get("sentiment"),
     )
     messages = [SystemMessage(content=system), *_layered_context(state), SystemMessage(content=f"【高考指南结构化结果】\n{evidence}"), HumanMessage(content=state["question"])]
     resp = await answer_llm.ainvoke(messages)
     content = resp.content if isinstance(resp.content, str) else str(resp.content)
-    return {"messages": [AIMessage(content=f"{content.rstrip()}\n\n{DISCLAIMER}")]}
+    refs = ""
+    return {"messages": [AIMessage(content=f"{content.rstrip()}{refs}\n\n{DISCLAIMER}")]}

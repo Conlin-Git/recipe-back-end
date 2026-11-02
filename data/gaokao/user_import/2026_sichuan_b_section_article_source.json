@@ -1,0 +1,23 @@
+{
+  "article_url": "https://mp.weixin.qq.com/s?__biz=MzI1NTc1NDMxOQ==&mid=2247587446&idx=1&sn=bd71bd82111c9a92b220baf9797c01f1&chksm=eba374ad2e912647a143e4bc39322f81fea76c81c8992a601ae78052c7afd5afb93d108fd6d7&scene=27",
+  "mirror_url": "https://www.6617.com/p_3141872166.html",
+  "images": [
+    {
+      "url": "https://p1.6617.com/article/20260728/d63bb17ea9331ba4.png",
+      "sha256": "1c2def73c799727689b7b7bef8981e0ddfee4e59427d33b5e4d757954ac5864c",
+      "bytes": 1272126,
+      "track": "物理类"
+    },
+    {
+      "url": "https://p1.6617.com/article/20260728/fa44f47f6887c6cc.png",
+      "sha256": "67e728bf23b8452dbd662110f631e61bc426bb2fb81aa63a073ff33bb16b8ba9",
+      "bytes": 473482,
+      "track": "历史类"
+    }
+  ],
+  "extraction_note": "微信原文无法直接抓取，使用可访问镜像中的同版历史类/物理类表格图片提取；逐行 OCR 后做学校名称归一化和重复校验。",
+  "rows": 407,
+  "history_rows": 117,
+  "physical_rows": 290,
+  "unfilled_rows": 4
+}

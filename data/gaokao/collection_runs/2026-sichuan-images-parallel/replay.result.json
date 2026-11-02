@@ -1,0 +1,23 @@
+{
+  "rows": 4732,
+  "pages": 134,
+  "format": "sichuan-image-evidence-v1",
+  "replay": true,
+  "tracks": {
+    "历史类": {
+      "review": 10,
+      "candidate": 1380,
+      "other_batch": 86
+    },
+    "物理类": {
+      "review": 8,
+      "candidate": 3158,
+      "other_batch": 90
+    }
+  },
+  "source_id": 82,
+  "bundle_sha": "f6c2ee8a053846d52c6270d2f37101370d9cb094065ed06b92e31c4da23f8d11",
+  "artifact_sha": "5765e84c43a8fe56776f3214e7552871c9cf7b43b473898836859a1f668180a5",
+  "unique_pages": 133,
+  "pending_count": 4538
+}

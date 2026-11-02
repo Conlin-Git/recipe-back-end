@@ -1,0 +1,85 @@
+{
+  "database_readback": {
+    "evidence_rows_by_decision_and_batch": [
+      {
+        "track": "历史类",
+        "batch": "提前批",
+        "decision": "other_batch",
+        "n": 86
+      },
+      {
+        "track": "历史类",
+        "batch": "提前批",
+        "decision": "review",
+        "n": 2
+      },
+      {
+        "track": "历史类",
+        "batch": "本科批B段",
+        "decision": "candidate",
+        "n": 1380
+      },
+      {
+        "track": "历史类",
+        "batch": "本科批B段",
+        "decision": "review",
+        "n": 8
+      },
+      {
+        "track": "物理类",
+        "batch": "提前批",
+        "decision": "other_batch",
+        "n": 90
+      },
+      {
+        "track": "物理类",
+        "batch": "本科批B段",
+        "decision": "candidate",
+        "n": 3158
+      },
+      {
+        "track": "物理类",
+        "batch": "本科批B段",
+        "decision": "review",
+        "n": 8
+      }
+    ],
+    "admissions_by_track_and_status": [
+      {
+        "track": "历史类",
+        "verification_status": "pending",
+        "n": 1380
+      },
+      {
+        "track": "物理类",
+        "verification_status": "pending",
+        "n": 3158
+      }
+    ],
+    "candidate_evidence_without_matching_admission": 0
+  },
+  "archive_sha256": "86da7a968562930aded24b2509b8acc6d519827ba00d89ce431e21b5704d7c13",
+  "database_commit_report": {
+    "rows": 4732,
+    "pages": 134,
+    "format": "sichuan-image-evidence-v1",
+    "replay": false,
+    "tracks": {
+      "历史类": {
+        "review": 10,
+        "candidate": 1380,
+        "other_batch": 86
+      },
+      "物理类": {
+        "review": 8,
+        "candidate": 3158,
+        "other_batch": 90
+      }
+    },
+    "source_id": 82,
+    "bundle_sha": "f6c2ee8a053846d52c6270d2f37101370d9cb094065ed06b92e31c4da23f8d11",
+    "artifact_sha": "5765e84c43a8fe56776f3214e7552871c9cf7b43b473898836859a1f668180a5",
+    "unique_pages": 133,
+    "pending_count": 4538
+  }
+}
