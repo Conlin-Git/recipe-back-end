@@ -21,6 +21,9 @@ from uuid import uuid4
 from typing import AsyncGenerator
 
 from sqlalchemy.ext.asyncio import AsyncSession
+from openai import RateLimitError, APITimeoutError
+
+from app.config import settings
 
 from app.core.exceptions import BusinessException
 from app.core.tracing import traceable
@@ -190,7 +193,7 @@ async def run_generation(
         })
 
     try:
-        async with AsyncSessionLocal() as db:
+        async with asyncio.timeout(settings.CHAT_GENERATION_TIMEOUT_SECONDS), AsyncSessionLocal() as db:
             conv = await db.get(Conversation, conversation_id)
             if not conv:
                 return  # 会话已被删除（cancel 已取消任务，这里是双保险）
@@ -254,6 +257,9 @@ async def run_generation(
             if not meta_sent:
                 await emit_meta(rag_hit)
 
+            if not full_text and not stopped:
+                raise ValueError("model returned no answer")
+
             # 用户消息已在 start_generation 点火时落库，这里只追加助手答案。
             user_persisted = True
             # 手动停止：抛弃已生成的部分输出，只留用户问题——不落库也不进
@@ -302,9 +308,15 @@ async def run_generation(
                     await conv_crud.add_message(db, conversation_id, "user", message)
         except Exception:
             pass
+        if isinstance(e, RateLimitError):
+            error_message = "模型请求繁忙，请稍后重新发送"
+        elif isinstance(e, (TimeoutError, APITimeoutError)):
+            error_message = "本次回复超时，请重新发送或稍后再试"
+        else:
+            error_message = "服务出了点问题，请稍后重试"
         await _emit(conversation_id, {
             "type": "error", "conversation_id": conversation_id,
-            "turn_id": turn_id, "message": "服务出了点问题，请稍后重试",
+            "turn_id": turn_id, "message": error_message,
         })
     finally:
         _tasks.pop(conversation_id, None)

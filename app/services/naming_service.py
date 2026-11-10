@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.naming_run import NamingRun
 from app.naming.engine import KNOWLEDGE_SNAPSHOT_ID, RULESET_VERSION, NamingEngine, input_fingerprint
+from app.utils.markdown import render_markdown
 
 engine = NamingEngine()
 
@@ -45,9 +46,12 @@ async def get_mine(db: AsyncSession, user_id: int, run_id: int) -> NamingRun | N
 
 
 def to_output(record: NamingRun) -> dict:
+    result = json.loads(record.result_json)
+    # Render on read so previously saved reports also receive sanitized HTML.
+    result["report_html"] = render_markdown(result.get("report_markdown", ""))
     return {
         "id": record.id, "input_fingerprint": record.input_fingerprint, "purpose": record.purpose,
         "ruleset_version": record.ruleset_version, "knowledge_snapshot_id": record.knowledge_snapshot_id,
         "variant_index": record.variant_index, "created_at": record.created_at,
-        "result": json.loads(record.result_json),
+        "result": result,
     }

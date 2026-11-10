@@ -17,7 +17,7 @@ from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langgraph.graph import END
 from langgraph.prebuilt import ToolNode
 
-from app.graph.llms import FINAL_ANSWER_TAG, answer_llm, router_llm, sentiment_llm
+from app.graph.llms import FINAL_ANSWER_TAG, answer_llm, create_answer_llm, router_llm, sentiment_llm
 from app.graph.prompts import (
     CHAT_RULES,
     DEFAULT_SENTIMENT,
@@ -396,7 +396,7 @@ def _qa_messages(state: GraphState, rules: str, persona: str) -> list:
 
 recipe_tools_node = ToolNode([search_recipe_tool])
 # with_config 双保险：bind_tools 后 tag 仍透出，SSE 只转发带 tag 的 token
-_recipe_llm = answer_llm.bind_tools([search_recipe_tool]).with_config(tags=[FINAL_ANSWER_TAG])
+_recipe_llm = create_answer_llm([search_recipe_tool]).with_config(tags=[FINAL_ANSWER_TAG])
 
 
 async def recipe_agent(state: GraphState) -> dict:
@@ -464,7 +464,7 @@ def recipe_should_continue(state: GraphState) -> str:
 
 dev_tools_node = ToolNode([search_dev_book_tool])
 # with_config 双保险：bind_tools 后 tag 仍透出，SSE 只转发带 tag 的 token
-_dev_llm = answer_llm.bind_tools([search_dev_book_tool]).with_config(tags=[FINAL_ANSWER_TAG])
+_dev_llm = create_answer_llm([search_dev_book_tool]).with_config(tags=[FINAL_ANSWER_TAG])
 
 
 async def dev_agent(state: GraphState) -> dict:

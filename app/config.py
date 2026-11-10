@@ -104,6 +104,7 @@ class Settings(BaseSettings):
     REDIS_PASSWORD: str = ""
 
     # 对话防护（成本攻击）
+    CHAT_GENERATION_TIMEOUT_SECONDS: float = 180  # 整轮生成上限，防上游阻塞后一直显示生成中
     CHAT_MESSAGE_MAX_LENGTH: int = 4000   # 单条消息长度上限，防超长输入刷 token 费用
     CHAT_RATE_LIMIT_PER_MINUTE: int = 20  # 每用户每分钟对话请求上限（每次对话触发多路 LLM 调用）
 
