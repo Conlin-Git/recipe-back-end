@@ -223,6 +223,16 @@ async def run_generation(
                         rag_hit = True
                         if meta_sent:
                             await emit_meta(True)
+                    local = payload.get("fortune_agent") or {}
+                    if local.get("topic_state"):
+                        route_state = local["topic_state"]
+                    if local.get("local_answer") and not full_text:
+                        full_text = local["local_answer"]
+                        await _emit(conversation_id, {
+                            "type": "delta", "conversation_id": conversation_id,
+                            "turn_id": turn_id, "delta": full_text,
+                            "html": render_markdown(full_text),
+                        })
                     continue
 
                 chunk, metadata = payload

@@ -297,3 +297,84 @@ async def test_catalog_school_minimum_uses_lowest_score_and_worst_rank():
     assert result["items"][0]["university_name"] == "同济大学"
     assert result["items"][0]["min_score"] == 634
     assert result["items"][0]["min_rank"] == 5669
+
+
+def _school(name, tier, score, gap, majors=1):
+    return {
+        "university_name": name,
+        "tier": tier,
+        "min_score": score,
+        "min_rank": 30000 - (gap or 0),
+        "rank_gap": gap,
+        "majors": [
+            {"major_name": f"专业{i}", "group_name": "", "min_score": score - i, "min_rank": 1, "evidence": [{"big": "x"}]}
+            for i in range(majors)
+        ],
+    }
+
+
+def test_smart_selection_caps_each_tier_and_orders_for_students():
+    from app.services.gaokao_service import _select_by_tier
+
+    schools = [
+        _school("冲-远", "冲", 600, -5000),
+        _school("冲-近", "冲", 580, -300),
+        _school("冲-中", "冲", 590, -1500),
+        _school("稳-低", "稳", 560, 500),
+        _school("稳-高", "稳", 575, 100),
+        _school("保-低", "保", 500, 9000),
+        _school("保-高", "保", 540, 4000),
+        _school("不足", "数据不足", 700, None),
+    ]
+    picked = _select_by_tier(schools, per_tier=2)
+    names = [item["university_name"] for item in picked]
+    # 冲：离线最近的先看；稳/保：分数更高的好学校先看；数据不足不出现在建议里。
+    assert names == ["冲-近", "冲-中", "稳-高", "稳-低", "保-高", "保-低"]
+    assert "不足" not in names
+
+
+def test_smart_selection_slims_majors_for_list_payload():
+    from app.services.gaokao_service import _MAJOR_PREVIEW_LIMIT, _select_by_tier
+
+    picked = _select_by_tier([_school("多专业大学", "稳", 580, 100, majors=20)], per_tier=5)
+    majors = picked[0]["majors"]
+    assert len(majors) == _MAJOR_PREVIEW_LIMIT
+    assert set(majors[0]) == {"major_name", "group_name", "min_score", "min_rank"}
+
+
+def test_smart_is_an_accepted_sort_mode_and_legacy_default_is_unchanged():
+    legacy = GaokaoGuideInput(candidate_province="四川", admission_province="四川", track="物理类", rank=38000)
+    assert legacy.sort_by == "min_score_desc"
+    smart = GaokaoGuideInput(candidate_province="四川", admission_province="四川", track="物理类", rank=38000, sort_by="smart")
+    assert smart.sort_by == "smart"
+
+
+@pytest.mark.asyncio
+async def test_score_band_lookup_returns_rank_year_and_source():
+    from app.services.gaokao_service import lookup_score_band, resolve_rank
+
+    class _Result:
+        def __init__(self, row):
+            self._row = row
+
+        def first(self):
+            return self._row
+
+    class _Db:
+        def __init__(self, row):
+            self.row = row
+
+        async def execute(self, _statement):
+            return _Result(self.row)
+
+    data = GaokaoGuideInput(
+        candidate_province="四川", admission_province="四川", track="物理类",
+        candidate_year=2027, reference_year=2026, score=590,
+    )
+    assert await lookup_score_band(_Db((29671, 2026, 9)), data) == (29671, 2026, 9)
+    assert await resolve_rank(_Db((29671, 2026, 9)), data) == 29671
+    assert await lookup_score_band(_Db(None), data) is None
+    assert await resolve_rank(_Db(None), data) is None
+    # 已有位次时优先使用位次，不查一分一段表。
+    with_rank = data.model_copy(update={"rank": 1234})
+    assert await resolve_rank(_Db(None), with_rank) == 1234

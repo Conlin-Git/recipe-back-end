@@ -32,6 +32,7 @@ def build_graph():
     graph.add_node("chat_agent", nodes.chat_agent)
     graph.add_node("naming_agent", nodes.naming_agent)
     graph.add_node("gaokao_agent", nodes.gaokao_agent)
+    graph.add_node("fortune_agent", nodes.fortune_agent)
 
     graph.add_edge(START, "load_context")
     # 情感分析与编排分类并行：互不依赖，各写各的 state key
@@ -48,6 +49,7 @@ def build_graph():
     graph.add_edge("chat_agent", END)
     graph.add_edge("naming_agent", END)
     graph.add_edge("gaokao_agent", END)
+    graph.add_edge("fortune_agent", END)
 
     return graph.compile()
 

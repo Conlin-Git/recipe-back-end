@@ -228,26 +228,6 @@ uv sync                                        # 安装依赖（Python ≥ 3.11�
 - 启动日志会逐项打印各组件连接结果
 - 单 worker 部署：生成任务注册表是进程内 dict；多 worker 需把任务投递改为队列方案（arq/Dramatiq 等）
 
-## 公安备案审核登录态
-
-在运行服务的相同环境与 `.env` 下执行（前端目录按实际路径调整）：
-
-```bash
-.venv/bin/python -m scripts.create_filing_review_session --frontend-env ../recipe-front-end/.env.production.local
-```
-
-脚本每次新建一个独立、随机密码的审核账号，将带 `filing-review` scope 的 JWT 写入指定 `.local` 环境文件，并显示账号名和 UTC 到期时间，终端不会输出密码或 token。登录态从签发起固定 **30 天**有效，不提供续期；普通账号的 24 小时有效期保持不变。无需修改表结构。
-
-前端重新构建并部署后，无个人登录态的访客会自动进入审核账号。该账号的内容和对话历史为所有访客共享，只应用于公开展示。后端在鉴权依赖中仅放行用户信息读取、会话读取/已读与问答接口，拒绝修改资料、上传头像、删除会话、登出吊销及其他接口；现有用户归属校验和对话限流继续生效。
-
-应先部署后端权限限制，再部署带审核凭证的前端。审核结束后移除前端环境变量并重新构建；如需在到期前让已发布凭证立即失效，可在服务环境调用 `app.core.security.revoke_token(token)`，不要通过公开的登出接口操作共享审核态。
-
-鉴权及环境文件写入回归测试（不连接数据库和 Redis）：
-
-```bash
-.venv/bin/python -m unittest tests.api.test_filing_review -v
-```
-
 ## API 概览
 
 统一前缀 `/api/v1`，除认证与图片代理外均需 `Authorization: Bearer <token>`。JSON 响应统一封装：成功 `{"code": 0, "data": ..., "msg": ""}`，失败 `{"code": 非0, "data": null, "msg": "可读信息"}`（HTTP 状态码保留语义；SSE 流、图片二进制、204 不封装）。
@@ -336,3 +316,25 @@ PDF 清洗三板斧：跨页统计剔除页眉页脚、连字符/中英文断行
 ```bash
 .venv/bin/python -m pytest tests/
 ```
+
+### 第四个功能：紫微斗数（仅供娱乐）
+
+`POST /api/v1/fortune/analyze` 沿用登录鉴权，输入历法、出生日期、准确时间和排盘性别，返回完整原始命盘、全部星曜亮度、12 个大限、连续逐岁流年、四化叠层和格局。支持农历闰月、晚子时口径、标准时区与可选真太阳时。排盘在本机完成，不依赖 AI 或网络。
+
+`POST /api/v1/fortune/interpret` 接收 `{birth: FortuneInput, question?: string}`，服务端重新排盘，再用现有 `LLM_PROVIDER` 对应模型生成白话解读。按主题提供星曜，校验 AI 返回的主题与星曜，命盘依据由程序添加。先尝试智谱 `search_std`（复用 `ZHIPU_API_KEY`），搜索不可用时实时读取 GitHub 上游 MIT 星曜定义；两者都失败时标记未取得联网资料。`search_status` 分别为 `searched`、`reference`、`unavailable`，不能将读取开源文件标为全网搜索。搜索词只含宫名、星名等通用术语，不含生辰。未下载 Releases 大型数据集。
+
+解读总超时 55 秒，最多 4 个并发；失败返回 `status=unavailable`，不影响命盘。前端先展示排盘结果，再独立请求解读，支持重试。聊天默认短段落白话解读，追问按主题或指定年份回答；只有明确请求年龄范围才展开逐年文字。聊天不生成表格。
+
+排盘服务内置于 recipe 后端，不额外部署 Next.js 项目，不新增数据库表或对外端口。开源代码版本、许可证、构建步骤见 [内置引擎说明](app/fortune/engine/README.md)。上线环境新增前提为 **Node.js 18+，建议 22**；Node 不在服务 PATH 时设置 `FORTUNE_NODE_BINARY=/absolute/path/to/node`。预检命令：
+
+```sh
+.venv/bin/python -m app.fortune.check
+```
+
+前后端统一构建（仅本地打包，不连接服务器）：
+
+```sh
+.venv/bin/python scripts/build_recipe_release.py --output /tmp/recipe-release
+```
+
+命令会检查引擎、构建前端并将前端静态资源和内置排盘产物的后端 wheel 放入同一发布目录。不需要带上根目录的 `ziwei-doushu` 克隆副本。继续按原 recipe 前后端发布流程部署，部署前须通过同一预检。生产部署操作需另行明确确认。

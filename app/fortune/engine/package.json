@@ -1,0 +1,20 @@
+{
+  "name": "recipe-ziwei-engine",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "dependencies": {
+    "iztro": "2.6.1",
+    "lunar-javascript": "1.7.7"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.12"
+  }
+}

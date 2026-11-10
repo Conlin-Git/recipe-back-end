@@ -56,24 +56,35 @@ def batch_aliases(batch: str | None) -> set[str]:
     return {batch}
 
 
-async def resolve_rank(db: AsyncSession, data: GaokaoGuideInput) -> int | None:
-    if data.rank:
-        return data.rank
+async def lookup_score_band(db: AsyncSession, data: GaokaoGuideInput) -> tuple[int, int, int] | None:
+    """按分数查一分一段表，返回 (位次, 使用的年份, 来源 id)。
+
+    考生年份通常是“明年”，当年的一分一段表尚未发布；这时回退到不晚于考生年份的
+    最近一年（位次法的通用做法），由调用方提示实际使用的年份。
+    """
     if data.score is None:
         return None
     row = (
         await db.execute(
-            select(GaokaoScoreBand.cumulative_rank)
+            select(GaokaoScoreBand.cumulative_rank, GaokaoScoreBand.year, GaokaoScoreBand.source_id)
             .where(
                 GaokaoScoreBand.province == data.candidate_province,
-                GaokaoScoreBand.year == data.candidate_year,
+                GaokaoScoreBand.year <= data.candidate_year,
                 GaokaoScoreBand.track == data.track,
                 GaokaoScoreBand.score == data.score,
             )
+            .order_by(GaokaoScoreBand.year.desc())
             .limit(1)
         )
-    ).scalar_one_or_none()
-    return row
+    ).first()
+    return (row[0], row[1], row[2]) if row else None
+
+
+async def resolve_rank(db: AsyncSession, data: GaokaoGuideInput) -> int | None:
+    if data.rank:
+        return data.rank
+    band = await lookup_score_band(db, data)
+    return band[0] if band else None
 
 
 def _tier(rank: int, historical: list[int]) -> tuple[str, int]:
@@ -236,11 +247,50 @@ def _build_school_recommendations(items: list[dict], candidate_rank: int | None,
     return schools
 
 
+_MAJOR_PREVIEW_LIMIT = 8
+_MAJOR_PREVIEW_FIELDS = ("major_name", "group_name", "min_score", "min_rank")
+
+
+def _slim_school(school: dict) -> dict:
+    """列表页只需要专业的名称和分数线，完整证据链留在后端，避免单次返回数百 KB。"""
+    return {
+        **school,
+        "majors": [
+            {field: major.get(field) for field in _MAJOR_PREVIEW_FIELDS}
+            for major in school["majors"][:_MAJOR_PREVIEW_LIMIT]
+        ],
+    }
+
+
+def _select_by_tier(schools: list[dict], per_tier: int) -> list[dict]:
+    """smart 模式：每档各取前 per_tier 所，档内按“最值得看”的顺序。
+
+    冲：先看离线最近、最有机会够到的；稳/保：先看分数最高的好学校。
+    """
+    selected: list[dict] = []
+    for tier in ("冲", "稳", "保"):
+        in_tier = [item for item in schools if item["tier"] == tier]
+        if tier == "冲":
+            in_tier.sort(key=lambda item: (-(item["rank_gap"] if item["rank_gap"] is not None else -10**9), -(item["min_score"] or -1)))
+        else:
+            in_tier.sort(key=lambda item: (item["min_score"] is None, -(item["min_score"] or -1), item["min_rank"] or 10**9))
+        selected.extend(_slim_school(item) for item in in_tier[:per_tier])
+    return selected
+
+
 async def guide(db: AsyncSession, data: GaokaoGuideInput) -> dict:
-    rank = await resolve_rank(db, data)
     warnings: list[str] = []
-    if data.rank is None and data.score is not None and rank is None:
-        warnings.append("当前分数没有匹配到同省同科类的一分一段表；结果仍可查看最低分，但不会按位次分档。")
+    rank = data.rank
+    score_band_year: int | None = None
+    score_band_source_id: int | None = None
+    if rank is None and data.score is not None:
+        band = await lookup_score_band(db, data)
+        if band:
+            rank, score_band_year, score_band_source_id = band
+            if score_band_year != data.candidate_year:
+                warnings.append(f"分数已按 {score_band_year} 年一分一段表换算为位次 {rank}，实际位次以当年为准。")
+        else:
+            warnings.append("当前分数没有匹配到同省同科类的一分一段表；结果仍可查看最低分，但不会按位次分档。")
     if data.rank is None and data.score is None:
         warnings.append("请填写省内位次或高考分数；没有成绩无法生成可比较的结果。")
         return {
@@ -295,21 +345,8 @@ async def guide(db: AsyncSession, data: GaokaoGuideInput) -> dict:
 
     source_ids = set()
     source_ids.update(derived_source_ids)
-    if data.score is not None:
-        band_source_id = (
-            await db.execute(
-                select(GaokaoScoreBand.source_id)
-                .where(
-                    GaokaoScoreBand.province == data.candidate_province,
-                    GaokaoScoreBand.year == data.candidate_year,
-                    GaokaoScoreBand.track == data.track,
-                    GaokaoScoreBand.score == data.score,
-                )
-                .limit(1)
-            )
-        ).scalar_one_or_none()
-        if band_source_id:
-            source_ids.add(band_source_id)
+    if score_band_source_id:
+        source_ids.add(score_band_source_id)
 
     grouped: dict[tuple[str, str, str, str, str], list[GaokaoAdmission]] = defaultdict(list)
     for row in rows:
@@ -385,10 +422,14 @@ async def guide(db: AsyncSession, data: GaokaoGuideInput) -> dict:
     recommendations.sort(key=lambda item: item["tier"] == "数据不足")
     returned = recommendations[: data.limit]
     schools = _build_school_recommendations(recommendations, rank, data.reference_year)
-    _sort_recommendations(schools, data.sort_by)
-    schools.sort(key=lambda item: item["tier"] == "数据不足")
-    school_recommendations = schools[:data.limit]
-    tier_counts = {tier: sum(1 for item in school_recommendations if item["tier"] == tier) for tier in ("冲", "稳", "保", "数据不足")}
+    # 档位计数必须基于全部匹配学校；截断只影响返回条数，不能改变“共有多少所”。
+    tier_counts = {tier: sum(1 for item in schools if item["tier"] == tier) for tier in ("冲", "稳", "保", "数据不足")}
+    if data.sort_by == "smart":
+        school_recommendations = _select_by_tier(schools, data.limit)
+    else:
+        _sort_recommendations(schools, data.sort_by)
+        schools.sort(key=lambda item: item["tier"] == "数据不足")
+        school_recommendations = schools[:data.limit]
     recommendations_by_school_province: dict[str, list] = defaultdict(list)
     for recommendation in returned:
         recommendations_by_school_province.setdefault(recommendation.get("school_province") or "未标注", []).append(recommendation)
@@ -419,7 +460,7 @@ async def guide(db: AsyncSession, data: GaokaoGuideInput) -> dict:
     return {
         "disclaimer": DISCLAIMER,
         "data_status": "ok" if any(item["tier"] in {"冲", "稳", "保"} for item in recommendations) else "insufficient",
-        "profile": {**data.model_dump(), "resolved_rank": rank},
+        "profile": {**data.model_dump(), "resolved_rank": rank, "score_band_year": score_band_year},
         "recommendations": returned,
         "sections": dict(recommendations_by_school_province),
         "sources": sources,
@@ -430,6 +471,7 @@ async def guide(db: AsyncSession, data: GaokaoGuideInput) -> dict:
             "record_count": total_recommendations,
             "school_count": len(schools),
             "tier_counts": tier_counts,
+            "returned_school_count": len(school_recommendations),
             "available_years": available_years,
             "sort_by": data.sort_by,
         },

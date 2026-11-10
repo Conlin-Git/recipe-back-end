@@ -41,7 +41,8 @@ class GaokaoGuideInput(BaseModel):
     keywords: str = Field(default="", max_length=120)
     limit: int = Field(default=30, ge=1, le=100)
     history_years: int = Field(default=5, ge=1, le=5)
-    sort_by: Literal["min_score_desc", "min_rank_asc", "rank_gap_desc"] = "min_score_desc"
+    # smart：先全量分冲/稳/保，再按档各取前 limit 所，档内按“最值得看”的顺序排列。
+    sort_by: Literal["min_score_desc", "min_rank_asc", "rank_gap_desc", "smart"] = "min_score_desc"
 
     @model_validator(mode="before")
     @classmethod

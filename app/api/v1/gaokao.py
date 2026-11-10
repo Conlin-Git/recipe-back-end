@@ -79,12 +79,19 @@ async def get_options(
     tracks=set().union(*province_tracks.values())
     admission_years={r[1] for r in admissions}
     score_band_years={r[1] for r in bands}
+    # 哪些生源省有一分一段表：没有的省份只能按位次查询，不能按分数。
+    province_score_band_years: dict[str, set[int]] = {}
+    for p, y, t in bands:
+        province_score_band_years.setdefault(p, set()).add(y)
     years=admission_years | score_band_years | {r[1] for r in cuts}
     return {
         "provinces": list(provinces),
         "years": sorted(years, reverse=True),
         "reference_years": sorted(admission_years, reverse=True),
         "score_band_years": sorted(score_band_years, reverse=True),
+        "province_score_band_years": {
+            province: sorted(years_set, reverse=True) for province, years_set in province_score_band_years.items()
+        },
         "tracks": sorted(tracks),
         "province_tracks": {key: sorted(value) for key, value in province_tracks.items()},
         "province_batches": {key: sorted(value) for key, value in province_batches.items()},

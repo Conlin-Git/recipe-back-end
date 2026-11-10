@@ -47,3 +47,5 @@ build-backend = "uv_build"
 [tool.uv.build-backend]
 module-root = ""
 module-name = "app"
+source-exclude = ["app/fortune/engine/node_modules/**"]
+wheel-exclude = ["app/fortune/engine/node_modules/**"]

@@ -37,6 +37,7 @@ from app.graph.prompts import (
     build_qa_system_prompt,
 )
 from app.graph.state import GraphState, RouteDecision, TopicState
+from app.fortune.chat import FORTUNE_TERMS, is_fortune_turn, fortune_agent
 from app.graph.tools.dev_book_search import search_dev_book_tool
 from app.graph.tools.recipe_search import search_recipe_tool
 from app.gaokao.chat_facts import extract_gaokao_facts
@@ -132,7 +133,7 @@ _FOLLOWUP_MARKERS = re.compile(
     r"(刚才|上一条|上面|前面|继续|然后|那|它|这个|那个|这道|这本|怎么|为什么|还有|再说|依赖|配置|改成|补充)"
 )
 _SWITCH_MARKERS = re.compile(r"(换个话题|换一个问题|另外问|顺便问|不聊这个|新问题)")
-_RECIPE_TERMS = re.compile(r"(菜谱|食谱|做法|食材|配料|火候|下锅|炒|煮|炖|烤|蒸|牛肉|鸡|鱼|汤|面|饭)")
+_RECIPE_TERMS = re.compile(r"(菜谱|食谱|做法|食材|配料|火候|下锅|炒|煮|炖|烤|蒸|焖|牛肉|鸡|鱼|虾|汤|面条|面食|面粉|炒面|拌面|饭)")
 _DEV_TERMS = re.compile(r"(代码|编程|前端|后端|接口|API|Docker|Milvus|MySQL|Redis|数据库|依赖|配置|部署|报错|Python|JavaScript|TypeScript|Vue|React|SQL)", re.I)
 _NAMING_TERMS = re.compile(r"(八字|生辰|取名|起名|姓名评分|名字评分|网名|笔名|人名|命理|五行|喜用神|康熙笔画)")
 _GAOKAO_TERMS = re.compile(r"(高考|志愿|报考|院校|专业组|一分一段|位次|录取线|分数线|选科|本科线)")
@@ -140,7 +141,7 @@ _GAOKAO_TERMS = re.compile(r"(高考|志愿|报考|院校|专业组|一分一段
 
 def _last_domain(state: GraphState) -> str:
     topic = state.get("topic_state") or {}
-    if topic.get("domain") in {"recipe", "dev", "chat", "naming", "gaokao"}:
+    if topic.get("domain") in {"recipe", "dev", "chat", "naming", "gaokao", "fortune"}:
         return topic["domain"]
     for message in reversed(state.get("window") or []):
         content = str(message.get("content", ""))
@@ -155,26 +156,30 @@ def _last_domain(state: GraphState) -> str:
     return "chat"
 
 
+def _explicit_domain(question: str) -> str | None:
+    """仅判断当前问题的领域，不把继承的旧话题当作当前问题的证据。"""
+    if _GAOKAO_TERMS.search(question):
+        return "gaokao"
+    if FORTUNE_TERMS.search(question):
+        return "fortune"
+    if _NAMING_TERMS.search(question):
+        return "naming"
+    if _DEV_TERMS.search(question):
+        return "dev"
+    if _RECIPE_TERMS.search(question):
+        return "recipe"
+    return None
+
+
 def _heuristic_route(state: GraphState) -> RouteDecision:
     question = str(state.get("question", "")).strip()
     previous_domain = _last_domain(state)
+    explicit_domain = _explicit_domain(question)
+    domain_changed = explicit_domain is not None and explicit_domain != previous_domain
     explicit_switch = bool(_SWITCH_MARKERS.search(question))
-    followup = bool(_FOLLOWUP_MARKERS.search(question)) and not explicit_switch
-    if _GAOKAO_TERMS.search(question):
-        domain = "gaokao"
-    elif _NAMING_TERMS.search(question):
-        domain = "naming"
-    elif _DEV_TERMS.search(question):
-        domain = "dev"
-    elif _RECIPE_TERMS.search(question):
-        domain = "recipe"
-    elif followup:
-        domain = previous_domain
-    else:
-        domain = "chat"
-    if followup and not (_DEV_TERMS.search(question) or _RECIPE_TERMS.search(question) or _NAMING_TERMS.search(question) or _GAOKAO_TERMS.search(question)):
-        domain = previous_domain
-    topic_action = "continue" if followup else ("switch" if explicit_switch else "new")
+    followup = bool(_FOLLOWUP_MARKERS.search(question)) and not explicit_switch and not domain_changed
+    domain = explicit_domain or (previous_domain if followup else "chat")
+    topic_action = "continue" if followup else ("switch" if explicit_switch or (domain_changed and previous_domain != "chat") else "new")
     query = question
     references = {}
     topic = state.get("topic_state") or {}
@@ -207,6 +212,8 @@ async def sentiment_node(state: GraphState) -> dict:
     # 知识问答不需要额外的情感模型调用；只在明显情绪或闲聊场景启用，
     # 减少每轮并行调用对延迟和事实提示的干扰。
     question = str(state.get("question", ""))
+    if _local_fortune_turn(state):
+        return {"sentiment": DEFAULT_SENTIMENT}
     if (_DEV_TERMS.search(question) or _RECIPE_TERMS.search(question)) and not re.search(
         r"(生气|焦虑|崩溃|烦|气死|难过|开心|谢谢|救命|急)", question
     ):
@@ -241,9 +248,28 @@ def _recent_brief(window: list[dict]) -> str:
     ) or "无"
 
 
+def _local_fortune_turn(state: GraphState) -> bool:
+    # Explicit recipe/dev/naming/gaokao questions must still leave the old chart.
+    explicit = _explicit_domain(state.get("question", ""))
+    if explicit == "naming" and (state.get("topic_state") or {}).get("domain") == "fortune" and not re.search(r"取名|起名|命名|姓名|名字|网名|笔名|康熙", state.get("question", "")):
+        return is_fortune_turn(state)
+    return explicit in {None, "fortune"} and is_fortune_turn(state)
+
+
 async def orchestrator_node(state: GraphState) -> dict:
     """意图分类 + 路由决策（主模型，JSON 结构化输出）。"""
     heuristic = _heuristic_route(state)
+    if _local_fortune_turn(state):
+        topic = state.get("topic_state") or {}
+        continuing = topic.get("domain") == "fortune"
+        route = {**heuristic, "domain": "fortune", "needs_rag": False,
+                 "intent_type": "followup" if continuing else "new",
+                 "topic_action": "continue" if continuing else "switch",
+                 "confidence": 1.0, "reason": "本地紫微排盘与文化解读"}
+        return {"route": route, "topic_state": {
+            "domain": "fortune", "topic_id": "fortune:birth-chart", "goal": "紫微斗数娱乐解读",
+            "fortune_facts": dict(topic.get("fortune_facts") or {}) if continuing else {},
+        }}
     cached_titles = "、".join(
         r.get("title", "") for r in state.get("recipe_cache") or []
     ) or "无"
@@ -274,7 +300,7 @@ async def orchestrator_node(state: GraphState) -> dict:
         # 重新判成闲聊或菜谱。
         if heuristic["intent_type"] == "followup" and not raw.get("topic_action"):
             intent = "followup"
-        if heuristic["domain"] in {"recipe", "dev", "naming", "gaokao"} and _FOLLOWUP_MARKERS.search(state["question"]):
+        if _explicit_domain(state["question"]) and _FOLLOWUP_MARKERS.search(state["question"]):
             domain = heuristic["domain"]
         route: RouteDecision = {
             "intent_type": intent,
@@ -294,7 +320,20 @@ async def orchestrator_node(state: GraphState) -> dict:
         print(f"⚠️ 编排分类异常，使用规则路由：{e}")
         route = heuristic
 
+    # 「怎么做」不等于沿用旧领域。领域切换必须建立新主题并检索，
+    # 同时丢弃模型从旧话题带来的检索词/指代，避免问菜谱却查命理知识库。
+    if route["domain"] in {"recipe", "dev", "naming", "gaokao"} and route["domain"] != _last_domain(state):
+        route.update(
+            intent_type="new",
+            topic_action="switch" if _last_domain(state) != "chat" else "new",
+            summary_sufficient=False,
+            context_scope=[],
+            retrieval_query=state["question"],
+            resolved_references={},
+        )
     if route["intent_type"] == "new" and route["domain"] in {"recipe", "dev", "naming", "gaokao"}:
+        route["needs_rag"] = True
+    if route["domain"] == "recipe" and not state.get("recipe_cache"):
         route["needs_rag"] = True
     topic = state.get("topic_state") or {}
     continuing = route.get("topic_action") == "continue" and topic.get("domain") == route["domain"]
@@ -318,7 +357,7 @@ def join_node(state: GraphState) -> dict:
 
 
 def pick_agent(state: GraphState) -> str:
-    return {"recipe": "recipe_agent", "dev": "dev_agent", "chat": "chat_agent", "naming": "naming_agent", "gaokao": "gaokao_agent"}.get(
+    return {"recipe": "recipe_agent", "dev": "dev_agent", "chat": "chat_agent", "naming": "naming_agent", "gaokao": "gaokao_agent", "fortune": "fortune_agent"}.get(
         (state.get("route") or {}).get("domain", "chat"), "chat_agent"
     )
 

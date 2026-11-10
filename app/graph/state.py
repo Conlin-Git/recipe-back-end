@@ -11,7 +11,7 @@ from langgraph.graph.message import add_messages
 class RouteDecision(TypedDict):
     """编排 agent 的路由决策（JSON 结构化输出的解析结果）。"""
     intent_type: str        # followup（追问） | new（全新查询）
-    domain: str             # recipe | dev | chat | naming | gaokao
+    domain: str             # recipe | dev | chat | naming | gaokao | fortune
     summary_sufficient: bool  # 追问时：仅凭摘要是否足以回答
     needs_rag: bool         # 是否需要菜谱 RAG 检索
     reason: str             # 一句话决策理由（排查用）
@@ -32,6 +32,7 @@ class TopicState(TypedDict, total=False):
     entities: list[str]
     constraints: list[str]
     open_loops: list[str]
+    fortune_facts: dict  # 仅当前紫微主题的用户明确输入
     last_turn_id: str
 
 
@@ -42,6 +43,7 @@ class SentimentResult(TypedDict):
 
 
 class GraphState(TypedDict, total=False):
+    local_answer: str              # 非 LLM 节点的最终文本，交由 SSE updates 输出
     question: str
     conversation_id: int
     summary_hint: str              # MySQL conversations.summary（Redis miss 时的兜底）
