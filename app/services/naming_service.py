@@ -13,7 +13,7 @@ engine = NamingEngine()
 
 async def run(db: AsyncSession, user_id: int, payload: dict, mode: str) -> NamingRun:
     normalized = engine.normalize(payload)
-    fingerprint = input_fingerprint(user_id, normalized)
+    fingerprint = input_fingerprint(user_id, normalized, mode=mode)
     statement = select(NamingRun).where(
         NamingRun.user_id == user_id,
         NamingRun.input_fingerprint == fingerprint,

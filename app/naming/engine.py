@@ -59,7 +59,7 @@ def canonical_input(data: dict[str, Any]) -> dict[str, Any]:
     return result
 
 
-def input_fingerprint(user_id: int, data: dict[str, Any]) -> str:
+def input_fingerprint(user_id: int, data: dict[str, Any], mode: str | None = None) -> str:
     payload = {
         "user_id": int(user_id),
         "input": canonical_input(data),
@@ -69,6 +69,8 @@ def input_fingerprint(user_id: int, data: dict[str, Any]) -> str:
         "kangxi_version": KANGXI_VERSION,
         "risk_version": RISK_VERSION,
     }
+    if mode is not None:
+        payload["mode"] = mode
     encoded = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()
     return hashlib.sha256(encoded).hexdigest()
 
@@ -280,7 +282,7 @@ class NamingEngine:
         data = self.normalize(data)
         bazi = _bazi(data)
         candidates = _generate_candidates(data, bazi, user_id)
-        fingerprint = input_fingerprint(user_id, data)
+        fingerprint = input_fingerprint(user_id, data, mode="analyze")
         return {
             "mode": "generate", "input": data, "input_fingerprint": fingerprint,
             "ruleset_version": RULESET_VERSION, "knowledge_snapshot_id": KNOWLEDGE_SNAPSHOT_ID,
@@ -297,7 +299,7 @@ class NamingEngine:
             raise ValueError("name 不能为空")
         bazi = _bazi(data)
         score = _score_name(name, bazi, data)
-        fingerprint = input_fingerprint(user_id, data)
+        fingerprint = input_fingerprint(user_id, data, mode="score")
         return {
             "mode": "score", "input": data, "input_fingerprint": fingerprint,
             "ruleset_version": RULESET_VERSION, "knowledge_snapshot_id": KNOWLEDGE_SNAPSHOT_ID,

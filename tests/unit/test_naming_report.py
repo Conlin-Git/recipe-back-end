@@ -29,3 +29,36 @@ def test_report_html_is_regenerated_and_sanitized():
     html = to_output(record)['result']['report_html']
     assert '<h2>安全报告</h2>' in html
     assert '<script' not in html and 'onerror' not in html and 'javascript:' not in html
+
+
+def test_same_input_caches_generation_and_scoring_separately():
+    import asyncio
+    from unittest.mock import AsyncMock
+    from app.services import naming_service
+
+    async def check():
+        records = []
+        async def execute(statement):
+            params = statement.compile().params
+            match = next((record for record in records if record.input_fingerprint == params['input_fingerprint_1']), None)
+            return SimpleNamespace(scalar_one_or_none=lambda: match)
+        def add(record):
+            record.id = len(records) + 1
+            record.created_at = datetime(2026, 1, 1)
+            records.append(record)
+        db = SimpleNamespace(execute=execute, add=add, commit=AsyncMock(), refresh=AsyncMock())
+        payload = {'birth_date': '1990-01-01', 'birth_time': '08:00', 'surname': '陈', 'name': '陈清'}
+        generated = await naming_service.run(db, 7, payload, 'analyze')
+        scored = await naming_service.run(db, 7, payload, 'score')
+        assert generated.id != scored.id
+        assert generated.input_fingerprint != scored.input_fingerprint
+        for record, mode in [(generated, 'generate'), (scored, 'score')]:
+            result = to_output(record)['result']
+            assert result['mode'] == mode
+            assert result['input_fingerprint'] == record.input_fingerprint
+            assert '<h1>' in result['report_html']
+        assert 'candidates' not in to_output(scored)['result']
+        assert await naming_service.run(db, 7, payload, 'analyze') is generated
+        assert await naming_service.run(db, 7, payload, 'score') is scored
+        assert db.commit.await_count == 2
+    asyncio.run(check())
