@@ -3,7 +3,7 @@
 - POST /chat：点火。起后台生成任务（token 缓存进 Redis Stream），立即返回会话ID
 - GET /chat/{id}/stream?last_id=0：SSE 订阅。last_id 之后的事件重放 + 阻塞跟随，
   可反复断开重连（断网/刷新都不影响后端生成）
-- POST /chat/{id}/stop：手动停止生成。真正中断后台任务（协作式），
+- POST /chat/{id}/stop：手动停止生成。取消后台任务并等待状态清理，
   已生成的部分输出直接抛弃，只落库用户问题——这是唯一会终止生成的操作
 
 上下文由服务端按 conversation_id 维护（Redis 热缓存 + MySQL 持久），

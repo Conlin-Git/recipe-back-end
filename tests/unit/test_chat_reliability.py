@@ -32,7 +32,7 @@ def limited(request):
     return httpx.Response(429, json={'error': {'message': 'rate limited', 'type': 'rate_limit_error', 'code': '1302'}})
 
 
-def run_chat(primary_handler, fallback_handler=answer, timeout=1):
+def run_chat(primary_handler, fallback_handler=answer, timeout=1, domain="chat"):
     async def run():
         calls = []
         def primary(request):
@@ -51,7 +51,7 @@ def run_chat(primary_handler, fallback_handler=answer, timeout=1):
         async def context(state):
             return {'window': [], 'topic_state': {}, 'summary': '', 'recipe_cache': [], 'dev_cache': []}
         async def route(state):
-            return {'route': {'domain': 'chat', 'needs_rag': False}, 'topic_state': {}}
+            return {'route': {'domain': domain, 'needs_rag': False}, 'topic_state': {}}
         async def sentiment(state):
             return {'sentiment': {}}
         with patch.object(llms, '_primary_answer_llm', model(primary)), \
@@ -112,3 +112,69 @@ def test_tool_schema_is_preserved_when_switching_models():
         assert result.content == '阿福收到'
         assert payloads[0]['tools'] == [tool]
     asyncio.run(run())
+
+
+def test_gaokao_clarification_without_model_tokens_reaches_the_user():
+    events, calls, persist = run_chat(answer, domain='gaokao')
+    assert calls == []
+    assert [event['type'] for event in events] == ['meta', 'delta', 'done']
+    assert '请补充' in events[1]['delta'] and '科类' in events[1]['delta']
+    assert '<p>' in events[1]['html']
+    assert persist.await_args.args[3] == events[1]['delta']
+
+
+def test_naming_citations_added_after_model_stream_are_emitted():
+    with patch.object(nodes, 'search_naming_knowledge', AsyncMock(return_value=[])):
+        events, calls, persist = run_chat(answer, domain='naming')
+    assert calls == ['primary']
+    text = ''.join(event.get('delta', '') for event in events)
+    assert text.startswith('阿福收到') and '参考出处' in text and '未命中' in text
+    assert events[-1]['type'] == 'done'
+    assert persist.await_args.args[3] == text
+
+
+def test_stop_cancels_blocked_generation_and_unlocks_before_returning():
+    async def check():
+        started = asyncio.Event()
+        async def blocked_graph(*args, **kwargs):
+            started.set()
+            await asyncio.Event().wait()
+            yield ('updates', {})
+        conv = SimpleNamespace(id=900002, summary='')
+        @asynccontextmanager
+        async def session():
+            yield SimpleNamespace(get=AsyncMock(return_value=conv))
+        events = []
+        async def emit(cid, event):
+            events.append(event)
+        redis = SimpleNamespace(exists=AsyncMock(return_value=True), delete=AsyncMock(), expire=AsyncMock())
+        with patch.object(stream, 'chat_graph', SimpleNamespace(astream=blocked_graph)), \
+             patch.object(stream, 'AsyncSessionLocal', session), patch.object(stream, '_emit', emit), \
+             patch.object(stream, 'redis_client', redis), \
+             patch.object(stream.conv_crud, 'add_message', AsyncMock()) as persist:
+            task = asyncio.create_task(stream.run_generation(conv.id, 1, '你好', 'stopped-turn'))
+            stream._tasks[conv.id] = task
+            await asyncio.wait_for(started.wait(), 1)
+            assert await asyncio.wait_for(stream.request_stop(conv.id), .5)
+            assert task.done() and conv.id not in stream._tasks
+            assert [event['type'] for event in events] == ['stopped']
+            assert events[0]['turn_id'] == 'stopped-turn'
+            redis.delete.assert_awaited_once_with('chat:gen:900002')
+            persist.assert_not_called()
+            assert not await stream.request_stop(conv.id)
+    asyncio.run(check())
+
+
+def test_stop_before_generation_task_starts_also_unlocks():
+    async def check():
+        cid = 900003
+        redis = SimpleNamespace(exists=AsyncMock(return_value=True), delete=AsyncMock())
+        with patch.object(stream, 'redis_client', redis), \
+             patch.object(stream, 'AsyncSessionLocal') as session:
+            task = asyncio.create_task(stream.run_generation(cid, 1, '你好', 'not-started'))
+            stream._tasks[cid] = task
+            assert await stream.request_stop(cid)
+            assert task.done() and cid not in stream._tasks and cid not in stream._stop_requested
+            redis.delete.assert_awaited_once_with('chat:gen:900003')
+            session.assert_not_called()
+    asyncio.run(check())

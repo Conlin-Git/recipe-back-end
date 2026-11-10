@@ -8,8 +8,8 @@
 - chat:gen:{cid} 标记"生成中"：POST 防重入（同会话同时只跑一个）、会话列表打标
   （前端刷新后据此自动续看）
 
-手动停止：POST /chat/{cid}/stop 只是置停止标记，生成循环在下一个事件处
-协作式退出（最多延迟一个 graph 节点），已生成的部分输出直接抛弃、只落库
+手动停止：POST /chat/{cid}/stop 取消后台任务并等待清理完成，不必等待下个
+graph 事件，已生成的部分输出直接抛弃、只落库
 用户问题——断网重连不受影响，只有手动停止才真正中断生成。
 
 单 worker 前提：任务注册表是进程内 dict（部署为 uvicorn 单进程，见 README）。
@@ -139,7 +139,7 @@ async def start_generation(
 
 
 async def request_stop(conversation_id: int) -> bool:
-    """手动停止生成：置停止标记，生成循环在下一个事件处协作式退出并落库。
+    """手动停止生成：取消任务并等待生成状态清理完成。
 
     返回 False 表示该会话没有在跑的任务（已结束/从未生成），调用方据此提示。
     """
@@ -147,6 +147,17 @@ async def request_stop(conversation_id: int) -> bool:
     if task is None or task.done() or not await is_generating(conversation_id):
         return False
     _stop_requested.add(conversation_id)
+    task.cancel()
+    try:
+        await task
+    except asyncio.CancelledError:
+        pass
+    finally:
+        # 如果创建后尚未执行就被取消，run_generation 的 finally 不会进入。
+        if _tasks.get(conversation_id) is task:
+            _tasks.pop(conversation_id, None)
+            _stop_requested.discard(conversation_id)
+            await redis_client.delete(_gen_key(conversation_id))
     return True
 
 
@@ -229,11 +240,22 @@ async def run_generation(
                     local = payload.get("fortune_agent") or {}
                     if local.get("topic_state"):
                         route_state = local["topic_state"]
-                    if local.get("local_answer") and not full_text:
-                        full_text = local["local_answer"]
+                    # 规则补全提示没有模型 token；命名出处等在模型流结束后追加。
+                    # 只接收最终答复节点，不能把编排、情感或工具的中间信息透出。
+                    answer = local.get("local_answer") or ""
+                    for node in ("chat_agent", "recipe_agent", "dev_agent", "naming_agent", "gaokao_agent"):
+                        update = payload.get(node) or {}
+                        messages = update.get("messages") or update.get("dev_messages") or []
+                        if messages and getattr(messages[-1], "type", "") == "ai":
+                            answer = _chunk_text(messages[-1])
+                            break
+                    prefix = full_text if answer.startswith(full_text) else full_text.rstrip()
+                    delta = answer[len(prefix):] if answer.startswith(prefix) else ""
+                    if delta:
+                        full_text += delta
                         await _emit(conversation_id, {
                             "type": "delta", "conversation_id": conversation_id,
-                            "turn_id": turn_id, "delta": full_text,
+                            "turn_id": turn_id, "delta": delta,
                             "html": render_markdown(full_text),
                         })
                     continue
@@ -297,7 +319,14 @@ async def run_generation(
                 _stream_key(conversation_id), REPLAY_TTL_SECONDS
             )
     except asyncio.CancelledError:
-        # 会话删除触发的取消：无需落库（会话已删），直接退出
+        if conversation_id in _stop_requested:
+            await _emit(conversation_id, {
+                "type": "stopped", "conversation_id": conversation_id,
+                "turn_id": turn_id,
+            })
+            await redis_client.expire(_stream_key(conversation_id), REPLAY_TTL_SECONDS)
+            return
+        # 会话删除或服务退出触发的取消：不写入已删除的会话。
         raise
     except Exception as e:
         print(f"❌ 对话生成异常（conv={conversation_id}）：{e}")
