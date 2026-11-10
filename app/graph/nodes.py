@@ -384,7 +384,7 @@ def _layered_context(state: GraphState) -> list[dict]:
 
 
 def _qa_messages(state: GraphState, rules: str, persona: str) -> list:
-    system = build_qa_system_prompt(persona, rules, state.get("sentiment"))
+    system = build_qa_system_prompt(persona, rules, state.get("sentiment"), question=state["question"])
     return [
         SystemMessage(content=system),
         *_layered_context(state),
@@ -412,7 +412,8 @@ async def recipe_agent(state: GraphState) -> dict:
         needs_rag = (state.get("route") or {}).get("needs_rag")
         strategy = RECIPE_NEW_QUERY_RULES if needs_rag else RECIPE_CACHE_RULES
         system = build_qa_system_prompt(
-            PERSONA_RECIPE, f"{RECIPE_RULES}\n\n{strategy}", state.get("sentiment")
+            PERSONA_RECIPE, f"{RECIPE_RULES}\n\n{strategy}", state.get("sentiment"),
+            question=state["question"],
         )
         if state.get("recipe_cache"):
             system += ("\n\n本会话已检索过的菜谱资料（相关就直接用它回答，别重复检索）：\n"
